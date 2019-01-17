@@ -24,12 +24,14 @@ get_seed_fires <- function(user = "NYCFireWire",
     twListToDF() %>%
     as_tibble() %>% 
     mutate(
-      created = lubridate::as_datetime(created, tz = "America/New_York")
+      created =  # UTC by default
+        lubridate::as_datetime(created, tz = "America/New_York")
     )
 }
 
 
 get_more_fires <- function(tbl, 
+                           on_schedule = FALSE,
                            n_tweets = 20,
                            verbose = TRUE,
                            ...) {
@@ -39,9 +41,13 @@ get_more_fires <- function(tbl,
     slice(1) %>% 
     pull(created)
   
-  if (Sys.time() %>% 
-      as.numeric() %% 20 == 0) {
-    if (verbose) message("Searching for new tweets.")
+  if (on_schedule) {  # Only when 
+    if (Sys.time() %>% 
+        as.numeric() %% 20 == 0) {
+      if (verbose) message("Searching for new tweets.")
+      new <- get_fires(n_tweets = n_tweets)
+    }
+  } else {   # Every time the function is called
     new <- get_fires(n_tweets = n_tweets)
   }
   
@@ -60,13 +66,16 @@ get_more_fires <- function(tbl,
 }
 
 
-get_fires <- function(user = "NYCFireWire",
-                      first_fire = 50,
-                      re_fire = 20, ...) {
+get_fires <- function(tbl = NULL, 
+                      user = "NYCFireWire",
+                      n_tweets_seed = 50,
+                      n_tweets_reup = 20, ...) {
   
-  fires <- get_seed_fires()
-  
-  fires <- get_more_fires(fires)
+  if (is.null(tbl)) {
+    get_seed_fires(n_tweets = first_fire)  
+  } else {
+    get_more_fires(tbl, n_tweets = n_tweets_reup)
+  }
 }
 
 
