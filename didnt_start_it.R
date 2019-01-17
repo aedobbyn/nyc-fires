@@ -21,7 +21,7 @@ get_fires <- function(user = "NYCFireWire",
                       n_tweets = 50) {
   userTimeline(user, n = n_tweets) %>%
     twListToDF() %>%
-    as_tibble() 
+    as_tibble()
 }
 
 
@@ -106,20 +106,21 @@ join_on_city_data <- function(tbl, city = nyc) {
 
 
 plot_fires <- function(tbl, city = nyc) {
-  
   fire_emoji <- emoji("fire")
-  
-  tbl <- tbl %>% 
-    mutate(label = fire_emoji)
-  
+
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
-    geom_text(data = nyc, aes(lat, long, label = fire_emoji), family = "OpenSansEmoji", size = 6) +
-    geom_point(data = dat, aes(lat, long), color = "red") +
+    geom_text(
+      data = dat, aes(lat, long, label = fire_emoji),
+      family = "EmojiOne", size = 3, color = "red"
+    ) +
+    # geom_point(data = dat, aes(lat, long), color = "red") +
     xlim(NA, 41) +
     ylim(-75, -73) +
     ggtitle("Fires were Started") +
     labs(x = "latitude", y = "longitude") +
-    theme_light() 
+    theme_light()
+  
+  ggsave(here::here("data", "derived", "fire_plot.png"), 
+         device = "png")
 }
-

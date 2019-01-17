@@ -9,7 +9,7 @@ plan <-
     nyc = get_city_data(),
     dat = join_on_city_data(lat_long, nyc),
     plot = plot_fires(dat, nyc),
-    
+
     strings_in_dots = "literals"
   )
 
