@@ -5,6 +5,7 @@ suppressPackageStartupMessages({
   library(ggmap)
   library(maps)
   library(drake)
+  library(emojifont)
 })
 
 source(here::here("key.R"))
@@ -104,10 +105,16 @@ join_on_city_data <- function(tbl, city = nyc) {
 }
 
 
-# Use fire emoji!!!
-plot_fires <- function(tbl, city) {
+plot_fires <- function(tbl, city = nyc) {
+  
+  fire_emoji <- emoji("fire")
+  
+  tbl <- tbl %>% 
+    mutate(label = fire_emoji)
+  
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
+    geom_text(data = nyc, aes(lat, long, label = fire_emoji), family = "OpenSansEmoji", size = 6) +
     geom_point(data = dat, aes(lat, long), color = "red") +
     xlim(NA, 41) +
     ylim(-75, -73) +
