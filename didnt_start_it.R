@@ -6,9 +6,10 @@ suppressPackageStartupMessages({
   library(maps)
   library(drake)
   library(emojifont)
+  library(here)
 })
 
-source(here::here("key.R"))
+source(here("key.R"))
 register_google(gmaps_key)
 # https://developers.google.com/maps/documentation/geocoding/intro#Geocoding
 
@@ -17,11 +18,55 @@ borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
 
-get_fires <- function(user = "NYCFireWire",
+get_seed_fires <- function(user = "NYCFireWire",
                       n_tweets = 50) {
   userTimeline(user, n = n_tweets) %>%
     twListToDF() %>%
-    as_tibble()
+    as_tibble() %>% 
+    mutate(
+      created = lubridate::as_datetime(created, tz = "America/New_York")
+    )
+}
+
+
+get_more_fires <- function(tbl, 
+                           n_tweets = 20,
+                           verbose = TRUE,
+                           ...) {
+  latest_dt <- 
+    tbl %>% 
+    arrange(desc(created)) %>%
+    slice(1) %>% 
+    pull(created)
+  
+  if (Sys.time() %>% 
+      as.numeric() %% 20 == 0) {
+    if (verbose) message("Searching for new tweets.")
+    new <- get_fires(n_tweets = n_tweets)
+  }
+  
+  if (max(new$created) <= latest_dt) {
+    if (verbose) message("No new tweets to pull.")
+    return(invisible(NULL))
+  }
+  
+  out <-
+    new %>% 
+    filter(created > latest_dt)
+  
+  if (verbose) message(glue("{nrow(out)} new tweets."))
+  
+  out
+}
+
+
+get_fires <- function(user = "NYCFireWire",
+                      first_fire = 50,
+                      re_fire = 20, ...) {
+  
+  fires <- get_seed_fires()
+  
+  fires <- get_more_fires(fires)
 }
 
 
@@ -121,6 +166,6 @@ plot_fires <- function(tbl, city = nyc) {
     labs(x = "latitude", y = "longitude") +
     theme_light()
   
-  ggsave(here::here("data", "derived", "fire_plot.png"), 
+  ggsave(here("data", "derived", "fire_plot.png"), 
          device = "png")
 }

@@ -3,7 +3,8 @@ source(here::here("didnt_start_it.R"))
 
 plan <-
   drake_plan(
-    fires = get_fires(),
+    seed_fires = get_seed_fires(),
+    fires = get_fires(seed_fires),
     addresses = pull_addresses(fires),
     lat_long = get_lat_long(addresses),
     nyc = get_city_data(),

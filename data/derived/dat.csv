@@ -1,4 +1,8 @@
 address,lat_tweet,long_tweet,lat_trunc,long_trunc,created,text,long,lat,group,order,region,subregion
+NA,NA,NA,NA,NA,2019-01-17T14:13:09Z,Another 'booming' neighborhood https://t.co/yxVCPsNUNQ,NA,NA,NA,NA,NA,NA
+NA,NA,NA,NA,NA,2019-01-17T12:02:47Z,Get ready &amp; break out the shorts &amp; t-shirts! It might be a wonderful weekend https://t.co/Y1SSHknsEY,NA,NA,NA,NA,NA,NA
+"166-11 91st Avenue Near Merrick Boulevard, Queens",40.7068284,-73.7940339,40.7,-73.8,2019-01-17T04:42:16Z,"Queens **99-22-9881***2nd Alarm***166-11 91st Avenue Near Merrick Boulevard, Heavy fire in a Private Dwelling",NA,NA,NA,NA,NA,NA
+"166-11 91st Avenue Near Merrick Boulevard, Queens",40.7068284,-73.7940339,40.7,-73.8,2019-01-17T04:27:24Z,"Queens **99-75-9881** 166-11 91st Avenue Near Merrick Boulevard , Engine 298 is transmitting the 10-75 for fire in a Private Dwelling",NA,NA,NA,NA,NA,NA
 NA,NA,NA,NA,NA,2019-01-17T03:07:34Z,"Congrats FF Jimmy Thompson, retiring after 25 yrs in Midtown https://t.co/WFkxDFi7Ao",NA,NA,NA,NA,NA,NA
 "132 East 45th Street Near 3rd Avenue, Manhattan",40.7528943,-73.9744824,40.8,-74,2019-01-16T20:51:49Z,"Manhattan **66-75-0809** 132 East 45th Street Near 3rd Avenue, Battalion 8 is transmitting the 10-77 (Hi-Rise Resid… https://t.co/ve17kNWMpz",-73.95166015625,40.777408599853516,1,3,new york,manhattan
 "132 East 45th Street Near 3rd Avenue, Manhattan",40.7528943,-73.9744824,40.8,-74,2019-01-16T20:51:49Z,"Manhattan **66-75-0809** 132 East 45th Street Near 3rd Avenue, Battalion 8 is transmitting the 10-77 (Hi-Rise Resid… https://t.co/ve17kNWMpz",-73.96311950683594,40.75448989868164,1,4,new york,manhattan
@@ -128,7 +132,7 @@ NA,NA,NA,NA,NA,2019-01-15T00:16:49Z,https://t.co/psInTceC5D,NA,NA,NA,NA,NA,NA
 "2922 3rd Avenue at Westchester Avenue, Bronx",40.8174047,-73.91550029999999,40.8,-73.9,2019-01-14T12:06:21Z,"Bronx *66-75-2251* 2922 3rd Avenue at Westchester Avenue, Battalion 14 transmitting a 10-75 for a fire on the 4th f… https://t.co/EuFPPzNDXe",-73.86571502685547,40.75448989868164,4,430,new york,long island
 "330 Bushwick Avenue Near McKibbin Street, Brooklyn",40.7052004,-73.939702,40.7,-73.9,2019-01-14T02:27:15Z,"Brooklyn **77-75-0270** 330 Bushwick Avenue Near McKibbin Street, Fire on the 4th Floor",-73.94593048095703,40.72010803222656,4,427,new york,long island
 "899 Hancock St, Brooklyn",40.686233,-73.91941419999999,40.7,-73.9,2019-01-14T01:47:14Z,Brooklyn *77-75-0855* 899 Hancock St. Fire top floor 3 story,-73.94593048095703,40.72010803222656,4,427,new york,long island
-"899 Hancock Street Near Howard Avenue, Brooklyn",40.6857942,-73.9207247,40.7,-73.9,2019-01-14T01:46:54Z,"Brooklyn **77-75-0855** 899 Hancock Street Near Howard Avenue, All hands going to work for fire I’m the top floor",-73.94593048095703,40.72010803222656,4,427,new york,long island
+"899 Hancock Street Near Howard Avenue, Brooklyn",40.686233,-73.91941419999999,40.7,-73.9,2019-01-14T01:46:54Z,"Brooklyn **77-75-0855** 899 Hancock Street Near Howard Avenue, All hands going to work for fire I’m the top floor",-73.94593048095703,40.72010803222656,4,427,new york,long island
 "3840 Orloff Av, Bronx",40.8836897,-73.89638599999999,40.9,-73.9,2019-01-14T01:24:30Z,Bronx *66-75-3937* 3840 Orloff Av. Fire 4th floor.,-73.91728210449219,40.90345764160156,2,258,new york,main
 "3840 Orloff Av, Bronx",40.8836897,-73.89638599999999,40.9,-73.9,2019-01-14T01:24:30Z,Bronx *66-75-3937* 3840 Orloff Av. Fire 4th floor.,-73.91155242919922,40.90918731689453,2,259,new york,main
 "Box 1744-
@@ -185,12 +189,3 @@ NA,NA,NA,NA,NA,2019-01-11T22:38:58Z,"From #NYPD avaition. We will always remembe
 "100 W 82 St off Columbus Ave, Manhattan",40.7839758,-73.9745045,40.8,-74,2019-01-11T17:00:19Z,Manhattan **66-22-1135**2nd Alarm** 100 W 82 St off Columbus Ave. Fire in a multiple dwelling. E-74 &amp; L-25 1st due.,-74.00322723388672,40.76594543457031,1,10,new york,manhattan
 "100 W 82 St off Columbus Ave, Manhattan",40.7839758,-73.9745045,40.8,-74,2019-01-11T17:00:19Z,Manhattan **66-22-1135**2nd Alarm** 100 W 82 St off Columbus Ave. Fire in a multiple dwelling. E-74 &amp; L-25 1st due.,-73.974578857421875,40.79459762573242,1,11,new york,manhattan
 "100 W 82 St off Columbus Ave, Manhattan",40.7839758,-73.9745045,40.8,-74,2019-01-11T17:00:19Z,Manhattan **66-22-1135**2nd Alarm** 100 W 82 St off Columbus Ave. Fire in a multiple dwelling. E-74 &amp; L-25 1st due.,-73.95166015625,40.83470153808594,1,12,new york,manhattan
-NA,NA,NA,NA,NA,2019-01-10T22:31:03Z,Lt Brady send off after 38 yrs https://t.co/WQgIESXLmE,NA,NA,NA,NA,NA,NA
-Manhattan,40.7830603,-73.9712488,40.8,-74,2019-01-10T14:42:28Z,Manhattan Boro Commander Chief Gala giving Lt Pat Brady a fairwell speech. Lt Brady is working his last tour today… https://t.co/lqHq4SUAC4,-73.95166015625,40.777408599853516,1,3,new york,manhattan
-Manhattan,40.7830603,-73.9712488,40.8,-74,2019-01-10T14:42:28Z,Manhattan Boro Commander Chief Gala giving Lt Pat Brady a fairwell speech. Lt Brady is working his last tour today… https://t.co/lqHq4SUAC4,-73.96311950683594,40.75448989868164,1,4,new york,manhattan
-Manhattan,40.7830603,-73.9712488,40.8,-74,2019-01-10T14:42:28Z,Manhattan Boro Commander Chief Gala giving Lt Pat Brady a fairwell speech. Lt Brady is working his last tour today… https://t.co/lqHq4SUAC4,-74.00322723388672,40.76594543457031,1,10,new york,manhattan
-Manhattan,40.7830603,-73.9712488,40.8,-74,2019-01-10T14:42:28Z,Manhattan Boro Commander Chief Gala giving Lt Pat Brady a fairwell speech. Lt Brady is working his last tour today… https://t.co/lqHq4SUAC4,-73.974578857421875,40.79459762573242,1,11,new york,manhattan
-Manhattan,40.7830603,-73.9712488,40.8,-74,2019-01-10T14:42:28Z,Manhattan Boro Commander Chief Gala giving Lt Pat Brady a fairwell speech. Lt Brady is working his last tour today… https://t.co/lqHq4SUAC4,-73.95166015625,40.83470153808594,1,12,new york,manhattan
-NA,NA,NA,NA,NA,2019-01-10T13:35:58Z,"The Collation for FF Pollard L-170
-Aviator Sports located at Floyd Bennett Field 3159 Flatbush Av.
-Following funera… https://t.co/jDYb1Z0RdJ",NA,NA,NA,NA,NA,NA
