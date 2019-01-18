@@ -14,14 +14,17 @@ source(here("key.R"))
 register_google(gmaps_key)
 # https://developers.google.com/maps/documentation/geocoding/intro#Geocoding
 
+firewire_handle <- "NYCFireWire"
+
 boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
 
-get_seed_fires <- function(user = "NYCFireWire",
+get_seed_fires <- function(user = firewire_handle,
                            n_tweets = 50, 
-                           max_id = NULL) {
+                           max_id = NULL,  # Max ID of the tweet
+                           ...) {
   
   userTimeline(user, n = n_tweets, maxID = max_id) %>%
     twListToDF() %>%
