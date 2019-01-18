@@ -7,6 +7,7 @@ suppressPackageStartupMessages({
   library(drake)
   library(emojifont)
   library(here)
+  library(glue)
 })
 
 source(here("key.R"))
@@ -19,8 +20,10 @@ borough_reg <- boroughs %>%
 
 
 get_seed_fires <- function(user = "NYCFireWire",
-                           n_tweets = 50) {
-  userTimeline(user, n = n_tweets) %>%
+                           n_tweets = 50, 
+                           max_id = NULL) {
+  
+  userTimeline(user, n = n_tweets, maxID = max_id) %>%
     twListToDF() %>%
     as_tibble() %>%
     mutate(
@@ -42,11 +45,11 @@ get_more_fires <- function(tbl,
 
   if (verbose) message("Searching for new tweets.")
 
-  new <- get_fires(n_tweets = n_tweets)
+  new <- get_seed_fires(n_tweets = n_tweets)
 
   if (max(new$created_at) <= latest_dt) {
     if (verbose) message("No new tweets to pull.")
-    return(tbl)
+    return(NULL)
   }
 
   out <-
@@ -65,13 +68,21 @@ get_fires <- function(tbl = NULL,
                       n_tweets_reup = 20,
                       verbose = TRUE, ...) {
   if (is.null(tbl)) {
-    get_seed_fires(n_tweets = first_fire)
+    out <- get_seed_fires(n_tweets = n_tweets_seed)
   } else {
-    get_more_fires(tbl, n_tweets = n_tweets_reup, verbose = verbose)
+    new <- 
+      get_more_fires(tbl, n_tweets = n_tweets_reup, verbose = verbose)
+    
+    out <- 
+      tbl %>% 
+      bind_rows(new)
   }
+  
+  out
 }
 
-try_get_fires <- possibly(get_fires, otherwise = NULL)
+try_get_fires <- possibly(get_fires, otherwise = NULL,
+                          quiet = FALSE)
 
 
 clean_borough <- function(x) {
