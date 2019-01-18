@@ -1,3 +1,6 @@
+make(plan)
+
+plan
 
 vis_drake_graph()
 

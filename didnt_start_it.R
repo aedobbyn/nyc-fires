@@ -19,74 +19,75 @@ borough_reg <- boroughs %>%
 
 
 get_seed_fires <- function(user = "NYCFireWire",
-                      n_tweets = 50) {
+                           n_tweets = 50) {
   userTimeline(user, n = n_tweets) %>%
     twListToDF() %>%
-    as_tibble() %>% 
+    as_tibble() %>%
     mutate(
-      created_at =  # UTC by default
-        lubridate::as_datetime(created, tz = "America/New_York")
+      created_at = # UTC by default
+      lubridate::as_datetime(created, tz = "America/New_York")
     )
 }
 
 
-get_more_fires <- function(tbl, 
+get_more_fires <- function(tbl,
                            n_tweets = 20,
                            verbose = TRUE,
                            ...) {
-  latest_dt <- 
-    tbl %>% 
+  latest_dt <-
+    tbl %>%
     arrange(desc(created_at)) %>%
-    slice(1) %>% 
+    slice(1) %>%
     pull(created_at)
-  
+
   if (verbose) message("Searching for new tweets.")
 
   new <- get_fires(n_tweets = n_tweets)
-  
+
   if (max(new$created_at) <= latest_dt) {
     if (verbose) message("No new tweets to pull.")
     return(tbl)
   }
-  
+
   out <-
-    new %>% 
+    new %>%
     filter(created_at > latest_dt)
-  
+
   if (verbose) message(glue("{nrow(out)} new tweets pulled."))
-  
+
   out
 }
 
 
-get_fires <- function(tbl = NULL, 
+get_fires <- function(tbl = NULL,
                       user = "NYCFireWire",
                       n_tweets_seed = 50,
                       n_tweets_reup = 20,
                       verbose = TRUE, ...) {
-  
   if (is.null(tbl)) {
-    get_seed_fires(n_tweets = first_fire)  
+    get_seed_fires(n_tweets = first_fire)
   } else {
     get_more_fires(tbl, n_tweets = n_tweets_reup, verbose = verbose)
   }
 }
+
+try_get_fires <- possibly(get_fires, otherwise = NULL)
 
 
 clean_borough <- function(x) {
   if (is.na(x) || !str_detect(x, borough_reg)) {
     return(NA_character_)
   }
-  
+
   # Return the borough match
   b <- boroughs[which(str_detect(x, boroughs))][1]
-  
+
   if (b == "Bronx") {
     b <- "The Bronx"
   } else if (b == "Staten") {
     b <- "Staten Island"
   }
-  
+
   b
 }
 
@@ -156,11 +157,6 @@ get_lat_long <- function(tbl) {
     select(address, lat, long, lat_trunc, long_trunc, created_at, text)
 }
 
-get_city_data <- function(region = "new york") {
-  ggplot2::map_data("state", region = region) %>%
-    truncate_lat_long(digits = 1) %>%
-    as_tibble()
-}
 
 join_on_city_data <- function(tbl, city = nyc) {
   tbl %>%
@@ -173,11 +169,10 @@ join_on_city_data <- function(tbl, city = nyc) {
 
 
 count_fires <- function(tbl) {
-  
-  tbl %>% 
-    drop_na() %>% 
-    group_by(lat, long) %>% 
-    count() 
+  tbl %>%
+    drop_na() %>%
+    group_by(lat, long) %>%
+    count()
 }
 
 
@@ -188,6 +183,12 @@ graph_fire_times <- function(tbl) {
     labs(x = "Time of Tweet", y = "Density") +
     theme_light()
 }
+
+
+nyc <- 
+  ggplot2::map_data("state", region = region) %>%
+  truncate_lat_long(digits = 1) %>%
+  as_tibble()
 
 
 plot_fires <- function(tbl, city = nyc) {
@@ -205,7 +206,8 @@ plot_fires <- function(tbl, city = nyc) {
     ggtitle("Fires were Started") +
     labs(x = "latitude", y = "longitude") +
     theme_light()
-  
-  ggsave(here("data", "derived", "fire_plot.png"), 
-         device = "png")
+
+  ggsave(here("data", "derived", "fire_plot.png"),
+    device = "png"
+  )
 }

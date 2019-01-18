@@ -1,0 +1,10 @@
+
+- Make "burner" Twitter to test out the fires = get_fires() -> fires = get_fires(fires) plan
+
+- Grab ~3000 of nycfirewire's tweets and make a legit plot with a legit projection
+
+- Check out Christine's presentation
+
+- Add an example of saving to a file and then readd-ing from that file
+
+- Write up slides
