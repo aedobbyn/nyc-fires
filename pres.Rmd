@@ -1,0 +1,22 @@
+---
+title: "pres"
+author: "Amanda Dobbyn"
+date: "1/20/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+From `?drake_config`: "Targets are the objects and files that drake generates, and commands are the pieces of R code that produce them."
+
+1. Store prework (loading packages and user-defined functions) in a file
+2. Store a `drake` plan in another file
+3. Create the plan and run it
+
+Drake will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
+
+A plan works by using functions to create targets. 
+Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+

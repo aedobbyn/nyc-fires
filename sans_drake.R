@@ -2,7 +2,7 @@
 source(here::here("didnt_start_it.R"))
 
 fires <-
-  get_fires("NYCFireWire")
+  get_fires()
 
 addresses <-
   pull_addresses(fires)

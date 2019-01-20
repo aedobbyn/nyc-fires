@@ -1,7 +1,7 @@
 
 test_that("get_fires successfully reups and adds new tweets", {
   
-  sample_max_id <- 1085605027140517889
+  sample_max_id <- sample_ids[1]
   
   seeded <- get_seed_fires(user = firewire_handle,
                            n_tweets = 2,
@@ -14,4 +14,8 @@ test_that("get_fires successfully reups and adds new tweets", {
     5
   )
 })
+
+burner_acct <- "didntstartit"
+
+get_fires(user = burner_acct)
 

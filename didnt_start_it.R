@@ -1,13 +1,13 @@
 
 suppressPackageStartupMessages({
-  library(tidyverse)
-  library(twitteR)
-  library(ggmap)
-  library(maps)
   library(drake)
   library(emojifont)
-  library(here)
+  library(ggmap)
   library(glue)
+  library(here)
+  library(maps)
+  library(tidyverse)
+  library(twitteR)
 })
 
 source(here("key.R"))
@@ -20,6 +20,11 @@ boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
+# From oldest to newest
+sample_ids <- c(1084034650157264896, 
+                1084619203167031297, 
+                1085331631299276800, 
+                1085603835534630913)
 
 get_seed_fires <- function(user = firewire_handle,
                            n_tweets = 50, 
@@ -37,6 +42,7 @@ get_seed_fires <- function(user = firewire_handle,
 
 
 get_more_fires <- function(tbl,
+                           user = firewire_handle,
                            n_tweets = 20,
                            verbose = TRUE,
                            ...) {
@@ -48,7 +54,7 @@ get_more_fires <- function(tbl,
 
   if (verbose) message("Searching for new tweets.")
 
-  new <- get_seed_fires(n_tweets = n_tweets)
+  new <- get_seed_fires(user = user, n_tweets = n_tweets)
 
   if (max(new$created_at) <= latest_dt) {
     if (verbose) message("No new tweets to pull.")
@@ -66,15 +72,16 @@ get_more_fires <- function(tbl,
 
 
 get_fires <- function(tbl = NULL,
-                      user = "NYCFireWire",
+                      user = firewire_handle,
+                      max_id = NULL,
                       n_tweets_seed = 50,
                       n_tweets_reup = 20,
                       verbose = TRUE, ...) {
   if (is.null(tbl)) {
-    out <- get_seed_fires(n_tweets = n_tweets_seed)
+    out <- get_seed_fires(user = user, n_tweets = n_tweets_seed, max_id = max_id)
   } else {
     new <- 
-      get_more_fires(tbl, n_tweets = n_tweets_reup, verbose = verbose)
+      get_more_fires(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
     
     out <- 
       tbl %>% 
@@ -200,7 +207,7 @@ graph_fire_times <- function(tbl) {
 
 
 nyc <- 
-  ggplot2::map_data("state", region = region) %>%
+  ggplot2::map_data("state", region = "new york") %>%
   truncate_lat_long(digits = 1) %>%
   as_tibble()
 
