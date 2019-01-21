@@ -1,3 +1,8 @@
+# From oldest to newest
+sample_ids <- c(1084034650157264896, 
+                1084619203167031297, 
+                1085331631299276800, 
+                1085603835534630913)
 
 test_that("get_fires successfully reups and adds new tweets", {
   

@@ -18,35 +18,5 @@ plan <-
   )
 
 
-burner_plan <- 
-  drake_plan(
-    seed_burn = get_tweets(n_tweets_seed = 2,
-                           user = burner_acct),
-    full_burn = target(
-      command = get_tweets(seed_burn),
-      trigger = trigger(condition = !is.null(get_more_tweets(seed_burn)))
-    ),
-    
-    strings_in_dots = "literals"
-  )
-
-burner_config <- drake_config(burner_plan)
-make(burner_plan)
-loadd(seed_burn)
-loadd(full_burn)
-expect_equal(seed_burn, full_burn)
-
-outdated(burner_config)
-
-# Tweet here
-
-make(burner_plan)
-
-loadd(seed_burn)
-loadd(full_burn)
-expect_gt(nrow(full_burn), nrow(seed_burn))
-
-
-
 
 

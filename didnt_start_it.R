@@ -6,9 +6,12 @@ suppressPackageStartupMessages({
   library(glue)
   library(here)
   library(maps)
+  library(testthat)
   library(tidyverse)
   library(twitteR)
 })
+
+pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
 source(here("key.R"))
 register_google(gmaps_key)
@@ -20,24 +23,32 @@ boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
-# From oldest to newest
-sample_ids <- c(1084034650157264896, 
-                1084619203167031297, 
-                1085331631299276800, 
-                1085603835534630913)
 
 get_seed_tweets <- function(user = firewire_handle,
                            n_tweets = 50, 
                            max_id = NULL,  # Max ID of the tweet
+                           input_path = NULL,
+                           output_path = NULL,
                            ...) {
   
-  userTimeline(user, n = n_tweets, maxID = max_id) %>%
-    twListToDF() %>%
-    as_tibble() %>%
-    mutate(
-      created_at = # UTC by default
-      lubridate::as_datetime(created, tz = "America/New_York")
-    )
+  if (!is.null(input_path) && file.exists(input_path)) {
+    out <- 
+      read_csv(input_path)
+  } else {
+    out <- userTimeline(user, n = n_tweets, maxID = max_id) %>%
+      twListToDF() %>%
+      as_tibble() %>%
+      mutate(
+        created_at = # UTC by default
+          lubridate::as_datetime(created, tz = "America/New_York")
+      )
+  }
+  
+  if (!is.null(output_path)) {
+    write_csv(out, output_path)
+  }
+  
+  out
 }
 
 
@@ -65,7 +76,7 @@ get_more_tweets <- function(tbl,
     new %>%
     filter(created_at > latest_dt)
 
-  if (verbose) message(glue("{nrow(out)} new tweets pulled."))
+  if (verbose) message(glue("{nrow(out)} new tweet(s) pulled."))
 
   out
 }
@@ -76,6 +87,7 @@ get_tweets <- function(tbl = NULL,
                       max_id = NULL,
                       n_tweets_seed = 50,
                       n_tweets_reup = 20,
+                      output_path = NULL,
                       verbose = TRUE, ...) {
   if (is.null(tbl) || is.na(tbl)) {
     out <- get_seed_tweets(user = user, n_tweets = n_tweets_seed, max_id = max_id)
@@ -86,6 +98,10 @@ get_tweets <- function(tbl = NULL,
     out <- 
       tbl %>% 
       bind_rows(new)
+  }
+  
+  if (!is.null(output_path)) {
+    write_csv(out, output_path)
   }
   
   out
