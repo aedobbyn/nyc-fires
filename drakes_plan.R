@@ -12,9 +12,7 @@ plan <-
     fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
     
     time_graph = graph_fire_times(dat),
-    plot = plot_fires(dat, nyc),
-
-    strings_in_dots = "literals"
+    plot = plot_fires(dat, nyc)
   )
 
 

@@ -1,5 +1,23 @@
-text,favorited,favoriteCount,replyToSN,created,truncated,replyToSID,id,replyToUID,statusSource,screenName,retweetCount,isRetweet,retweeted,longitude,latitude,location,language,profileImageURL,created_at
-🔥🔥🔥 #mythirdTweet,FALSE,0,NA,2019-01-20T22:12:25Z,FALSE,NA,1087110626315522048,NA,"<a href=""http://twitter.com"" rel=""nofollow"">Twitter Web Client</a>",didntstartit,0,FALSE,FALSE,NA,NA,,en,http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png,2019-01-20T22:12:25Z
-🔥🔥 #mysecondTweet,FALSE,0,NA,2019-01-20T22:05:42Z,FALSE,NA,1087108934165397504,NA,"<a href=""http://twitter.com"" rel=""nofollow"">Twitter Web Client</a>",didntstartit,0,FALSE,FALSE,NA,NA,,en,http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png,2019-01-20T22:05:42Z
-🔥 #myfirstTweet,FALSE,0,NA,2019-01-20T21:54:28Z,FALSE,NA,1087106107665833985,NA,"<a href=""http://twitter.com"" rel=""nofollow"">Twitter Web Client</a>",didntstartit,0,FALSE,FALSE,NA,NA,,en,http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png,2019-01-20T21:54:28Z
-🔥🔥🔥🔥 #myfourthTweet,FALSE,0,NA,2019-01-21T03:28:16Z,FALSE,NA,1087190114470686720,NA,"<a href=""http://twitter.com"" rel=""nofollow"">Twitter Web Client</a>",didntstartit,0,FALSE,FALSE,NA,NA,,en,http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png,2019-01-21T03:28:16Z
+text,user_id,status_id,created_at,screen_name
+"-------------- 
+Hello world! 
+ --------------
+    \
+      \
+        \
+            |\___/|
+          ==) ^Y^ (==
+            \  ^  /
+             )=*=(
+            /     \
+            |     |
+           /| | | |\
+           \| | |_|/\
+      jgs  //_// ___/
+               \_)",1087104415637467137,1087199327255183361,2019-01-21T04:04:53Z,didntstartit
+first_rtweet,1087104415637467137,1087198826501410816,2019-01-21T04:02:54Z,didntstartit
+🔥🔥🔥🔥 #myfourthTweet,1087104415637467137,1087190114470686720,2019-01-21T03:28:16Z,didntstartit
+🔥🔥🔥 #mythirdTweet,1087104415637467137,1087110626315522048,2019-01-20T22:12:25Z,didntstartit
+🔥🔥 #mysecondTweet,1087104415637467137,1087108934165397504,2019-01-20T22:05:42Z,didntstartit
+🔥 #myfirstTweet,1087104415637467137,1087106107665833985,2019-01-20T21:54:28Z,didntstartit
+80b0ae73fe0e882b0a24973e4e2c8203,1087104415637467137,1087200802463199234,2019-01-21T04:10:45Z,didntstartit

@@ -6,9 +6,9 @@ suppressPackageStartupMessages({
   library(glue)
   library(here)
   library(maps)
+  library(rtweet)
   library(testthat)
   library(tidyverse)
-  library(twitteR)
 })
 
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
@@ -16,6 +16,14 @@ pkgconfig::set_config("drake::strings_in_dots" = "literals")
 source(here("key.R"))
 register_google(gmaps_key)
 # https://developers.google.com/maps/documentation/geocoding/intro#Geocoding
+
+firewire_token <- create_token(
+  app = firewire_app_name,
+  consumer_key = firewire_consumer_key,
+  consumer_secret = firewire_consumer_secret,
+  access_token = firewire_access_token,
+  access_secret = firewire_access_secret
+)
 
 firewire_handle <- "NYCFireWire"
 
@@ -35,13 +43,13 @@ get_seed_tweets <- function(user = firewire_handle,
     out <- 
       read_csv(input_path)
   } else {
-    out <- userTimeline(user, n = n_tweets, maxID = max_id) %>%
-      twListToDF() %>%
-      as_tibble() %>%
+    out <- get_timeline(user, n = n_tweets, maxID = max_id) %>%
       mutate(
         created_at = # UTC by default
-          lubridate::as_datetime(created, tz = "America/New_York")
-      )
+          lubridate::as_datetime(created_at, tz = "America/New_York")
+      ) %>% 
+      select(text, user_id, status_id, created_at, screen_name) %>% 
+      arrange(desc(created_at))
   }
   
   if (!is.null(output_path)) {
@@ -97,7 +105,8 @@ get_tweets <- function(tbl = NULL,
     
     out <- 
       tbl %>% 
-      bind_rows(new)
+      bind_rows(new) %>% 
+      arrange(desc(created_at))
   }
   
   if (!is.null(output_path)) {
