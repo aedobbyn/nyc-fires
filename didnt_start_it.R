@@ -26,7 +26,7 @@ sample_ids <- c(1084034650157264896,
                 1085331631299276800, 
                 1085603835534630913)
 
-get_seed_fires <- function(user = firewire_handle,
+get_seed_tweets <- function(user = firewire_handle,
                            n_tweets = 50, 
                            max_id = NULL,  # Max ID of the tweet
                            ...) {
@@ -41,7 +41,7 @@ get_seed_fires <- function(user = firewire_handle,
 }
 
 
-get_more_fires <- function(tbl,
+get_more_tweets <- function(tbl,
                            user = firewire_handle,
                            n_tweets = 20,
                            verbose = TRUE,
@@ -54,7 +54,7 @@ get_more_fires <- function(tbl,
 
   if (verbose) message("Searching for new tweets.")
 
-  new <- get_seed_fires(user = user, n_tweets = n_tweets)
+  new <- get_seed_tweets(user = user, n_tweets = n_tweets)
 
   if (max(new$created_at) <= latest_dt) {
     if (verbose) message("No new tweets to pull.")
@@ -71,17 +71,17 @@ get_more_fires <- function(tbl,
 }
 
 
-get_fires <- function(tbl = NULL,
+get_tweets <- function(tbl = NULL,
                       user = firewire_handle,
                       max_id = NULL,
                       n_tweets_seed = 50,
                       n_tweets_reup = 20,
                       verbose = TRUE, ...) {
-  if (is.null(tbl)) {
-    out <- get_seed_fires(user = user, n_tweets = n_tweets_seed, max_id = max_id)
+  if (is.null(tbl) || is.na(tbl)) {
+    out <- get_seed_tweets(user = user, n_tweets = n_tweets_seed, max_id = max_id)
   } else {
     new <- 
-      get_more_fires(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
+      get_more_tweets(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
     
     out <- 
       tbl %>% 
@@ -91,7 +91,7 @@ get_fires <- function(tbl = NULL,
   out
 }
 
-try_get_fires <- possibly(get_fires, otherwise = NULL,
+try_get_fires <- possibly(get_tweets, otherwise = NULL,
                           quiet = FALSE)
 
 

@@ -3,9 +3,9 @@ source(here::here("didnt_start_it.R"))
 
 plan <-
   drake_plan(
-    seed_fires = get_fires(n_tweets_seed = 2, 
+    seed_fires = get_tweets(n_tweets_seed = 2, 
                       max_id = sample_max_id), # Grab some seed fires
-    fires = get_fires(seed_fires, n_tweets_reup = 3), # Reups if there are more
+    fires = get_tweets(seed_fires, n_tweets_reup = 3), # Reups if there are more
     addresses = pull_addresses(fires), # Extract addresses from tweets
     lat_long = get_lat_long(addresses), # Send to Google for lat-longs
     dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
@@ -20,13 +20,14 @@ plan <-
 
 burner_plan <- 
   drake_plan(
-    seed_burn = get_fires(n_tweets_seed = 2, 
-                           user = burner_acct), 
+    seed_burn = get_tweets(n_tweets_seed = 2,
+                           user = burner_acct),
     full_burn = target(
-      command = get_fires(seed_burn, user = burner_acct, n_tweets_reup = 3),
-      trigger = trigger(change = latest_log_date())
-    )
-    # full_burn = get_fires(seed_burn, user = burner_acct, n_tweets_reup = 3)
+      command = get_tweets(seed_burn),
+      trigger = trigger(condition = !is.null(get_more_tweets(seed_burn)))
+    ),
+    
+    strings_in_dots = "literals"
   )
 
 burner_config <- drake_config(burner_plan)

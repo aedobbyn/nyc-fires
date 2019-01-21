@@ -2,7 +2,7 @@
 source(here::here("didnt_start_it.R"))
 
 fires <-
-  get_fires()
+  get_tweets()
 
 addresses <-
   pull_addresses(fires)
