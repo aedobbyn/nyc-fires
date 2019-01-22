@@ -2,16 +2,28 @@
 
 burner_path <- "data/derived/burn.csv"
 
-burner_plan <- 
+burner_plan <-
   drake_plan(
-    seed_burn = get_tweets(user = burner_acct, 
-                           input_path = burner_path),  # Reads in file from burn_path if it exists
-    full_burn = target(command = get_tweets(tbl = seed_burn, 
-                           user = burner_acct,
-                           output_path = burner_path),
-                       trigger = trigger(condition = TRUE) # Always run
-                       )
-    
+    seed_burn = get_tweets(
+      user = burner_handle,
+      input_path = burner_path # Reads in file from burn_path if file exists, otherwise pulls in seed tweets
+    ),
+    full_burn = target(
+      command = get_tweets(
+        tbl = seed_burn,
+        user = burner_handle,
+        output_path = burner_path
+      ),
+      trigger = trigger(
+        # change = get_latest_dt(user = burner_handle)
+        condition =  # Rebuilds full_burn if there are new tweets
+          TRUE
+          # there_are_new_tweets(
+          #   tbl = seed_burn,
+          #   user = burner_handle
+          # )
+      )
+    )
   )
 
 burner_config <- drake_config(burner_plan)
@@ -29,6 +41,13 @@ make(burner_plan)
 
 loadd(seed_burn)
 loadd(full_burn)
+burn <- read_csv(here("data", "derived", "burn.csv"))
 expect_gt(nrow(full_burn), nrow(seed_burn))
+expect_equal(nrow(full_burn), nrow(burn))
 
+clean()
 
+make(burner_plan)
+loadd(seed_burn)
+loadd(full_burn)
+expect_equal(nrow(seed_burn), nrow(full_burn))

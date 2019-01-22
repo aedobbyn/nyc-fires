@@ -2,7 +2,9 @@
 source(here::here("didnt_start_it.R"))
 
 fires <-
-  get_tweets()
+  get_tweets(
+    output_path = here("data", "derived", "lots_o_fires.csv")
+  )
 
 addresses <-
   pull_addresses(fires)

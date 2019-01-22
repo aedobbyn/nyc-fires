@@ -26,6 +26,7 @@ firewire_token <- create_token(
 )
 
 firewire_handle <- "NYCFireWire"
+burner_handle <- "didntstartit"
 
 boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
@@ -33,39 +34,36 @@ borough_reg <- boroughs %>%
 
 
 get_seed_tweets <- function(user = firewire_handle,
-                           n_tweets = 50, 
-                           max_id = NULL,  # Max ID of the tweet
-                           input_path = NULL,
-                           output_path = NULL,
-                           ...) {
-  
+                            n_tweets = 50,
+                            max_id = NULL, # Max ID of the tweet
+                            input_path = NULL,
+                            output_path = NULL,
+                            ...) {
   if (!is.null(input_path) && file.exists(input_path)) {
-    out <- 
+    out <-
       read_csv(input_path)
   } else {
     out <- get_timeline(user, n = n_tweets, maxID = max_id) %>%
       mutate(
         created_at = # UTC by default
-          lubridate::as_datetime(created_at, tz = "America/New_York")
-      ) %>% 
-      select(text, user_id, status_id, created_at, screen_name) %>% 
+        lubridate::as_datetime(created_at, tz = "America/New_York")
+      ) %>%
+      select(text, user_id, status_id, created_at, screen_name) %>%
       arrange(desc(created_at))
   }
-  
+
   if (!is.null(output_path)) {
     write_csv(out, output_path)
   }
-  
+
   out
 }
 
 
-get_more_tweets <- function(tbl,
-                           user = firewire_handle,
-                           n_tweets = 20,
-                           verbose = TRUE,
-                           ...) {
-  latest_dt <-
+there_are_new_tweets <- function(tbl,
+                                 user = firewire_handle,
+                                 verbose = TRUE) {
+  latest_dt <- 
     tbl %>%
     arrange(desc(created_at)) %>%
     slice(1) %>%
@@ -73,12 +71,35 @@ get_more_tweets <- function(tbl,
 
   if (verbose) message("Searching for new tweets.")
 
-  new <- get_seed_tweets(user = user, n_tweets = n_tweets)
+  new <- get_seed_tweets(user = user, n_tweets = 1)
 
   if (max(new$created_at) <= latest_dt) {
     if (verbose) message("No new tweets to pull.")
+    FALSE
+  } else {
+    TRUE
+  }
+}
+
+get_latest_dt <- function(user = firewire_handle) {
+  
+  get_seed_tweets(user) %>%
+    arrange(desc(created_at)) %>%
+    slice(1) %>%
+    pull(created_at)
+}
+
+
+get_more_tweets <- function(tbl,
+                            user = firewire_handle,
+                            n_tweets = 20,
+                            verbose = TRUE,
+                            ...) {
+  if (!there_are_new_tweets(tbl = tbl, user = user)) {
     return(NULL)
   }
+
+  new <- get_seed_tweets(user = user, n_tweets = n_tweets)
 
   out <-
     new %>%
@@ -91,33 +112,35 @@ get_more_tweets <- function(tbl,
 
 
 get_tweets <- function(tbl = NULL,
-                      user = firewire_handle,
-                      max_id = NULL,
-                      n_tweets_seed = 50,
-                      n_tweets_reup = 20,
-                      output_path = NULL,
-                      verbose = TRUE, ...) {
+                       user = firewire_handle,
+                       max_id = NULL,
+                       n_tweets_seed = 50,
+                       n_tweets_reup = 20,
+                       output_path = NULL,
+                       verbose = TRUE, ...) {
   if (is.null(tbl) || is.na(tbl)) {
     out <- get_seed_tweets(user = user, n_tweets = n_tweets_seed, max_id = max_id)
   } else {
-    new <- 
+    new <-
       get_more_tweets(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
-    
-    out <- 
-      tbl %>% 
-      bind_rows(new) %>% 
+
+    out <-
+      tbl %>%
+      bind_rows(new) %>%
       arrange(desc(created_at))
   }
-  
+
   if (!is.null(output_path)) {
     write_csv(out, output_path)
   }
-  
+
   out
 }
 
-try_get_fires <- possibly(get_tweets, otherwise = NULL,
-                          quiet = FALSE)
+try_get_fires <- possibly(get_tweets,
+  otherwise = NULL,
+  quiet = FALSE
+)
 
 
 clean_borough <- function(x) {
@@ -231,7 +254,7 @@ graph_fire_times <- function(tbl) {
 }
 
 
-nyc <- 
+nyc <-
   ggplot2::map_data("state", region = "new york") %>%
   truncate_lat_long(digits = 1) %>%
   as_tibble()

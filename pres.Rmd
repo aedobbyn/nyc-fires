@@ -9,6 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+The main idea behind `drake`: when changes occur to code or data, only rerun the parts of code that need to be rerun.
+
+Why the name `drake`?
+
+GNU Make for R, built around dataframes
+
+
+Other nice features:
+1. See how your pipeline fits together, in a tidy dataframe
+2. Visualize dependencies in your code in graph format
+3. Some high-performance computing advantages
+
+
 From `?drake_config`: "Targets are the objects and files that drake generates, and commands are the pieces of R code that produce them."
 
 1. Store prework (loading packages and user-defined functions) in a file
@@ -16,6 +29,11 @@ From `?drake_config`: "Targets are the objects and files that drake generates, a
 3. Create the plan and run it
 
 Drake will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
+
+What makes a target get out of date?
+
+1. Some part of the code used to generate that target or one of its upstream targets has changed
+2. A trigger is activated (more on that later)
 
 A plan works by using functions to create targets. 
 Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
