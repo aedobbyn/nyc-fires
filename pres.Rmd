@@ -9,32 +9,125 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The main idea behind `drake`: when changes occur to code or data, only rerun the parts of code that need to be rerun.
+### Quick about me
 
-Why the name `drake`?
+### `drake`'s main idea
 
-GNU Make for R, built around dataframes
+In a pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
 
+### Why the name `drake`?
 
-Other nice features:
+[GNU Make](https://www.gnu.org/software/make/) for R, built around dataframes.
+
+GNU Make uses a file called a Makefile to specify dependencies and how targets should be reubilt when they're out of date. 
+
+### Two pieces of vocab
+
+*targets* and *commands*
+From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
+
+### Other nice features of `drake`
 1. See how your pipeline fits together, in a tidy dataframe
 2. Visualize dependencies in your code in graph format
 3. Some high-performance computing advantages
+4. Great for reproducibility
 
-
-From `?drake_config`: "Targets are the objects and files that drake generates, and commands are the pieces of R code that produce them."
-
+### How to `drake`:
 1. Store prework (loading packages and user-defined functions) in a file
 2. Store a `drake` plan in another file
 3. Create the plan and run it
 
-Drake will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
+```{r, eval=FALSE}
+source("/path/to/my/prework.R")
 
-What makes a target get out of date?
+# Custom functions defined in prework are:
+# clean_my(), analyze_my(), and report_out_my()
+
+plan <- drake_plan(
+  cleaned_data = clean_my(raw_data),
+  results = analyze_my(cleaned_data),
+  report = report_out_my(results,
+                         file_out = "/path/to/my/report.md")
+)
+
+make(plan)
+```
+
+The first run of `make(plan)` will run the plan from scratch. 
+
+After that, `drake` will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
+
+
+### What makes a target get out of date?
 
 1. Some part of the code used to generate that target or one of its upstream targets has changed
 2. A trigger is activated (more on that later)
 
-A plan works by using functions to create targets. 
-Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+### Big Idea #2
 
+`drake` is all built around *functions*.
+- A plan works by using functions to create targets. 
+- Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+
+How does `drake` store targets that have been successfully built?
+In a hidden `.drake` directory. In the `data` subdirectory, these are stored as `rds` objects.
+
+How does `drake` keep track of dependencies?
+With a `config` which you can access.
+
+
+```{r}
+
+bad_plan <- 
+  drake_plan(
+    first_target = source("import.R"),
+    second_target = 
+  )
+
+```
+
+
+### Our plan
+
+Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
+
+The Twitter account that let us know that this wasn't in fact aliens is [@NYCFireWire](https://twitter.com/NYCFireWire).
+
+Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.
+
+https://twitter.com/NYCFireWire/status/1087888350277705728
+
+
+What if we were constructing an analysis of these tweets and wanted to make sure our pipeline worked end-to-end, but didn't want to unnecessarily re-run outdated parts of it unless we needed to?
+
+
+### The Pipeline
+
+1. Pull in tweets, either the first big batch or any new ones that show up
+2. Extract addresses from the tweets
+3. Send these to the Google Maps API to grab the addresses latitudes and longitudes
+4. Analyze
+
+### Grabbing tweets
+
+```{r}
+get_seed_tweets
+
+get_more_tweets
+
+get_tweets
+```
+
+
+### Testing this out with a `r emo::ji("fire)` burner account `r emo::ji("fire)`
+
+The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
+
+```{r}
+
+```
+
+
+Resources:
+[`drake` user manual`](https://ropenscilabs.github.io/drake-manual/index.html)
+[cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)

@@ -36,14 +36,14 @@ borough_reg <- boroughs %>%
 get_seed_tweets <- function(user = firewire_handle,
                             n_tweets = 50,
                             max_id = NULL, # Max ID of the tweet
-                            input_path = NULL,
+                            input_path = NULL, # Read from a file or grab from Twitter?
                             output_path = NULL,
                             ...) {
   if (!is.null(input_path) && file.exists(input_path)) {
     out <-
       read_csv(input_path)
   } else {
-    out <- get_timeline(user, n = n_tweets, maxID = max_id) %>%
+    out <- get_timeline(user = user, n = n_tweets, maxID = max_id) %>%
       mutate(
         created_at = # UTC by default
         lubridate::as_datetime(created_at, tz = "America/New_York")
@@ -62,7 +62,8 @@ get_seed_tweets <- function(user = firewire_handle,
 
 there_are_new_tweets <- function(tbl,
                                  user = firewire_handle,
-                                 verbose = TRUE) {
+                                 verbose = TRUE, 
+                                 ...) {
   latest_dt <- 
     tbl %>%
     arrange(desc(created_at)) %>%
@@ -259,9 +260,10 @@ nyc <-
   truncate_lat_long(digits = 1) %>%
   as_tibble()
 
+fire_emoji <- emoji("fire")
 
-plot_fires <- function(tbl, city = nyc) {
-  fire_emoji <- emoji("fire")
+plot_fires <- function(tbl, city = nyc,
+                       output_path = here("data", "derived", "fire_plot.png")) {
 
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
@@ -276,7 +278,28 @@ plot_fires <- function(tbl, city = nyc) {
     labs(x = "latitude", y = "longitude") +
     theme_light()
 
-  ggsave(here("data", "derived", "fire_plot.png"),
+  ggsave(output_path,
     device = "png"
+  )
+}
+
+
+plot_fire_sums <- function(tbl, city = nyc, 
+                           output_path = here("data", "derived", "fire_sums_plot.png")) {
+  
+  ggplot() +
+    geom_polygon(data = nyc, aes(lat, long)) +
+    geom_text(
+      data = tbl, aes(lat, long, label = fire_emoji, size = n),
+      family = "EmojiOne", color = "red", fill = "orange"
+    ) +
+    xlim(NA, 41) +
+    ylim(-75, -73) +
+    ggtitle("Fires were Started") +
+    labs(x = "latitude", y = "longitude") +
+    theme_light()
+  
+  ggsave(output_path,
+         device = "png"
   )
 }

@@ -1,4 +1,4 @@
-make(plan)
+make(plan, verbose = 4)
 
 plan
 
