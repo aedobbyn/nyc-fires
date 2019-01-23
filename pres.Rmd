@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+source(here::here("didnt_start_it.R"))
 ```
 
 ### Quick about me
@@ -58,7 +60,7 @@ The first run of `make(plan)` will run the plan from scratch.
 After that, `drake` will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
 
 
-### What makes a target get out of date?
+### What makes a target become out of date?
 
 1. Some part of the code used to generate that target or one of its upstream targets has changed
 2. A trigger is activated (more on that later)
@@ -119,13 +121,137 @@ get_tweets
 ```
 
 
-### Testing this out with a `r emo::ji("fire)` burner account `r emo::ji("fire)`
+### Write our plan
+
+```{r}
+fire_path <- here("data", "raw", "fires.csv")
+
+plan <-
+  drake_plan(
+    seed_fires = get_tweets( # Grab some seed fires
+      n_tweets_seed = 2
+    ), 
+    fires = target(
+      command = get_tweets(
+        tbl = seed_fires,
+        n_tweets_reup = 3
+      ),
+      trigger = trigger(
+        condition = TRUE # Always look for new tweets
+      )
+    ),
+    addresses = pull_addresses(fires), # Extract addresses from tweets
+    lat_long = get_lat_long(addresses), # Send to Google for lat-longs
+    dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
+    fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
+
+    time_graph = graph_fire_times(dat),
+    plot = plot_fires(dat, nyc)
+  )
+```
+
+### Run our plan
+
+```{r}
+plan
+
+make(plan, verbose = 4)
+```
+
+
+```{r, eval=FALSE}
+config <- drake_config(plan)
+config$plan
+config$prework
+config$targets
+config$cache_path
+config$graph
+
+vis_drake_graph()
+
+loadd(dat)
+dat
+
+clean(fires)
+
+outdated(config)
+
+vis_drake_graph()
+
+make(plan)
+```
+
+If our `seed_fires` had been 3000 instead of 3:
+
+```{r}
+full_dat <- read_csv(here("data", "derived", "dat.csv"))
+
+graph_fire_times(full_dat)
+```
+
+
+### Testing our reupping with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
 
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
 
 ```{r}
+burner_path <- "data/derived/burn.csv"
+
+burner_plan <-
+  drake_plan(
+    seed_burn = get_tweets(
+      user = burner_handle,
+      input_path = burner_path # Reads in file from burn_path if file exists, otherwise pulls in seed tweets
+    ),
+    
+    full_burn = target(
+      command = get_tweets(
+        tbl = seed_burn,
+        user = burner_handle,
+        output_path = burner_path
+      ),
+      trigger = trigger(
+        condition = TRUE # Always look for new tweets
+      )
+    )
+  )
+
+burner_plan
+```
+
+### Test out the burner
+
+```{r, eval=FALSE}
+burner_config <- drake_config(burner_plan)
+make(burner_plan)
+loadd(seed_burn)
+loadd(full_burn)
+expect_equal(seed_burn, full_burn)
+
+outdated(burner_config)
+
+# Tweet here
+post_tweet(status = 
+             digest::digest(sample(100, 1)), 
+           token = firewire_token)
+
+make(burner_plan)
+
+loadd(seed_burn)
+loadd(full_burn)
+burn <- read_csv(here("data", "derived", "burn.csv"))
+expect_gt(nrow(full_burn), nrow(seed_burn))
+expect_equal(nrow(full_burn), nrow(burn))
+
+clean()
+
+make(burner_plan)
+loadd(seed_burn)
+loadd(full_burn)
+expect_equal(nrow(seed_burn), nrow(full_burn))
 
 ```
+
 
 
 Resources:

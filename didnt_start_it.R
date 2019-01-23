@@ -247,7 +247,8 @@ count_fires <- function(tbl) {
 
 
 graph_fire_times <- function(tbl) {
-  ggplot(tbl, aes(created_at)) +
+  ggplot(tbl %>% 
+           drop_na(lat, long), aes(created_at)) +
     geom_density() +
     ggtitle("Frequency of Fires in NYC") +
     labs(x = "Time of Tweet", y = "Density") +
@@ -264,6 +265,10 @@ fire_emoji <- emoji("fire")
 
 plot_fires <- function(tbl, city = nyc,
                        output_path = here("data", "derived", "fire_plot.png")) {
+  
+  tbl <- 
+    tbl %>% 
+    drop_na(lat, long)
 
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
@@ -278,14 +283,20 @@ plot_fires <- function(tbl, city = nyc,
     labs(x = "latitude", y = "longitude") +
     theme_light()
 
-  ggsave(output_path,
-    device = "png"
-  )
+  if (!is.null(output_path)) {
+    ggsave(output_path,
+           device = "png"
+    )
+  }
 }
 
 
 plot_fire_sums <- function(tbl, city = nyc, 
                            output_path = here("data", "derived", "fire_sums_plot.png")) {
+  
+  tbl <- 
+    tbl %>% 
+    drop_na(lat, long)
   
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
@@ -299,7 +310,9 @@ plot_fire_sums <- function(tbl, city = nyc,
     labs(x = "latitude", y = "longitude") +
     theme_light()
   
-  ggsave(output_path,
-         device = "png"
-  )
+  if (!is.null(output_path)) {
+    ggsave(output_path,
+           device = "png"
+    )
+  }
 }

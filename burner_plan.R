@@ -2,19 +2,6 @@
 
 burner_path <- "data/derived/burn.csv"
 
-there_are_new_tweets <- function() {
-  TRUE
-}
-
-say_true <- function() {
-  TRUE
-}
-
-say_false <- 
-  function() {
-    FALSE
-  }
-
 burner_plan <-
   drake_plan(
     seed_burn = get_tweets(
@@ -28,17 +15,7 @@ burner_plan <-
         output_path = burner_path
       ),
       trigger = trigger(
-        # change = get_latest_dt(user = burner_handle)
-        # condition =  # Rebuilds full_burn if there are new tweets
-          # TRUE
-          # say_false()
-          # say_true()
-          # there_are_new_tweets(
-          #   tbl = seed_burn,
-          #   user = burner_handle,
-          #   verbose = FALSE
-          # ),
-        change = get_latest_dt(user = burner_handle)
+        condition = TRUE # Always look for new tweets
       )
     )
   )
