@@ -32,19 +32,23 @@ boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
+old_tweet_id <- "1084619203167031297"
 
 get_seed_tweets <- function(user = firewire_handle,
                             n_tweets = 50,
                             max_id = NULL, # Max ID of the tweet
                             input_path = NULL, # Read from a file or grab from Twitter?
                             output_path = NULL,
+                            write_out = FALSE,
                             ...) {
   if (!is.null(input_path) && file.exists(input_path)) {
     out <-
       read_csv(input_path)
   } else {
-    out <- get_timeline(user = user, n = n_tweets, maxID = max_id) %>%
+    out <- get_timeline(user = user, n = n_tweets, max_id = max_id) %>%
       mutate(
+        user_id = as.numeric(user_id),
+        status_id = as.numeric(status_id),
         created_at = # UTC by default
         lubridate::as_datetime(created_at, tz = "America/New_York")
       ) %>%
@@ -52,7 +56,7 @@ get_seed_tweets <- function(user = firewire_handle,
       arrange(desc(created_at))
   }
 
-  if (!is.null(output_path)) {
+  if (!is.null(output_path) && write_out == TRUE) {
     write_csv(out, output_path)
   }
 
@@ -104,7 +108,7 @@ get_more_tweets <- function(tbl,
 
   out <-
     new %>%
-    filter(created_at > latest_dt)
+    filter(created_at > max(tbl$created_at))
 
   if (verbose) message(glue("{nrow(out)} new tweet(s) pulled."))
 
@@ -117,10 +121,18 @@ get_tweets <- function(tbl = NULL,
                        max_id = NULL,
                        n_tweets_seed = 50,
                        n_tweets_reup = 20,
+                       input_path = NULL,
                        output_path = NULL,
+                       write_out = FALSE,
                        verbose = TRUE, ...) {
+  
   if (is.null(tbl) || is.na(tbl)) {
-    out <- get_seed_tweets(user = user, n_tweets = n_tweets_seed, max_id = max_id)
+    out <- get_seed_tweets(user = user, 
+                           n_tweets = n_tweets_seed, 
+                           input_path = input_path, 
+                           output_path = output_path,
+                           write_out = write_out,
+                           max_id = max_id)
   } else {
     new <-
       get_more_tweets(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
@@ -247,8 +259,7 @@ count_fires <- function(tbl) {
 
 
 graph_fire_times <- function(tbl) {
-  ggplot(tbl %>% 
-           drop_na(lat, long), aes(created_at)) +
+  ggplot(tbl, aes(created_at)) +
     geom_density() +
     ggtitle("Frequency of Fires in NYC") +
     labs(x = "Time of Tweet", y = "Density") +

@@ -5,7 +5,7 @@ date: "1/20/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 source(here::here("didnt_start_it.R"))
@@ -17,11 +17,13 @@ source(here::here("didnt_start_it.R"))
 
 In a pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
 
-### Why the name `drake`?
+### What is `drake`?
 
 [GNU Make](https://www.gnu.org/software/make/) for R, built around dataframes.
 
 GNU Make uses a file called a Makefile to specify dependencies and how targets should be reubilt when they're out of date. 
+
+Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) and friends.
 
 ### Two pieces of vocab
 
@@ -33,6 +35,7 @@ From `?drake_config`: "**Targets** are the objects and files that drake generate
 2. Visualize dependencies in your code in graph format
 3. Some high-performance computing advantages
 4. Great for reproducibility
+5. It's all in R!
 
 ### How to `drake`:
 1. Store prework (loading packages and user-defined functions) in a file
@@ -45,7 +48,8 @@ source("/path/to/my/prework.R")
 # Custom functions defined in prework are:
 # clean_my(), analyze_my(), and report_out_my()
 
-plan <- drake_plan(
+plan <- 
+  drake_plan(
   cleaned_data = clean_my(raw_data),
   results = analyze_my(cleaned_data),
   report = report_out_my(results,
@@ -65,27 +69,42 @@ After that, `drake` will only re-run the parts of the plan that are out of date,
 1. Some part of the code used to generate that target or one of its upstream targets has changed
 2. A trigger is activated (more on that later)
 
-### Big Idea #2
+### Where is all this stored?
 
-`drake` is all built around *functions*.
-- A plan works by using functions to create targets. 
-- Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
-
-How does `drake` store targets that have been successfully built?
-In a hidden `.drake` directory. In the `data` subdirectory, these are stored as `rds` objects.
+How does `drake` store info/data about targets?
+In a hidden `.drake` directory. In the `.drake/data` subdirectory, targets are stored as `rds` objects.
 
 How does `drake` keep track of dependencies?
 With a `config` which you can access.
 
+### Big Idea #2
 
-```{r}
+`drake` is all built around *functions* rather than sourcing scripts.
+- A plan works by using functions to create targets. 
+- Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+
+
+```{r, eval=FALSE}
 
 bad_plan <- 
   drake_plan(
     first_target = source("import.R"),
-    second_target = 
+    second_target = source("clean.R")
   )
+```
 
+
+Instead, 
+
+```{r, eval=FALSE}
+
+source("all_my_funs.R")
+
+good_plan <- 
+  drake_plan(
+    first_target = do_stuff(dat),
+    second_target = do_more_stuff(first_target)
+  )
 ```
 
 
@@ -93,7 +112,7 @@ bad_plan <-
 
 Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
 
-The Twitter account that let us know that this wasn't in fact aliens is [@NYCFireWire](https://twitter.com/NYCFireWire).
+The Twitter account that let us know that this wasn't in fact aliens is [NYCFireWire](https://twitter.com/NYCFireWire).
 
 Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.
 
@@ -106,18 +125,68 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 ### The Pipeline
 
 1. Pull in tweets, either the first big batch or any new ones that show up
-2. Extract addresses from the tweets
-3. Send these to the Google Maps API to grab the addresses latitudes and longitudes
-4. Analyze
+2. Extract addresses from the tweets (`r emo::ji("notes")` regex time `r emo::ji("notes")`)
+3. Send these to the Google Maps API to grab the addresses' latitudes and longitudes
+4. Profit
+
 
 ### Grabbing tweets
 
-```{r}
+- `get_seed_tweets` grabs a batch of tweets *or* reads in seed tweets from a file if the file exists
+- `get_more_tweets` checks if there are new tweets and, if so, pulls in the right number of them
+- `get_tweets` runs `get_seed_tweets` if given a null `tbl` argument, otherwise runs `get_more_tweets`
+
+```{r, include=FALSE}
 get_seed_tweets
 
 get_more_tweets
 
 get_tweets
+```
+
+```{r}
+get_tweets()
+
+old_tweet_id <- "1084619203167031297" # Random tweet from a while ago
+
+get_tweets(
+  max_id = old_tweet_id
+  ) %>% 
+  get_tweets(n_tweets_reup = 5)
+```
+
+
+### Getting addresses
+
+```{r, include=FALSE}
+borough_reg
+
+clean_borough
+
+pull_addresses
+```
+
+```{r}
+get_tweets() %>% 
+  pull_addresses() %>% 
+  select(street, borough, address, text)
+```
+
+
+Then we can use the `geocode` function (along with a Google Maps API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it.
+
+```{r}
+geo_to_list
+
+truncate_lat_long
+
+get_lat_long
+```
+
+```{r}
+get_tweets(n_tweets_seed = 5) %>% 
+  pull_addresses() %>% 
+  get_lat_long()
 ```
 
 
@@ -129,7 +198,8 @@ fire_path <- here("data", "raw", "fires.csv")
 plan <-
   drake_plan(
     seed_fires = get_tweets( # Grab some seed fires
-      n_tweets_seed = 2
+      n_tweets_seed = 2,
+      max_id = old_tweet_id
     ), 
     fires = target(
       command = get_tweets(
@@ -158,6 +228,7 @@ plan
 make(plan, verbose = 4)
 ```
 
+### Info drake stores
 
 ```{r, eval=FALSE}
 config <- drake_config(plan)
@@ -169,8 +240,9 @@ config$graph
 
 vis_drake_graph()
 
-loadd(dat)
-dat
+lat_long
+loadd(lat_long)
+lat_long
 
 clean(fires)
 
@@ -179,14 +251,38 @@ outdated(config)
 vis_drake_graph()
 
 make(plan)
+
+loadd(lat_long)
+lat_long
 ```
 
 If our `seed_fires` had been 3000 instead of 3:
 
 ```{r}
-full_dat <- read_csv(here("data", "derived", "dat.csv"))
+big_plan <-
+  drake_plan(
+    seed_fires = get_tweets( # Grab seed fires from file
+      input_path = here("data", "derived", "lots_o_fires.csv")
+    ), 
+    fires = target(
+      command = get_tweets(
+        tbl = seed_fires,
+        n_tweets_reup = 3
+      ),
+      trigger = trigger(
+        condition = TRUE 
+      )
+    ),
+    addresses = pull_addresses(fires)
+    # Not sending all 3k addresses to Google
+  )
 
-graph_fire_times(full_dat)
+make(big_plan)
+
+loadd(addresses)
+addresses
+
+make(big_plan)
 ```
 
 
@@ -194,21 +290,40 @@ graph_fire_times(full_dat)
 
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
 
+[Burner account!](https://twitter.com/didntstartit)
+
+Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
+
+Let's pre-store all tweets in burner_path.
+
 ```{r}
 burner_path <- "data/derived/burn.csv"
 
+get_tweets(
+      user = burner_handle,
+      output_path = burner_path
+    )
+
+read_csv(burner_path)
+```
+
+
+Now we'll create the plan:
+
+```{r}
 burner_plan <-
   drake_plan(
+    # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
       user = burner_handle,
-      input_path = burner_path # Reads in file from burn_path if file exists, otherwise pulls in seed tweets
+      input_path = burner_path 
     ),
     
     full_burn = target(
       command = get_tweets(
         tbl = seed_burn,
         user = burner_handle,
-        output_path = burner_path
+        output_path = burner_path # Outputs to burner_path
       ),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
@@ -221,13 +336,21 @@ burner_plan
 
 ### Test out the burner
 
+The data in `burner_path` should be all the tweets this burner account has tweeted so far:
+
 ```{r, eval=FALSE}
 burner_config <- drake_config(burner_plan)
+vis_drake_graph(burner_config)
+
 make(burner_plan)
 loadd(seed_burn)
 loadd(full_burn)
 expect_equal(seed_burn, full_burn)
+```
 
+Now let's post a new tweet.
+
+```{r}
 outdated(burner_config)
 
 # Tweet here
@@ -239,21 +362,23 @@ make(burner_plan)
 
 loadd(seed_burn)
 loadd(full_burn)
-burn <- read_csv(here("data", "derived", "burn.csv"))
+
+# And let's checked it was saved to file
+saved_burn <- read_csv(here("data", "derived", "burn.csv"))
 expect_gt(nrow(full_burn), nrow(seed_burn))
-expect_equal(nrow(full_burn), nrow(burn))
+expect_equal(nrow(full_burn), nrow(saved_burn))
 
 clean()
+
+outdated(burner_config)
 
 make(burner_plan)
 loadd(seed_burn)
 loadd(full_burn)
 expect_equal(nrow(seed_burn), nrow(full_burn))
-
 ```
 
 
-
-Resources:
+### Moar Resources
 [`drake` user manual`](https://ropenscilabs.github.io/drake-manual/index.html)
-[cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
+[Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
