@@ -66,9 +66,9 @@ get_seed_tweets <- function(user = firewire_handle,
 
 there_are_new_tweets <- function(tbl,
                                  user = firewire_handle,
-                                 verbose = TRUE, 
+                                 verbose = TRUE,
                                  ...) {
-  latest_dt <- 
+  latest_dt <-
     tbl %>%
     arrange(desc(created_at)) %>%
     slice(1) %>%
@@ -87,7 +87,6 @@ there_are_new_tweets <- function(tbl,
 }
 
 get_latest_dt <- function(user = firewire_handle) {
-  
   get_seed_tweets(user) %>%
     arrange(desc(created_at)) %>%
     slice(1) %>%
@@ -125,14 +124,15 @@ get_tweets <- function(tbl = NULL,
                        output_path = NULL,
                        write_out = FALSE,
                        verbose = TRUE, ...) {
-  
   if (is.null(tbl) || is.na(tbl)) {
-    out <- get_seed_tweets(user = user, 
-                           n_tweets = n_tweets_seed, 
-                           input_path = input_path, 
-                           output_path = output_path,
-                           write_out = write_out,
-                           max_id = max_id)
+    out <- get_seed_tweets(
+      user = user,
+      n_tweets = n_tweets_seed,
+      input_path = input_path,
+      output_path = output_path,
+      write_out = write_out,
+      max_id = max_id
+    )
   } else {
     new <-
       get_more_tweets(tbl, user = user, n_tweets = n_tweets_reup, verbose = verbose)
@@ -276,9 +276,8 @@ fire_emoji <- emoji("fire")
 
 plot_fires <- function(tbl, city = nyc,
                        output_path = here("data", "derived", "fire_plot.png")) {
-  
-  tbl <- 
-    tbl %>% 
+  tbl <-
+    tbl %>%
     drop_na(lat, long)
 
   ggplot() +
@@ -296,19 +295,18 @@ plot_fires <- function(tbl, city = nyc,
 
   if (!is.null(output_path)) {
     ggsave(output_path,
-           device = "png"
+      device = "png"
     )
   }
 }
 
 
-plot_fire_sums <- function(tbl, city = nyc, 
+plot_fire_sums <- function(tbl, city = nyc,
                            output_path = here("data", "derived", "fire_sums_plot.png")) {
-  
-  tbl <- 
-    tbl %>% 
+  tbl <-
+    tbl %>%
     drop_na(lat, long)
-  
+
   ggplot() +
     geom_polygon(data = nyc, aes(lat, long)) +
     geom_text(
@@ -320,10 +318,10 @@ plot_fire_sums <- function(tbl, city = nyc,
     ggtitle("Fires were Started") +
     labs(x = "latitude", y = "longitude") +
     theme_light()
-  
+
   if (!is.null(output_path)) {
     ggsave(output_path,
-           device = "png"
+      device = "png"
     )
   }
 }

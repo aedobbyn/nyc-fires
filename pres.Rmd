@@ -13,15 +13,21 @@ source(here::here("didnt_start_it.R"))
 
 ### Quick about me
 
+Data Scientist at Earlybird Software, former co-organzier of R-Ladies Chicago
+
+Ultimate firsbee player
+
 ### `drake`'s main idea
 
 In a pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
 
 ### What is `drake`?
 
+A workflow manager for your R code 
+
 [GNU Make](https://www.gnu.org/software/make/) for R, built around dataframes.
 
-GNU Make uses a file called a Makefile to specify dependencies and how targets should be reubilt when they're out of date. 
+GNU Make uses workflow outline file called a Makefile to specify dependencies and how targets should be reubilt when they're out of date. 
 
 Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) and friends.
 
@@ -30,15 +36,25 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 *targets* and *commands*
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
 
+### Analogy to `knitr`
+
+`drake` is sort of like `knitr` in the sense that 
+1) It's reproducible and compact. You expect to be able to rerun someone's report from a single file.
+
+2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
+
+3) When an Rmd is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a `depedson` for.
+
+
 ### Other nice features of `drake`
 1. See how your pipeline fits together, in a tidy dataframe
 2. Visualize dependencies in your code in graph format
 3. Some high-performance computing advantages
-4. Great for reproducibility
-5. It's all in R!
+4. Great for iteration and reproducibility; you know exactly how these results were generated
+5. It's all in R -- no writing config files!
 
 ### How to `drake`:
-1. Store prework (loading packages and user-defined functions) in a file
+1. Store prework (loading packages and user-defined functions) in a file 
 2. Store a `drake` plan in another file
 3. Create the plan and run it
 
@@ -61,7 +77,9 @@ make(plan)
 
 The first run of `make(plan)` will run the plan from scratch. 
 
-After that, `drake` will only re-run the parts of the plan that are out of date, and all those parts' dependencies.
+After that, `drake` will only re-run the parts of the plan that are out of date and everything downstream of that.
+
+`drake` knows that, for example, `results` depends on `cleaned_data` because `cleaned_data` is part of the `analyze_my(cleaned_data)` command used to generate `results`.
 
 
 ### What makes a target become out of date?
@@ -69,18 +87,22 @@ After that, `drake` will only re-run the parts of the plan that are out of date,
 1. Some part of the code used to generate that target or one of its upstream targets has changed
 2. A trigger is activated (more on that later)
 
+
 ### Where is all this stored?
 
 How does `drake` store info/data about targets?
-In a hidden `.drake` directory. In the `.drake/data` subdirectory, targets are stored as `rds` objects.
+In a hidden `.drake` cache when you run `make()`. In the `.drake/data` subdirectory, targets are stored as hashed `rds` objects. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
-How does `drake` keep track of dependencies?
-With a `config` which you can access.
+`clean()` cleans that cache.
+
+How does `drake` keep track of dependencies? 
+`drake` stores dependency graph along with a bunch of other things in `config`, which you can access with `drake_config()`.
 
 ### Big Idea #2
 
 `drake` is all built around *functions* rather than sourcing scripts.
 - A plan works by using functions to create targets. 
+- This allows `drake` to infer dependencies of objects and functions
 - Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
 
 
@@ -92,6 +114,8 @@ bad_plan <-
     second_target = source("clean.R")
   )
 ```
+
+Sourcing files breaks the dependency structure that `drake` is all about. 
 
 
 Instead, 
@@ -107,6 +131,7 @@ good_plan <-
   )
 ```
 
+This setup allows `drake` to know `first_target` needs to be built before `second_target` can begin.
 
 ### Our plan
 
@@ -147,7 +172,7 @@ get_tweets
 ```{r}
 get_tweets()
 
-old_tweet_id <- "1084619203167031297" # Random tweet from a while ago
+old_tweet_id <- "1084619203167031297" # Random tweet from a while ago so what we can set a max id in the past
 
 get_tweets(
   max_id = old_tweet_id
@@ -173,7 +198,7 @@ get_tweets() %>%
 ```
 
 
-Then we can use the `geocode` function (along with a Google Maps API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it.
+Then we can use the `geocode` function (along with a Google Maps API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we're returned `NA`s.)
 
 ```{r}
 geo_to_list
@@ -190,7 +215,142 @@ get_tweets(n_tweets_seed = 5) %>%
 ```
 
 
-### Write our plan
+### Testing our reupping with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
+
+The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
+
+[Burner account!](https://twitter.com/didntstartit)
+
+Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
+
+Let's pre-store all tweets in burner_path.
+
+```{r}
+burner_path <- "data/derived/burn.csv"
+
+get_tweets(
+      user = burner_handle,
+      output_path = burner_path
+    )
+
+read_csv(burner_path)
+```
+
+
+Now we'll create our first draft of the plan:
+
+```{r}
+burner_plan <-
+  drake_plan(
+    # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
+    seed_burn = get_tweets(
+      user = burner_handle
+    ),
+    
+    full_burn = get_tweets(
+        tbl = seed_burn,
+        user = burner_handle,
+        output_path = burner_path # Outputs to burner_path
+      )
+  )
+```
+
+### Test out v1 of our plan
+
+Since `seed_burn` hasn't changed and the code to generate the targets hasn't changed, every time after the first time we run this plan `drake` will let us know that our targets are up to date and not re-run anything.
+
+```{r}
+burner_plan
+burner_config <- drake_config(burner_plan)
+vis_drake_graph(burner_config)
+make(burner_plan)  # Everything should already be up to date 
+vis_drake_graph(burner_config) # Which is reflected in our graph
+make(burner_plan)
+```
+
+
+### Add Triggers
+
+Now let's add a [trigger](https://ropensci.github.io/drake/articles/debug.html#test-with-triggers-) so that we always trigger `get_tweets` to look for new tweets at the burner handle.
+
+Notice that we now have a new column in our dataframe for `trigger`, which `drake_plan` has automatically added for us.
+
+This trigger will make our `full_burn` target look always out of date to `drake` since it knows we need to re-make `full_burn` every time `make()` is run.
+
+```{r}
+burner_plan_2 <-
+  drake_plan(
+    # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
+    seed_burn = get_tweets(
+      user = burner_handle,
+      input_path = burner_path
+    ),
+    
+    full_burn = target(
+      command = get_tweets(
+        tbl = seed_burn,
+        user = burner_handle,
+        output_path = burner_path # Outputs to burner_path
+      ),
+      trigger = trigger(
+        condition = TRUE # Always look for new tweets
+      )
+    )
+  )
+```
+
+### Test out the `burner_plan` 2.0
+
+The data in `burner_path` should be all the tweets this burner account has tweeted so far:
+
+```{r, eval=FALSE}
+clean()
+burner_plan_2
+burner_config_2 <- drake_config(burner_plan_2)
+# Our full_burn target will always be out of date because the trigger means it always needs to be rebuilt
+vis_drake_graph(burner_config_2)
+
+make(burner_plan_2)
+loadd(seed_burn)
+loadd(full_burn)
+expect_equal(seed_burn, full_burn)
+
+outdated(burner_config_2)
+vis_drake_graph(burner_config_2)
+```
+
+Now let's post a new tweet.
+
+```{r}
+# Tweet here
+post_tweet(status = 
+             digest::digest(sample(100, 1)), 
+           token = firewire_token)
+
+make(burner_plan_2)
+vis_drake_graph(burner_config_2)
+
+loadd(seed_burn)
+loadd(full_burn)
+
+seed_burn
+full_burn
+
+# And let's checked it was saved to file
+saved_burn <- read_csv(here("data", "derived", "burn.csv"))
+expect_gt(nrow(full_burn), nrow(seed_burn))
+expect_equal(nrow(full_burn), nrow(saved_burn))
+
+outdated(burner_config_2)
+
+make(burner_plan_2)
+loadd(seed_burn)
+loadd(full_burn)
+expect_equal(nrow(seed_burn), nrow(full_burn))
+```
+
+
+### Write our full plan
 
 ```{r}
 fire_path <- here("data", "raw", "fires.csv")
@@ -232,11 +392,14 @@ make(plan, verbose = 4)
 
 ```{r, eval=FALSE}
 config <- drake_config(plan)
+sort(names(config))
 config$plan
 config$prework
 config$targets
 config$cache_path
 config$graph
+
+deps_target(fires)
 
 vis_drake_graph()
 
@@ -285,100 +448,22 @@ addresses
 make(big_plan)
 ```
 
-
-### Testing our reupping with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
-
-The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
-
-[Burner account!](https://twitter.com/didntstartit)
-
-Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
-
-Let's pre-store all tweets in burner_path.
+Make our final plot:
 
 ```{r}
-burner_path <- "data/derived/burn.csv"
+dat <- 
+  read_csv(here("data", "derived", "dat.csv"))
 
-get_tweets(
-      user = burner_handle,
-      output_path = burner_path
-    )
+fire_sums <-
+  read_csv(here("data", "derived", "fire_sums.csv"))
 
-read_csv(burner_path)
-```
-
-
-Now we'll create the plan:
-
-```{r}
-burner_plan <-
-  drake_plan(
-    # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
-    seed_burn = get_tweets(
-      user = burner_handle,
-      input_path = burner_path 
-    ),
-    
-    full_burn = target(
-      command = get_tweets(
-        tbl = seed_burn,
-        user = burner_handle,
-        output_path = burner_path # Outputs to burner_path
-      ),
-      trigger = trigger(
-        condition = TRUE # Always look for new tweets
-      )
-    )
-  )
-
-burner_plan
-```
-
-### Test out the burner
-
-The data in `burner_path` should be all the tweets this burner account has tweeted so far:
-
-```{r, eval=FALSE}
-burner_config <- drake_config(burner_plan)
-vis_drake_graph(burner_config)
-
-make(burner_plan)
-loadd(seed_burn)
-loadd(full_burn)
-expect_equal(seed_burn, full_burn)
-```
-
-Now let's post a new tweet.
-
-```{r}
-outdated(burner_config)
-
-# Tweet here
-post_tweet(status = 
-             digest::digest(sample(100, 1)), 
-           token = firewire_token)
-
-make(burner_plan)
-
-loadd(seed_burn)
-loadd(full_burn)
-
-# And let's checked it was saved to file
-saved_burn <- read_csv(here("data", "derived", "burn.csv"))
-expect_gt(nrow(full_burn), nrow(seed_burn))
-expect_equal(nrow(full_burn), nrow(saved_burn))
-
-clean()
-
-outdated(burner_config)
-
-make(burner_plan)
-loadd(seed_burn)
-loadd(full_burn)
-expect_equal(nrow(seed_burn), nrow(full_burn))
+plot_fire_sums(fire_sums)
 ```
 
 
 ### Moar Resources
-[`drake` user manual`](https://ropenscilabs.github.io/drake-manual/index.html)
-[Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
+
+- [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
+- [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
+- [Sina Rüeger's `drake` presentation](https://sinarueeger.github.io/2018/10/09/workflow/)
+- [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
