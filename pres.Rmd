@@ -223,17 +223,12 @@ The `rtweet` package also supports posting tweets, so we can test out whether ou
 
 Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
 
-Let's pre-store all tweets in burner_path.
+Let's define a path to output the tweets we collect to.
 
 ```{r}
 burner_path <- "data/derived/burn.csv"
-
-get_tweets(
-      user = burner_handle,
-      output_path = burner_path
-    )
-
-read_csv(burner_path)
+# Delete the file in burner_path if it exists already so we start from scratch
+if (file.exists(burner_path)) fs::file_delete(burner_path)
 ```
 
 
@@ -244,7 +239,8 @@ burner_plan <-
   drake_plan(
     # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
-      user = burner_handle
+      user = burner_handle,
+      input = burner_path
     ),
     
     full_burn = get_tweets(
@@ -260,13 +256,41 @@ burner_plan <-
 Since `seed_burn` hasn't changed and the code to generate the targets hasn't changed, every time after the first time we run this plan `drake` will let us know that our targets are up to date and not re-run anything.
 
 ```{r}
-burner_plan
+burner_plan # Take a look at the dataframe that represents our plan
 burner_config <- drake_config(burner_plan)
-vis_drake_graph(burner_config)
+clean() # Remove targets if they were already built
+vis_drake_graph(burner_config) # Both seed_burn and full_burn should be outdated
 make(burner_plan)  # Everything should already be up to date 
 vis_drake_graph(burner_config) # Which is reflected in our graph
+```
+
+We can now load these targets into our working environment.
+
+```{r}
+# They won't be found if we don't loadd() them
+seed_burn
+loadd(seed_burn)
+seed_burn
+```
+
+
+Every subsequent time we re-`make` the plan, `drake` should tell us we don't need to do anything.
+
+```{r}
+make(burner_plan)
 make(burner_plan)
 ```
+
+If we `clean()`, however, we'll remake the plan from scratch.
+
+```{r}
+clean()
+vis_drake_graph(burner_config) # Targets are outdated now
+# This time since we saved the previous output of full_burn to a file, we read that in for our seed_burn
+make(burner_plan) 
+vis_drake_graph(burner_config) # And now everything is up to date again
+```
+
 
 
 ### Add Triggers
@@ -301,25 +325,31 @@ burner_plan_2 <-
 
 ### Test out the `burner_plan` 2.0
 
+First we'll clean out the previous file we saved and start from scratch.
+
+```{r}
+if (file.exists(burner_path)) fs::file_delete(burner_path)
+```
+
 The data in `burner_path` should be all the tweets this burner account has tweeted so far:
 
 ```{r, eval=FALSE}
 clean()
-burner_plan_2
+burner_plan_2 # Notice our new trigger column
 burner_config_2 <- drake_config(burner_plan_2)
 # Our full_burn target will always be out of date because the trigger means it always needs to be rebuilt
 vis_drake_graph(burner_config_2)
 
 make(burner_plan_2)
-loadd(seed_burn)
+loadd(seed_burn) # Load the results of seed_burn and full_burn into our environment
 loadd(full_burn)
-expect_equal(seed_burn, full_burn)
+expect_identical(seed_burn, full_burn) # These should be the same since there were no tweets posted between when we made seed_burn and full_burn
 
-outdated(burner_config_2)
+outdated(burner_config_2) # full_burn will always be outdated because of our trigger
 vis_drake_graph(burner_config_2)
 ```
 
-Now let's post a new tweet.
+Now let's post a new tweet and re-`make` the plan.
 
 ```{r}
 # Tweet here
@@ -327,30 +357,30 @@ post_tweet(status =
              digest::digest(sample(100, 1)), 
            token = firewire_token)
 
-make(burner_plan_2)
-vis_drake_graph(burner_config_2)
+make(burner_plan_2) # seed_burn will be read in from the file, which reflects the state of the world before this tweet. Then full_burn will incorporate the new tweet.
+vis_drake_graph(burner_config_2) # seed_burn is up to date, and full_burn will always look outdated
 
 loadd(seed_burn)
 loadd(full_burn)
+expect_gt(nrow(full_burn), nrow(seed_burn)) # We should have one extra row in full_burn than in seed_burn
 
 seed_burn
 full_burn
 
-# And let's checked it was saved to file
+# Let's check that full_burn was saved to file
 saved_burn <- read_csv(here("data", "derived", "burn.csv"))
-expect_gt(nrow(full_burn), nrow(seed_burn))
-expect_equal(nrow(full_burn), nrow(saved_burn))
-
-outdated(burner_config_2)
-
-make(burner_plan_2)
-loadd(seed_burn)
-loadd(full_burn)
-expect_equal(nrow(seed_burn), nrow(full_burn))
+expect_identical(nrow(full_burn), nrow(saved_burn))
 ```
 
+Cool, so we now know that we can successfully trigger the re-building of `full_burn` every time and save it as the latest state of the world to a file. 
+
+Every time new tweets arrive, that file will be updated at the end of the `make()`.
 
 ### Write our full plan
+
+Let's go back to our original NYCFireWire Twitter account.
+
+For the purposes of illustration, I'll set a `max_id` on our `seed_fires` so that we can re-up and grab more tweets to build `fires`.
 
 ```{r}
 fire_path <- here("data", "raw", "fires.csv")
@@ -386,9 +416,18 @@ plan <-
 plan
 
 make(plan, verbose = 4)
+
+# See what a couple of our targets look like
+loadd(addresses)
+addresses
+
+loadd(dat)
+dat
 ```
 
 ### Info drake stores
+
+Let's get a little deeper into what `drake` stores in the `config`.
 
 ```{r, eval=FALSE}
 config <- drake_config(plan)
@@ -399,27 +438,30 @@ config$targets
 config$cache_path
 config$graph
 
+# The dependencies of a given target encompass both functions (get_tweets) and targets that it depends on (seed_fires)
 deps_target(fires)
 
-vis_drake_graph()
+# Since we have a trigger on fires, everything downstream of fires is also perpetually outdated
+outdated(config)
+vis_drake_graph(config)
 
-lat_long
-loadd(lat_long)
-lat_long
-
+# We can clean just one target instead of cleaning everything
 clean(fires)
 
-outdated(config)
+# Since we didn't clean() seed_fires, this target remains built and our dependency graph looks the same
+vis_drake_graph(config)
 
-vis_drake_graph()
-
+# And again, if we re-make the plan we'll pull in new tweets because of our trigger
 make(plan)
-
-loadd(lat_long)
-lat_long
 ```
 
-If our `seed_fires` had been 3000 instead of 3:
+### Previously `geocode`d
+
+For kicks, let's make our plots with data from 3000 tweets pulled from NYCFireWire and sent to Google for geocoding. 
+
+We'll stop at `pull_addresses(fires)` so we don't re-geocode all 3k fires.
+
+We'll set the `input_path` to `seed_fires` to that file, and still grab the most recent 3 tweets.
 
 ```{r}
 big_plan <-
@@ -444,11 +486,9 @@ make(big_plan)
 
 loadd(addresses)
 addresses
-
-make(big_plan)
 ```
 
-Make our final plot:
+Make our final plot from the 3k fires:
 
 ```{r}
 dat <- 
@@ -457,6 +497,7 @@ dat <-
 fire_sums <-
   read_csv(here("data", "derived", "fire_sums.csv"))
 
+graph_fire_times(dat)
 plot_fire_sums(fire_sums)
 ```
 
