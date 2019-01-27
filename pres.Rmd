@@ -13,17 +13,17 @@ source(here::here("didnt_start_it.R"))
 
 ### Quick about me
 
-Data Scientist at Earlybird Software, former co-organzier of R-Ladies Chicago
+Day job: ultimate firsbee player.
 
-Ultimate firsbee player
+For fun: Data Scientist at Earlybird Software, former co-organzier of R-Ladies Chicago.
 
 ### `drake`'s main idea
 
-In a pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
+In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
 
 ### What is `drake`?
 
-A workflow manager for your R code 
+A workflow manager for your R code .
 
 [GNU Make](https://www.gnu.org/software/make/) for R, built around dataframes.
 
@@ -34,16 +34,19 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 ### Two pieces of vocab
 
 *targets* and *commands*
+
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
 
 ### Analogy to `knitr`
 
+(Stolen from Will's analogy in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
+
 `drake` is sort of like `knitr` in the sense that 
-1) It's reproducible and compact. You expect to be able to rerun someone's report from a single file.
+1) It makes your analysis reproducible and compact. You expect to be able to rerun someone's report from a single file.
 
 2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
 
-3) When an Rmd is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a `depedson` for.
+3) When an `Rmd` is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a `depedson` for.
 
 
 ### Other nice features of `drake`
@@ -61,7 +64,7 @@ From `?drake_config`: "**Targets** are the objects and files that drake generate
 ```{r, eval=FALSE}
 source("/path/to/my/prework.R")
 
-# Custom functions defined in prework are:
+## Custom functions defined in prework are:
 # clean_my(), analyze_my(), and report_out_my()
 
 plan <- 
@@ -107,7 +110,6 @@ How does `drake` keep track of dependencies?
 
 
 ```{r, eval=FALSE}
-
 bad_plan <- 
   drake_plan(
     first_target = source("import.R"),
@@ -115,25 +117,25 @@ bad_plan <-
   )
 ```
 
-Sourcing files breaks the dependency structure that `drake` is all about. 
-
+Sourcing files breaks the dependency structure that makes `drake` useful. 
 
 Instead, 
 
 ```{r, eval=FALSE}
-
 source("all_my_funs.R")
 
 good_plan <- 
   drake_plan(
-    first_target = do_stuff(dat),
+    first_target = do_stuff(my_data),
     second_target = do_more_stuff(first_target)
   )
 ```
 
-This setup allows `drake` to know `first_target` needs to be built before `second_target` can begin.
+This setup allows `drake` to know `first_target` needs to be built before work on `second_target` can begin.
 
 ### Our plan
+
+I'll illustrate a way you might want to use `drake` with something that's close to home for us.
 
 Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
 
@@ -142,7 +144,6 @@ The Twitter account that let us know that this wasn't in fact aliens is [NYCFire
 Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.
 
 https://twitter.com/NYCFireWire/status/1087888350277705728
-
 
 What if we were constructing an analysis of these tweets and wanted to make sure our pipeline worked end-to-end, but didn't want to unnecessarily re-run outdated parts of it unless we needed to?
 
@@ -198,7 +199,7 @@ get_tweets() %>%
 ```
 
 
-Then we can use the `geocode` function (along with a Google Maps API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we're returned `NA`s.)
+Then we can use the [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function (along with a [Google Maps](https://cloud.google.com/maps-platform/) API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we're returned `NA`s.)
 
 ```{r}
 geo_to_list
@@ -217,16 +218,17 @@ get_tweets(n_tweets_seed = 5) %>%
 
 ### Testing our reupping with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
 
-The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.
+The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-[Burner account!](https://twitter.com/didntstartit)
+[burner account!](https://twitter.com/didntstartit)
 
 Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
 
-Let's define a path to output the tweets we collect to.
+Let's define a file path to dump the tweets we collect into.
 
 ```{r}
 burner_path <- "data/derived/burn.csv"
+
 # Delete the file in burner_path if it exists already so we start from scratch
 if (file.exists(burner_path)) fs::file_delete(burner_path)
 ```
@@ -256,12 +258,26 @@ burner_plan <-
 Since `seed_burn` hasn't changed and the code to generate the targets hasn't changed, every time after the first time we run this plan `drake` will let us know that our targets are up to date and not re-run anything.
 
 ```{r}
-burner_plan # Take a look at the dataframe that represents our plan
+# Take a look at the dataframe that represents our plan
+burner_plan 
+
+# Save the config in an object we can look at
 burner_config <- drake_config(burner_plan)
-clean() # Remove targets if they were already built
-vis_drake_graph(burner_config) # Both seed_burn and full_burn should be outdated
-make(burner_plan)  # Everything should already be up to date 
-vis_drake_graph(burner_config) # Which is reflected in our graph
+
+# Remove targets if they were already built
+clean() 
+
+# Both seed_burn and full_burn should be outdated
+vis_drake_graph(burner_config) 
+
+# Make the plan
+make(burner_plan)  
+
+# Everything should already be up to date 
+outdated(burner_plan)
+
+# Which is reflected in our graph
+vis_drake_graph(burner_config) 
 ```
 
 We can now load these targets into our working environment.
@@ -285,20 +301,116 @@ If we `clean()`, however, we'll remake the plan from scratch.
 
 ```{r}
 clean()
-vis_drake_graph(burner_config) # Targets are outdated now
-# This time since we saved the previous output of full_burn to a file, we read that in for our seed_burn
+
+# Targets are outdated now
+vis_drake_graph(burner_config) 
+
+# Make the plan again.
+# Since we saved the previous output of full_burn to a file, this time we read that in for our seed_burn
 make(burner_plan) 
-vis_drake_graph(burner_config) # And now everything is up to date again
+
+# And now everything is up to date again
+vis_drake_graph(burner_config) 
 ```
+
+
+### Changing Code
+
+One way we can guarantee that `drake` will re-`make` a target is if some part of the code used to generate that target changes.
+
+Right now, nothing outdated becuase we just ran `make(burner_plan)`.
+
+```{r}
+outdated(burner_config)
+vis_drake_graph(burner_config)
+```
+
+Let's modify the code to a function called by `get_tweets`. Note that `drake` recognizes that targets that incorporate this function at some point in the pipeline are out of date, even though this function isn't called in the plan directly.
+
+Our original function, `there_are_new_tweets` which checks if the specified user has tweeted anything since the most recent tweet in our `tbl` argument:
+
+```{r}
+there_are_new_tweets <- function(tbl,
+                                 user = firewire_handle,
+                                 verbose = TRUE,
+                                 ...) {
+  latest_dt <-
+    tbl %>%
+    arrange(desc(created_at)) %>%
+    slice(1) %>%
+    pull(created_at)
+
+  if (verbose) message("Searching for new tweets.")
+
+  new <- get_seed_tweets(user = user, n_tweets = 1)
+
+  if (max(new$created_at) <= latest_dt) {
+    if (verbose) message("No new tweets to pull.")
+    FALSE
+  } else {
+    TRUE
+  }
+}
+```
+
+
+We'll change the message to include a smiley emoji `emo::ji('smile')` when `there_are_new_tweets` is called.
+
+```{r}
+there_are_new_tweets <- function(tbl,
+                                 user = firewire_handle,
+                                 verbose = TRUE,
+                                 ...) {
+  latest_dt <-
+    tbl %>%
+    arrange(desc(created_at)) %>%
+    slice(1) %>%
+    pull(created_at)
+
+  if (verbose) message(glue("Searching for new tweets! {emo::ji('smile')}"))
+
+  new <- get_seed_tweets(user = user, n_tweets = 1)
+
+  if (max(new$created_at) <= latest_dt) {
+    if (verbose) message("No new tweets to pull.")
+    FALSE
+  } else {
+    TRUE
+  }
+}
+```
+
+
+Now let's check that both targets which had been up to date has now been invalidated. 
+
+```{r}
+outdated(burner_config)
+vis_drake_graph(burner_config)
+```
+
+Notice that we didn't even need to re-define our plan; `drake` can tell that a function a target in our plan relies on has meaningfully changed.
+
+When we re-`make` our plan we should be messaged an `r emo::ji("smile")`.
+
+```{r}
+make(burner_plan)
+```
+
+And now `seed_burn` and `full_burn` should both be up to date again.
+
+```{r}
+outdated(burner_config)
+vis_drake_graph(burner_config)
+```
+
 
 
 ### Add Triggers
 
-Now let's add a [trigger](https://ropensci.github.io/drake/articles/debug.html#test-with-triggers-) so that we always trigger `get_tweets` to look for new tweets at the burner handle.
+I mentioned that a way to guarantee that targets are re-made even if code *doesn't* change is to associate a trigger with a target.
 
-Notice that we now have a new column in our dataframe for `trigger`, which `drake_plan` has automatically added for us.
+Let's add a [trigger](https://ropensci.github.io/drake/articles/debug.html#test-with-triggers-) so that we always run `get_tweets` to look for new tweets at the burner handle.
 
-This trigger will make our `full_burn` target look always out of date to `drake` since it knows we need to re-make `full_burn` every time `make()` is run.
 
 ```{r}
 burner_plan_2 <-
@@ -320,7 +432,12 @@ burner_plan_2 <-
       )
     )
   )
+
+burner_plan_2
 ```
+
+
+This trigger will make our `full_burn` target look always out of date to `drake` since it knows we need to re-make `full_burn` every time `make()` is run.
 
 ### Test out the `burner_plan` 2.0
 
@@ -330,25 +447,44 @@ First we'll clean out the previous file we saved and start from scratch.
 if (file.exists(burner_path)) fs::file_delete(burner_path)
 ```
 
-The data in `burner_path` should be all the tweets this burner account has tweeted so far:
+
+Our `full_burn` target will always be out of date because the trigger indicates that it always needs to be rebuilt, but `seed_burn` will now be up-to-date.
 
 ```{r, eval=FALSE}
 clean()
-burner_plan_2 # Notice our new trigger column
+
+# Notice our new trigger column
+burner_plan_2 
 burner_config_2 <- drake_config(burner_plan_2)
-# Our full_burn target will always be out of date because the trigger means it always needs to be rebuilt
-vis_drake_graph(burner_config_2)
 
-make(burner_plan_2)
-loadd(seed_burn) # Load the results of seed_burn and full_burn into our environment
-loadd(full_burn)
-expect_identical(seed_burn, full_burn) # These should be the same since there were no tweets posted between when we made seed_burn and full_burn
-
-outdated(burner_config_2) # full_burn will always be outdated because of our trigger
+# seed_burn is outdated becuase we haven't made the plan yet.
+# full_burn is always out of date, no matter what, because of the trigger.
+outdated(burner_config_2)
 vis_drake_graph(burner_config_2)
 ```
 
+All tweets are now stored in `burner_path`, which we specified as our `output_path` when making `full_burn`.
+
+What's stored in this file is the same as both `seed_burn` and `full_burn` becuase there were no tweets posted between when we made `seed_burn` and `full_burn`.
+
+```{r}
+make(burner_plan_2)
+
+# Load the results of seed_burn and full_burn into our environment
+loadd(seed_burn) 
+loadd(full_burn)
+# These should be the same since no new tweets posted
+expect_identical(seed_burn, full_burn) 
+
+# full_burn always outdated, seed_burn no longer outdated
+outdated(burner_config_2) 
+vis_drake_graph(burner_config_2)
+```
+
+
 Now let's post a new tweet and re-`make` the plan.
+
+`seed_burn` will be read in from the file, which reflects the state of the world before this tweet. Then `full_burn` will incorporate the new tweet.
 
 ```{r}
 # Tweet here
@@ -356,12 +492,15 @@ post_tweet(status =
              digest::digest(sample(100, 1)), 
            token = firewire_token)
 
-make(burner_plan_2) # seed_burn will be read in from the file, which reflects the state of the world before this tweet. Then full_burn will incorporate the new tweet.
-vis_drake_graph(burner_config_2) # seed_burn is up to date, and full_burn will always look outdated
+
+# seed_burn (read from file) is up to date, and full_burn will always look outdated
+make(burner_plan_2) 
+vis_drake_graph(burner_config_2) 
 
 loadd(seed_burn)
 loadd(full_burn)
-expect_gt(nrow(full_burn), nrow(seed_burn)) # We should have one extra row in full_burn than in seed_burn
+# We should have one extra row in full_burn than in seed_burn
+expect_gt(nrow(full_burn), nrow(seed_burn)) 
 
 seed_burn
 full_burn
@@ -371,61 +510,9 @@ saved_burn <- read_csv(here("data", "derived", "burn.csv"))
 expect_identical(nrow(full_burn), nrow(saved_burn))
 ```
 
-Cool, so we now know that we can successfully trigger the re-building of `full_burn` every time and save it as the latest state of the world to a file. 
+Now we've proven that we can successfully trigger the re-building of `full_burn` every time and save it as the latest state of the world to a file. 
 
-Every time new tweets arrive, that file will be updated at the end of the `make()`.
-
-
-
-### Changing Code
-
-One way we can guarantee that `drake` will re-`make` a target is if some part of the code used to generate that target changes.
-
-Let's modify the code to a function called by `pull_addresses`. Note that `drake` recognizes that targets that incorporate this function at some point in the pipeline are out of date, even though this function isn't called in the plan directly.
-
-Our original function:
-
-```{r}
-clean_borough <- function(x) {
-  if (is.na(x) || !str_detect(x, borough_reg)) {
-    return(NA_character_)
-  }
-
-  # Return the borough match
-  b <- boroughs[which(str_detect(x, boroughs))][1]
-
-  if (b == "Bronx") {
-    b <- "The Bronx"
-  } else if (b == "Staten") {
-    b <- "Staten Island"
-  }
-
-  b
-}
-```
-
-
-We'll change the early return value if a borough can't be detected from `NA` to just "NY":
-
-```{r}
-clean_borough <- function(x) {
-  if (is.na(x) || !str_detect(x, borough_reg)) {
-    return("NY")
-  }
-
-  # Return the borough match
-  b <- boroughs[which(str_detect(x, boroughs))][1]
-
-  if (b == "Bronx") {
-    b <- "The Bronx"
-  } else if (b == "Staten") {
-    b <- "Staten Island"
-  }
-
-  b
-}
-```
-
+Every time new tweets arrive, that file will be updated at the end of the `make()` run.
 
 
 ### Write our full plan
