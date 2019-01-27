@@ -292,7 +292,6 @@ vis_drake_graph(burner_config) # And now everything is up to date again
 ```
 
 
-
 ### Add Triggers
 
 Now let's add a [trigger](https://ropensci.github.io/drake/articles/debug.html#test-with-triggers-) so that we always trigger `get_tweets` to look for new tweets at the burner handle.
@@ -375,6 +374,59 @@ expect_identical(nrow(full_burn), nrow(saved_burn))
 Cool, so we now know that we can successfully trigger the re-building of `full_burn` every time and save it as the latest state of the world to a file. 
 
 Every time new tweets arrive, that file will be updated at the end of the `make()`.
+
+
+
+### Changing Code
+
+One way we can guarantee that `drake` will re-`make` a target is if some part of the code used to generate that target changes.
+
+Let's modify the code to a function called by `pull_addresses`. Note that `drake` recognizes that targets that incorporate this function at some point in the pipeline are out of date, even though this function isn't called in the plan directly.
+
+Our original function:
+
+```{r}
+clean_borough <- function(x) {
+  if (is.na(x) || !str_detect(x, borough_reg)) {
+    return(NA_character_)
+  }
+
+  # Return the borough match
+  b <- boroughs[which(str_detect(x, boroughs))][1]
+
+  if (b == "Bronx") {
+    b <- "The Bronx"
+  } else if (b == "Staten") {
+    b <- "Staten Island"
+  }
+
+  b
+}
+```
+
+
+We'll change the early return value if a borough can't be detected from `NA` to just "NY":
+
+```{r}
+clean_borough <- function(x) {
+  if (is.na(x) || !str_detect(x, borough_reg)) {
+    return("NY")
+  }
+
+  # Return the borough match
+  b <- boroughs[which(str_detect(x, boroughs))][1]
+
+  if (b == "Bronx") {
+    b <- "The Bronx"
+  } else if (b == "Staten") {
+    b <- "Staten Island"
+  }
+
+  b
+}
+```
+
+
 
 ### Write our full plan
 
