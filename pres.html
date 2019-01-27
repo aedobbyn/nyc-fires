@@ -308,27 +308,39 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">pres</h1>
 <h4 class="author"><em>Amanda Dobbyn</em></h4>
-<h4 class="date"><em>1/20/2019</em></h4>
 
 </div>
 
 
 <div id="quick-about-me" class="section level3">
 <h3>Quick about me</h3>
+<p>Day job: ultimate firsbee player.</p>
+<p>For fun: Data Scientist at Earlybird Software, former co-organzier of R-Ladies Chicago.</p>
 </div>
 <div id="drakes-main-idea" class="section level3">
 <h3><code>drake</code>’s main idea</h3>
-<p>In a pipeline, when changes occur that make the most recent results out-of-date, rebuild <em>only</em> the parts of the pipeline that need to be rebuilt.</p>
+<p>In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild <em>only</em> the parts of the pipeline that need to be rebuilt.</p>
 </div>
 <div id="what-is-drake" class="section level3">
 <h3>What is <code>drake</code>?</h3>
+<p>A workflow manager for your R code .</p>
 <p><a href="https://www.gnu.org/software/make/">GNU Make</a> for R, built around dataframes.</p>
-<p>GNU Make uses a file called a Makefile to specify dependencies and how targets should be reubilt when they’re out of date.</p>
+<p>GNU Make uses workflow outline file called a Makefile to specify dependencies and how targets should be reubilt when they’re out of date.</p>
 <p>Created and maintained by <a href="https://twitter.com/wmlandau">Will</a> <a href="https://github.com/wlandau">Landau</a> and friends.</p>
 </div>
 <div id="two-pieces-of-vocab" class="section level3">
 <h3>Two pieces of vocab</h3>
-<p><em>targets</em> and <em>commands</em> From <code>?drake_config</code>: “<strong>Targets</strong> are the objects and files that drake generates, and <strong>commands</strong> are the pieces of R code that produce them.”</p>
+<p><em>targets</em> and <em>commands</em></p>
+<p>From <code>?drake_config</code>: “<strong>Targets</strong> are the objects and files that drake generates, and <strong>commands</strong> are the pieces of R code that produce them.”</p>
+</div>
+<div id="analogy-to-knitr" class="section level3">
+<h3>Analogy to <code>knitr</code></h3>
+<p>(Stolen from Will’s analogy in his <a href="https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533">interview on the R podcast</a>.)</p>
+<p><code>drake</code> is sort of like <code>knitr</code> in the sense that 1) It makes your analysis reproducible and compact. You expect to be able to rerun someone’s report from a single file.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>In <code>knitr</code>, chunks can be cached if they’ve already been run, so they don’t need to be re-run unless something in them changes.</p></li>
+<li><p>When an <code>Rmd</code> is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a <code>depedson</code> for.</p></li>
+</ol>
 </div>
 <div id="other-nice-features-of-drake" class="section level3">
 <h3>Other nice features of <code>drake</code></h3>
@@ -336,8 +348,8 @@ $(document).ready(function () {
 <li>See how your pipeline fits together, in a tidy dataframe</li>
 <li>Visualize dependencies in your code in graph format</li>
 <li>Some high-performance computing advantages</li>
-<li>Great for reproducibility</li>
-<li>It’s all in R!</li>
+<li>Great for iteration and reproducibility; you know exactly how these results were generated</li>
+<li>It’s all in R – no writing config files!</li>
 </ol>
 </div>
 <div id="how-to-drake" class="section level3">
@@ -349,7 +361,7 @@ $(document).ready(function () {
 </ol>
 <pre class="r"><code>source(&quot;/path/to/my/prework.R&quot;)
 
-# Custom functions defined in prework are:
+## Custom functions defined in prework are:
 # clean_my(), analyze_my(), and report_out_my()
 
 plan &lt;- 
@@ -362,7 +374,8 @@ plan &lt;-
 
 make(plan)</code></pre>
 <p>The first run of <code>make(plan)</code> will run the plan from scratch.</p>
-<p>After that, <code>drake</code> will only re-run the parts of the plan that are out of date, and all those parts’ dependencies.</p>
+<p>After that, <code>drake</code> will only re-run the parts of the plan that are out of date and everything downstream of that.</p>
+<p><code>drake</code> knows that, for example, <code>results</code> depends on <code>cleaned_data</code> because <code>cleaned_data</code> is part of the <code>analyze_my(cleaned_data)</code> command used to generate <code>results</code>.</p>
 </div>
 <div id="what-makes-a-target-become-out-of-date" class="section level3">
 <h3>What makes a target become out of date?</h3>
@@ -373,28 +386,32 @@ make(plan)</code></pre>
 </div>
 <div id="where-is-all-this-stored" class="section level3">
 <h3>Where is all this stored?</h3>
-<p>How does <code>drake</code> store info/data about targets? In a hidden <code>.drake</code> directory. In the <code>.drake/data</code> subdirectory, targets are stored as <code>rds</code> objects.</p>
-<p>How does <code>drake</code> keep track of dependencies? With a <code>config</code> which you can access.</p>
+<p>How does <code>drake</code> store info/data about targets? In a hidden <code>.drake</code> cache when you run <code>make()</code>. In the <code>.drake/data</code> subdirectory, targets are stored as hashed <code>rds</code> objects. <a href="https://ropensci.github.io/drake/articles/storage.html">More on storage.</a></p>
+<p><code>clean()</code> cleans that cache.</p>
+<p>How does <code>drake</code> keep track of dependencies? <code>drake</code> stores dependency graph along with a bunch of other things in <code>config</code>, which you can access with <code>drake_config()</code>.</p>
 </div>
 <div id="big-idea-2" class="section level3">
 <h3>Big Idea #2</h3>
-<p><code>drake</code> is all built around <em>functions</em> rather than sourcing scripts. - A plan works by using functions to create targets. - Running <code>drake_plan</code> creates a dataframe relating each target to the function used to generate it.</p>
+<p><code>drake</code> is all built around <em>functions</em> rather than sourcing scripts. - A plan works by using functions to create targets. - This allows <code>drake</code> to infer dependencies of objects and functions - Running <code>drake_plan</code> creates a dataframe relating each target to the function used to generate it.</p>
 <pre class="r"><code>bad_plan &lt;- 
   drake_plan(
     first_target = source(&quot;import.R&quot;),
     second_target = source(&quot;clean.R&quot;)
   )</code></pre>
+<p>Sourcing files breaks the dependency structure that makes <code>drake</code> useful.</p>
 <p>Instead,</p>
 <pre class="r"><code>source(&quot;all_my_funs.R&quot;)
 
 good_plan &lt;- 
   drake_plan(
-    first_target = do_stuff(dat),
+    first_target = do_stuff(my_data),
     second_target = do_more_stuff(first_target)
   )</code></pre>
+<p>This setup allows <code>drake</code> to know <code>first_target</code> needs to be built before work on <code>second_target</code> can begin.</p>
 </div>
 <div id="our-plan" class="section level3">
 <h3>Our plan</h3>
+<p>I’ll illustrate a way you might want to use <code>drake</code> with something that’s close to home for us.</p>
 <p>Remember the <a href="https://twitter.com/NYCFireWire/status/1078478369036165121">crazy blue light</a> from late December?</p>
 <p>The Twitter account that let us know that this wasn’t in fact aliens is <a href="https://twitter.com/NYCFireWire">NYCFireWire</a>.</p>
 <p>Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.</p>
@@ -421,18 +438,18 @@ good_plan &lt;-
 <pre><code>## # A tibble: 50 x 5
 ##    text                   user_id status_id created_at          screen_name
 ##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 Queens *99-75-4746* 1…  5.60e8   1.09e18 2019-01-23 19:37:10 NYCFireWire
-##  2 Queens **99-44-4763**…  5.60e8   1.09e18 2019-01-23 14:05:22 NYCFireWire
-##  3 Queens **99-33-4763**…  5.60e8   1.09e18 2019-01-23 13:51:45 NYCFireWire
-##  4 Queens *99-75-8644* 1…  5.60e8   1.09e18 2019-01-23 12:46:16 NYCFireWire
-##  5 Bronx *66-75-2577* 12…  5.60e8   1.09e18 2019-01-23 12:09:16 NYCFireWire
-##  6 Welcome back! https:/…  5.60e8   1.09e18 2019-01-23 10:51:45 NYCFireWire
-##  7 Manhattan *66-75-1630…  5.60e8   1.09e18 2019-01-23 10:45:30 NYCFireWire
-##  8 Staten Island **88-22…  5.60e8   1.09e18 2019-01-23 10:18:31 NYCFireWire
-##  9 Staten Island **88-22…  5.60e8   1.09e18 2019-01-23 10:09:22 NYCFireWire
-## 10 Staten Island *88-22-…  5.60e8   1.09e18 2019-01-23 10:08:14 NYCFireWire
+##  1 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
+##  2 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
+##  3 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
+##  4 The FDNY’s diversity …  5.60e8   1.09e18 2019-01-27 01:12:13 NYCFireWire
+##  5 Fairfax County Fire &amp;…  5.60e8   1.09e18 2019-01-27 01:11:39 NYCFireWire
+##  6 https://t.co/dnYTm4ZA…  5.60e8   1.09e18 2019-01-26 23:06:02 NYCFireWire
+##  7 Queens *99-75-6833* 1…  5.60e8   1.09e18 2019-01-26 21:05:04 NYCFireWire
+##  8 Queens *99-75-4187* 5…  5.60e8   1.09e18 2019-01-26 20:14:02 NYCFireWire
+##  9 Queens *99-75-5692* 9…  5.60e8   1.09e18 2019-01-26 12:56:03 NYCFireWire
+## 10 Queens *99-75-5692* 9…  5.60e8   1.09e18 2019-01-26 12:54:22 NYCFireWire
 ## # … with 40 more rows</code></pre>
-<pre class="r"><code>old_tweet_id &lt;- &quot;1084619203167031297&quot; # Random tweet from a while ago
+<pre class="r"><code>old_tweet_id &lt;- &quot;1084619203167031297&quot; # Random tweet from a while ago so what we can set a max id in the past
 
 get_tweets(
   max_id = old_tweet_id
@@ -443,11 +460,11 @@ get_tweets(
 <pre><code>## # A tibble: 55 x 5
 ##    text                   user_id status_id created_at          screen_name
 ##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 Queens *99-75-4746* 1…  5.60e8   1.09e18 2019-01-23 19:37:10 NYCFireWire
-##  2 Queens **99-44-4763**…  5.60e8   1.09e18 2019-01-23 14:05:22 NYCFireWire
-##  3 Queens **99-33-4763**…  5.60e8   1.09e18 2019-01-23 13:51:45 NYCFireWire
-##  4 Queens *99-75-8644* 1…  5.60e8   1.09e18 2019-01-23 12:46:16 NYCFireWire
-##  5 Bronx *66-75-2577* 12…  5.60e8   1.09e18 2019-01-23 12:09:16 NYCFireWire
+##  1 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
+##  2 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
+##  3 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
+##  4 The FDNY’s diversity …  5.60e8   1.09e18 2019-01-27 01:12:13 NYCFireWire
+##  5 Fairfax County Fire &amp;…  5.60e8   1.09e18 2019-01-27 01:11:39 NYCFireWire
 ##  6 &quot;Staten Island *MVA/P…  5.60e8   1.08e18 2019-01-13 20:12:23 NYCFireWire
 ##  7 Queens 99-75-6810 111…  5.60e8   1.08e18 2019-01-13 17:57:22 NYCFireWire
 ##  8 Manhattan *66-75-1352…  5.60e8   1.08e18 2019-01-13 04:27:44 NYCFireWire
@@ -464,20 +481,20 @@ get_tweets(
 ## Groups: &lt;by row&gt;
 ## 
 ## # A tibble: 50 x 4
-##    street          borough   address             text                      
-##    &lt;chr&gt;           &lt;chr&gt;     &lt;chr&gt;               &lt;chr&gt;                     
-##  1 163-56 25 Dr    Queens    163-56 25 Dr, Quee… Queens *99-75-4746* 163-5…
-##  2 114-39 157 St   Queens    114-39 157 St, Que… Queens **99-44-4763**4th …
-##  3 114-39 157 St   Queens    114-39 157 St, Que… Queens **99-33-4763**3rd …
-##  4 117-41 164 St   Queens    117-41 164 St, Que… Queens *99-75-8644* 117-4…
-##  5 1200 Woodycres… The Bronx 1200 Woodycrest Av… Bronx *66-75-2577* 1200 W…
-##  6 &lt;NA&gt;            &lt;NA&gt;      &lt;NA&gt;                Welcome back! https://t.c…
-##  7 1724 Amsterdam… Manhattan 1724 Amsterdam Ave… Manhattan *66-75-1630* 17…
-##  8 192 Victory Bl… Staten I… 192 Victory Blvd o… Staten Island **88-22-022…
-##  9 192 Victory Bl… Staten I… 192 Victory Blvd o… Staten Island **88-22-022…
-## 10 192 Victory Bl… Staten I… 192 Victory Blvd o… Staten Island *88-22-0227…
+##    street         borough   address              text                      
+##    &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;                &lt;chr&gt;                     
+##  1 1259 Madison … Brooklyn  1259 Madison St, Br… Brooklyn *77-75-0805* 125…
+##  2 280 Park Hill… Staten I… 280 Park Hill Ave o… Staten Island *88-75-0460…
+##  3 188 Garvey Bl… Brooklyn  188 Garvey Blvd, Br… Brooklyn *77-75-0689* 188…
+##  4 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 The FDNY’s diversity moni…
+##  5 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 Fairfax County Fire &amp;amp;…
+##  6 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 https://t.co/dnYTm4ZAAU   
+##  7 115-87 229 St  Queens    115-87 229 St, Quee… Queens *99-75-6833* 115-8…
+##  8 54-02 Flushin… Queens    54-02 Flushing Ave,… Queens *99-75-4187* 54-02…
+##  9 99-43 213 St   Queens    99-43 213 St, Queens Queens *99-75-5692* 99-43…
+## 10 99-43 213 St   Queens    99-43 213 St, Queens Queens *99-75-5692* 99-43…
 ## # … with 40 more rows</code></pre>
-<p>Then we can use the <code>geocode</code> function (along with a Google Maps API key) from the <code>ggmap</code> package to attach the latitude and longitude to each address, if Google can find it.</p>
+<p>Then we can use the <a href="https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode"><code>geocode</code></a> function (along with a <a href="https://cloud.google.com/maps-platform/">Google Maps</a> API key) from the <code>ggmap</code> package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we’re returned <code>NA</code>s.)</p>
 <pre class="r"><code>geo_to_list</code></pre>
 <pre><code>## function (inp) 
 ## {
@@ -503,354 +520,26 @@ get_tweets(
 <pre class="r"><code>get_tweets(n_tweets_seed = 5) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()</code></pre>
-<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=163-56%2025%20Dr%2C%20Queens&amp;key=xxx</code></pre>
-<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=114-39%20157%20St%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=114-39%20157%20St%2C%20Queens&amp;key=xxx</code></pre>
-<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=117-41%20164%20St%2C%20Queens&amp;key=xxx</code></pre>
-<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1200%20Woodycrest%20Ave%20off%20W%20167%20St%2C%20The%20Bronx&amp;key=xxx</code></pre>
+<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1259%20Madison%20St%2C%20Brooklyn&amp;key=xxx</code></pre>
+<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=280%20Park%20Hill%20Ave%20off%20Sobel%20ct%2C%20Staten%20Island&amp;key=xxx</code></pre>
+<pre><code>## Source : https://maps.googleapis.com/maps/api/geocode/json?address=188%20Garvey%20Blvd%2C%20Brooklyn&amp;key=xxx</code></pre>
 <pre><code>## # A tibble: 5 x 7
 ##   address      lat  long lat_trunc long_trunc created_at          text     
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;    
-## 1 163-56 25…  40.8 -73.8      40.8      -73.8 2019-01-23 19:37:10 Queens *…
-## 2 114-39 15…  40.7 -73.8      40.7      -73.8 2019-01-23 14:05:22 Queens *…
-## 3 114-39 15…  40.7 -73.8      40.7      -73.8 2019-01-23 13:51:45 Queens *…
-## 4 117-41 16…  40.7 -73.8      40.7      -73.8 2019-01-23 12:46:16 Queens *…
-## 5 1200 Wood…  40.8 -73.9      40.8      -73.9 2019-01-23 12:09:16 Bronx *6…</code></pre>
-</div>
-<div id="write-our-plan" class="section level3">
-<h3>Write our plan</h3>
-<pre class="r"><code>fire_path &lt;- here(&quot;data&quot;, &quot;raw&quot;, &quot;fires.csv&quot;)
-
-plan &lt;-
-  drake_plan(
-    seed_fires = get_tweets( # Grab some seed fires
-      n_tweets_seed = 2,
-      max_id = old_tweet_id
-    ), 
-    fires = target(
-      command = get_tweets(
-        tbl = seed_fires,
-        n_tweets_reup = 3
-      ),
-      trigger = trigger(
-        condition = TRUE # Always look for new tweets
-      )
-    ),
-    addresses = pull_addresses(fires), # Extract addresses from tweets
-    lat_long = get_lat_long(addresses), # Send to Google for lat-longs
-    dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
-    fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
-
-    time_graph = graph_fire_times(dat),
-    plot = plot_fires(dat, nyc)
-  )</code></pre>
-</div>
-<div id="run-our-plan" class="section level3">
-<h3>Run our plan</h3>
-<pre class="r"><code>plan</code></pre>
-<pre><code>## # A tibble: 8 x 3
-##   target     command                                   trigger             
-##   &lt;chr&gt;      &lt;chr&gt;                                     &lt;chr&gt;               
-## 1 seed_fires get_tweets(n_tweets_seed = 2, max_id = o… &lt;NA&gt;                
-## 2 fires      get_tweets(tbl = seed_fires, n_tweets_re… trigger(condition =…
-## 3 addresses  pull_addresses(fires)                     &lt;NA&gt;                
-## 4 lat_long   get_lat_long(addresses)                   &lt;NA&gt;                
-## 5 dat        join_on_city_data(lat_long, nyc)          &lt;NA&gt;                
-## 6 fire_sums  count_fires(dat)                          &lt;NA&gt;                
-## 7 time_graph graph_fire_times(dat)                     &lt;NA&gt;                
-## 8 plot       plot_fires(dat, nyc)                      &lt;NA&gt;</code></pre>
-<pre class="r"><code>make(plan, verbose = 4)</code></pre>
-<pre><code>## cache /Users/amanda/Desktop/Projects/nyc-fires/.drake</code></pre>
-<pre><code>## analyze environment</code></pre>
-<pre><code>## import fire_emoji</code></pre>
-<pre><code>## import nyc</code></pre>
-<pre><code>## import graph_fire_times</code></pre>
-<pre><code>## import old_tweet_id</code></pre>
-<pre><code>## import truncate_lat_long</code></pre>
-<pre><code>## import geo_to_list</code></pre>
-<pre><code>## import join_on_city_data</code></pre>
-<pre><code>## import count_fires</code></pre>
-<pre><code>## import glue::glue</code></pre>
-<pre><code>## import lubridate::as_datetime</code></pre>
-<pre><code>## import get_lat_long</code></pre>
-<pre><code>## import pull_addresses</code></pre>
-<pre><code>## import get_seed_tweets</code></pre>
-<pre><code>## import there_are_new_tweets</code></pre>
-<pre><code>## import get_more_tweets</code></pre>
-<pre><code>## import get_tweets</code></pre>
-<pre><code>## target seed_fires</code></pre>
-<pre><code>## store seed_fires</code></pre>
-<pre><code>## target fires</code></pre>
-<pre><code>## Searching for new tweets.</code></pre>
-<pre><code>## 3 new tweet(s) pulled.</code></pre>
-<pre><code>## Target fires messages:
-##   Searching for new tweets.
-##   3 new tweet(s) pulled.</code></pre>
-<pre><code>## store fires</code></pre>
-<pre><code>## target addresses</code></pre>
-<pre><code>## store addresses</code></pre>
-<pre><code>## skip lat_long</code></pre>
-<pre><code>## skip dat</code></pre>
-<pre><code>## import plot_fires</code></pre>
-<pre><code>## skip fire_sums</code></pre>
-<pre><code>## skip time_graph</code></pre>
-<pre><code>## skip plot</code></pre>
-</div>
-<div id="info-drake-stores" class="section level3">
-<h3>Info drake stores</h3>
-<pre class="r"><code>config &lt;- drake_config(plan)
-config$plan
-config$prework
-config$targets
-config$cache_path
-config$graph
-
-vis_drake_graph()
-
-lat_long
-loadd(lat_long)
-lat_long
-
-clean(fires)
-
-outdated(config)
-
-vis_drake_graph()
-
-make(plan)
-
-loadd(lat_long)
-lat_long</code></pre>
-<p>If our <code>seed_fires</code> had been 3000 instead of 3:</p>
-<pre class="r"><code>big_plan &lt;-
-  drake_plan(
-    seed_fires = get_tweets( # Grab seed fires from file
-      input_path = here(&quot;data&quot;, &quot;derived&quot;, &quot;lots_o_fires.csv&quot;)
-    ), 
-    fires = target(
-      command = get_tweets(
-        tbl = seed_fires,
-        n_tweets_reup = 3
-      ),
-      trigger = trigger(
-        condition = TRUE 
-      )
-    ),
-    addresses = pull_addresses(fires)
-    # Not sending all 3k addresses to Google
-  )
-
-make(big_plan)</code></pre>
-<pre><code>## target seed_fires</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_integer(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre><code>## Target seed_fires messages:
-##   Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_integer(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre><code>## target fires</code></pre>
-<pre><code>## Searching for new tweets.</code></pre>
-<pre><code>## 3 new tweet(s) pulled.</code></pre>
-<pre><code>## Target fires messages:
-##   Searching for new tweets.
-##   3 new tweet(s) pulled.</code></pre>
-<pre><code>## target addresses</code></pre>
-<pre class="r"><code>loadd(addresses)</code></pre>
-<pre><code>## 
-## Attaching package: 'tidyselect'</code></pre>
-<pre><code>## The following object is masked from 'package:testthat':
-## 
-##     matches</code></pre>
-<pre class="r"><code>addresses</code></pre>
-<pre><code>## Source: local data frame [3,003 x 5]
-## Groups: &lt;by row&gt;
-## 
-## # A tibble: 3,003 x 5
-##    borough  street    address      text                 created_at         
-##    &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;                &lt;dttm&gt;             
-##  1 Queens   163-56 2… 163-56 25 D… Queens *99-75-4746*… 2019-01-24 00:37:10
-##  2 Queens   114-39 1… 114-39 157 … Queens **99-44-4763… 2019-01-23 19:05:22
-##  3 Queens   114-39 1… 114-39 157 … Queens **99-33-4763… 2019-01-23 18:51:45
-##  4 Queens   35-30 91… 35-30 91 St… Queens *99-75-7899*… 2019-01-22 15:28:25
-##  5 Brooklyn 1270 E 5… 1270 E 51 S… Brooklyn *77-75-313… 2019-01-22 05:40:05
-##  6 Queens   14-37 Eg… 14-37 Egger… Queens *99-75-1122*… 2019-01-22 04:01:28
-##  7 Queens   34-40 10… 34-40 100 S… Queens *99-33-9368*… 2019-01-22 03:39:44
-##  8 The Bro… 4146 Pau… 4146 Pauldi… Bronx *66-75-3811* … 2019-01-22 03:18:19
-##  9 Queens   34-40 10… 34-40 100 S… Queens *99-22-9368*… 2019-01-22 03:16:02
-## 10 Queens   34-40 10… 34-40 100 S… Queens *99-75-9368*… 2019-01-22 03:09:28
-## # … with 2,993 more rows</code></pre>
-<pre class="r"><code>make(big_plan)</code></pre>
-<pre><code>## Unloading targets from environment:
-##   addresses</code></pre>
-<pre><code>## target fires</code></pre>
-<pre><code>## Searching for new tweets.</code></pre>
-<pre><code>## 3 new tweet(s) pulled.</code></pre>
-<pre><code>## Target fires messages:
-##   Searching for new tweets.
-##   3 new tweet(s) pulled.</code></pre>
-</div>
-<div id="testing-our-reupping-with-a-burner-account" class="section level3">
-<h3>Testing our reupping with a 🔥 burner account 🔥</h3>
-<p>The <code>rtweet</code> package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves.</p>
-<p><a href="https://twitter.com/didntstartit">Burner account!</a></p>
-<p>Every time <code>burner_plan</code> is run, new any tweets collected will be stored in <code>burner_path</code> and be read into the next iteration of <code>seed_burn</code>.</p>
-<p>Let’s pre-store all tweets in burner_path.</p>
-<pre class="r"><code>burner_path &lt;- &quot;data/derived/burn.csv&quot;
-
-get_tweets(
-      user = burner_handle,
-      output_path = burner_path
-    )</code></pre>
-<pre><code>## # A tibble: 8 x 5
-##   text                    user_id status_id created_at          screen_name
-##   &lt;chr&gt;                     &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-## 1 e1c87205446e1c8cc10879… 1.09e18   1.09e18 2019-01-23 20:57:27 didntstart…
-## 2 80b0ae73fe0e882b0a2497… 1.09e18   1.09e18 2019-01-20 23:10:45 didntstart…
-## 3 &quot;-------------- \nHell… 1.09e18   1.09e18 2019-01-20 23:04:53 didntstart…
-## 4 first_rtweet            1.09e18   1.09e18 2019-01-20 23:02:54 didntstart…
-## 5 🔥🔥🔥🔥 #myfourthTweet 1.09e18   1.09e18 2019-01-20 22:28:16 didntstart…
-## 6 🔥🔥🔥 #mythirdTweet    1.09e18   1.09e18 2019-01-20 17:12:25 didntstart…
-## 7 🔥🔥 #mysecondTweet     1.09e18   1.09e18 2019-01-20 17:05:42 didntstart…
-## 8 🔥 #myfirstTweet        1.09e18   1.09e18 2019-01-20 16:54:28 didntstart…</code></pre>
-<pre class="r"><code>read_csv(burner_path)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_double(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre><code>## # A tibble: 8 x 5
-##   text                    user_id status_id created_at          screen_name
-##   &lt;chr&gt;                     &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-## 1 e1c87205446e1c8cc10879… 1.09e18   1.09e18 2019-01-24 01:57:27 didntstart…
-## 2 80b0ae73fe0e882b0a2497… 1.09e18   1.09e18 2019-01-21 04:10:45 didntstart…
-## 3 &quot;-------------- \nHell… 1.09e18   1.09e18 2019-01-21 04:04:53 didntstart…
-## 4 first_rtweet            1.09e18   1.09e18 2019-01-21 04:02:54 didntstart…
-## 5 🔥🔥🔥🔥 #myfourthTweet 1.09e18   1.09e18 2019-01-21 03:28:16 didntstart…
-## 6 🔥🔥🔥 #mythirdTweet    1.09e18   1.09e18 2019-01-20 22:12:25 didntstart…
-## 7 🔥🔥 #mysecondTweet     1.09e18   1.09e18 2019-01-20 22:05:42 didntstart…
-## 8 🔥 #myfirstTweet        1.09e18   1.09e18 2019-01-20 21:54:28 didntstart…</code></pre>
-<p>Now we’ll create the plan:</p>
-<pre class="r"><code>burner_plan &lt;-
-  drake_plan(
-    # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
-    seed_burn = get_tweets(
-      user = burner_handle,
-      input_path = burner_path 
-    ),
-    
-    full_burn = target(
-      command = get_tweets(
-        tbl = seed_burn,
-        user = burner_handle,
-        output_path = burner_path # Outputs to burner_path
-      ),
-      trigger = trigger(
-        condition = TRUE # Always look for new tweets
-      )
-    )
-  )
-
-burner_plan</code></pre>
-<pre><code>## # A tibble: 2 x 3
-##   target   command                                        trigger          
-##   &lt;chr&gt;    &lt;chr&gt;                                          &lt;chr&gt;            
-## 1 seed_bu… get_tweets(user = burner_handle, input_path =… &lt;NA&gt;             
-## 2 full_bu… get_tweets(tbl = seed_burn, user = burner_han… trigger(conditio…</code></pre>
-</div>
-<div id="test-out-the-burner" class="section level3">
-<h3>Test out the burner</h3>
-<p>The data in <code>burner_path</code> should be all the tweets this burner account has tweeted so far:</p>
-<pre class="r"><code>vis_drake_graph(burner_config)
-
-make(burner_plan)
-loadd(seed_burn)
-loadd(full_burn)
-expect_equal(seed_burn, full_burn)</code></pre>
-<p>Now let’s post a new tweet.</p>
-<pre class="r"><code>burner_config &lt;- drake_config(burner_plan)
-outdated(burner_config)</code></pre>
-<pre><code>## [1] &quot;full_burn&quot;</code></pre>
-<pre class="r"><code># Tweet here
-post_tweet(status = 
-             digest::digest(sample(100, 1)), 
-           token = firewire_token)</code></pre>
-<pre><code>## your tweet has been posted!</code></pre>
-<pre class="r"><code>make(burner_plan)</code></pre>
-<pre><code>## target full_burn</code></pre>
-<pre><code>## Searching for new tweets.</code></pre>
-<pre><code>## 1 new tweet(s) pulled.</code></pre>
-<pre><code>## Target full_burn messages:
-##   Searching for new tweets.
-##   1 new tweet(s) pulled.</code></pre>
-<pre class="r"><code>loadd(seed_burn)
-loadd(full_burn)
-
-# And let's checked it was saved to file
-saved_burn &lt;- read_csv(here(&quot;data&quot;, &quot;derived&quot;, &quot;burn.csv&quot;))</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_double(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre class="r"><code>expect_gt(nrow(full_burn), nrow(seed_burn))
-expect_equal(nrow(full_burn), nrow(saved_burn))
-
-clean()
-
-outdated(burner_config)</code></pre>
-<pre><code>## [1] &quot;full_burn&quot; &quot;seed_burn&quot;</code></pre>
-<pre class="r"><code>make(burner_plan)</code></pre>
-<pre><code>## Unloading targets from environment:
-##   full_burn
-##   seed_burn</code></pre>
-<pre><code>## target seed_burn</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_double(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre><code>## Target seed_burn messages:
-##   Parsed with column specification:
-## cols(
-##   text = col_character(),
-##   user_id = col_double(),
-##   status_id = col_double(),
-##   created_at = col_datetime(format = &quot;&quot;),
-##   screen_name = col_character()
-## )</code></pre>
-<pre><code>## target full_burn</code></pre>
-<pre><code>## Searching for new tweets.</code></pre>
-<pre><code>## No new tweets to pull.</code></pre>
-<pre><code>## Target full_burn messages:
-##   Searching for new tweets.
-##   No new tweets to pull.</code></pre>
-<pre class="r"><code>loadd(seed_burn)
-loadd(full_burn)
-expect_equal(nrow(seed_burn), nrow(full_burn))</code></pre>
+## 1 1259 Madi…  40.7 -73.9      40.7      -73.9 2019-01-27 11:36:52 Brooklyn…
+## 2 280 Park …  40.6 -74.1      40.6      -74.1 2019-01-27 11:10:49 Staten I…
+## 3 188 Garve…  40.7 -73.9      40.7      -73.9 2019-01-27 01:36:24 Brooklyn…
+## 4 &lt;NA&gt;        NA    NA        NA         NA   2019-01-27 01:12:13 The FDNY…
+## 5 &lt;NA&gt;        NA    NA        NA         NA   2019-01-27 01:11:39 Fairfax …</code></pre>
 </div>
 <div id="moar-resources" class="section level3">
 <h3>Moar Resources</h3>
-<p><a href="https://ropenscilabs.github.io/drake-manual/index.html"><code>drake</code> user manual</a> <a href="https://sinarueeger.github.io/2018/10/09/workflow/">Sina Rüeger’s <code>drake</code> presentation</a> <a href="https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf">Kirill Müller’s cheat sheet</a></p>
+<ul>
+<li><a href="https://ropenscilabs.github.io/drake-manual/index.html"><code>drake</code> user manual</a></li>
+<li><a href="https://ropensci.github.io/drake/articles/debug.html">debugging drake</a></li>
+<li><a href="https://sinarueeger.github.io/2018/10/09/workflow/">Sina Rüeger’s <code>drake</code> presentation</a></li>
+<li><a href="https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf">Kirill Müller’s cheat sheet</a></li>
+</ul>
 </div>
 
 
