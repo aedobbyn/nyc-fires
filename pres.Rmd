@@ -13,6 +13,7 @@ output:
 
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(collapse = TRUE)
 options(htmltools.dir.version = FALSE)
 ```
 
@@ -33,6 +34,8 @@ For fun: Data Scientist at Earlybird Software, former co-organizer of R-Ladies C
 
 https://github.com/aedobbyn
 
+https://dobb.ae
+
 @dobbleobble
 
 ---
@@ -51,15 +54,19 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 .pull-left[
 
+The name stands for:
+
 **d**ataframes in **R** for M**ake**
 
-[GNU Make](https://www.gnu.org/software/make/) uses workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
+or in other words, GNU Make reimagined for R.
+
+[GNU Make](https://www.gnu.org/software/make/) uses a workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
 ]
 
-.pull-right[![example_makefile](img/example_makefile.jpg)]
+.pull-right[![example_makefile](img/example_makefile_r.jpg)]
 
 ---
 
@@ -350,7 +357,8 @@ seed_tweets <-
   )
 
 (full_tweets <- 
-  get_tweets(seed_tweets, n_tweets_reup = 5))
+  get_tweets(seed_tweets, n_tweets_reup = 5,
+             output_path = here("data", "raw", "fires.csv")))
 ```
 
 ---
@@ -392,7 +400,39 @@ get_tweets(n_tweets_seed = 5) %>%
 ```
 
 
-That's our main pipeline. We can do a few bits of analysis of the data after that, but that's the core of it.
+That's our main pipeline. We can do a few bits of analysis of the data after that.
+
+For instance we could `count_fires`, summing up the total number of fires per `lat`-`long` combo.
+
+```{r}
+get_tweets(n_tweets_seed = 5) %>% 
+  pull_addresses() %>% 
+  get_lat_long() %>% 
+  count_fires()
+```
+
+
+---
+
+### Quick benchmark
+
+Even though it didn't take too long to pull 5 tweets from Twitter and send 5 addresses to Google Maps, we wouldn't want to re-run this part of the pipeline every time we changed an analysis step.
+
+
+```{r}
+b_mark <-
+  bench::mark({
+    get_tweets(n_tweets_seed = 1) %>% 
+    pull_addresses() %>% 
+    get_lat_long()
+})
+
+b_mark %>% 
+  select(median)
+```
+
+
+
 
 ---
 

@@ -2,6 +2,7 @@
 suppressPackageStartupMessages({
   library(drake)
   library(emojifont)
+  library(fs)
   library(ggmap)
   library(glue)
   library(here)
@@ -10,8 +11,6 @@ suppressPackageStartupMessages({
   library(testthat)
   library(tidyverse)
 })
-
-pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
 source(here("key.R"))
 register_google(gmaps_key)
@@ -275,7 +274,7 @@ nyc <-
 fire_emoji <- emoji("fire")
 
 plot_fires <- function(tbl, city = nyc,
-                       output_path = here("data", "derived", "fire_plot.png")) {
+                       output_path = here("plots", "fire_plot.png")) {
   tbl <-
     tbl %>%
     drop_na(lat, long)
@@ -302,7 +301,7 @@ plot_fires <- function(tbl, city = nyc,
 
 
 plot_fire_sums <- function(tbl, city = nyc,
-                           output_path = here("data", "derived", "fire_sums_plot.png")) {
+                           output_path = here("plots", "fire_sums_plot.png")) {
   tbl <-
     tbl %>%
     drop_na(lat, long)

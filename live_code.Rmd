@@ -10,15 +10,21 @@ knitr::opts_chunk$set(echo = TRUE)
 source(here::here("didnt_start_it.R"))
 ```
 
+```{r}
+# Will not be necessary to set in the upcoming release
+pkgconfig::set_config("drake::strings_in_dots" = "literals")
+```
+
+
 ### Burner account time
 
 Let's define a file path to dump the tweets we collect into.
 
 ```{r}
-burner_path <- "data/derived/burn.csv"
+burner_path <- here("data", "raw", "burn.csv") # Same as "<working_dir>/data/raw/burn.csv"
 
 # Delete the file in burner_path if it exists already so we start from scratch
-if (file.exists(burner_path)) fs::file_delete(burner_path)
+if (file_exists(burner_path)) file_delete(burner_path)
 ```
 
 
@@ -30,19 +36,20 @@ burner_plan <-
     # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
       user = burner_handle,
-      input = burner_path
+      input = here(file_in("data/raw/burn.csv"))
     ),
     
     full_burn = get_tweets(
         tbl = seed_burn,
         user = burner_handle,
-        output_path = burner_path # Outputs to burner_path
+        output_path = here(file_out("data/raw/burn.csv")) # Outputs to burner_path
       )
   )
 ```
 
 Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
 
+The `file_in` and `file_out` syntax allow `drake` to recognize and track the file. That lets us see when the targets associated with the file (both upstream and downstream of it) are invalidated.
 
 ### Test out v1 of our plan
 
@@ -69,6 +76,9 @@ outdated(burner_config)
 
 # Which is reflected in our graph
 vis_drake_graph(burner_config) 
+
+# Can show just targets if things are too crowded
+vis_drake_graph(burner_config, targets_only = TRUE)
 ```
 
 We can now load these targets into our working environment.
@@ -96,14 +106,14 @@ If we `clean()`, however, we'll remake the plan from scratch.
 clean()
 
 # Targets are outdated now
-vis_drake_graph(burner_config) 
+vis_drake_graph(burner_config, targets_only = TRUE) 
 
 # Make the plan again.
 # Since we saved the previous output of full_burn to a file, this time we read that in for our seed_burn
 make(burner_plan) 
 
 # And now everything is up to date again
-vis_drake_graph(burner_config) 
+vis_drake_graph(burner_config, targets_only = TRUE) 
 ```
 
 
@@ -125,8 +135,7 @@ Our original function, `there_are_new_tweets` which checks if the specified user
 ```{r}
 there_are_new_tweets <- function(tbl,
                                  user = firewire_handle,
-                                 verbose = TRUE,
-                                 ...) {
+                                 verbose = TRUE) {
   latest_dt <-
     tbl %>%
     arrange(desc(created_at)) %>%
@@ -152,8 +161,7 @@ We'll change the message to include a smiley emoji `emo::ji('smile')` when `ther
 ```{r}
 there_are_new_tweets <- function(tbl,
                                  user = firewire_handle,
-                                 verbose = TRUE,
-                                 ...) {
+                                 verbose = TRUE) {
   latest_dt <-
     tbl %>%
     arrange(desc(created_at)) %>%
@@ -211,14 +219,14 @@ burner_plan_2 <-
     # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
       user = burner_handle,
-      input_path = burner_path
+      input_path = here(file_in(burner_path))
     ),
     
     full_burn = target(
       command = get_tweets(
         tbl = seed_burn,
         user = burner_handle,
-        output_path = burner_path # Outputs to burner_path
+        output_path = here(file_out(burner_path)) # Outputs to burner_path
       ),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
@@ -237,7 +245,7 @@ This trigger will make our `full_burn` target look always out of date to `drake`
 First we'll clean out the previous file we saved and start from scratch.
 
 ```{r}
-if (file.exists(burner_path)) fs::file_delete(burner_path)
+if (file_exists(burner_path)) file_delete(burner_path)
 ```
 
 
@@ -299,7 +307,7 @@ seed_burn
 full_burn
 
 # Let's check that full_burn was saved to file
-saved_burn <- read_csv(here("data", "derived", "burn.csv"))
+saved_burn <- read_csv(burner_path)
 expect_identical(nrow(full_burn), nrow(saved_burn))
 ```
 
@@ -315,18 +323,20 @@ Let's go back to our original NYCFireWire Twitter account.
 For the purposes of illustration, I'll set a `max_id` on our `seed_fires` so that we can re-up and grab more tweets to build `fires`.
 
 ```{r}
-fire_path <- here("data", "raw", "fires.csv")
+fire_path <- "data/raw/fires.csv"
 
 plan <-
   drake_plan(
-    seed_fires = get_tweets( # Grab some seed fires
+    seed_fires = get_tweets( 
       n_tweets_seed = 2,
-      max_id = old_tweet_id
+      max_id = old_tweet_id,
+      input_path = here(file_in(fire_path))
     ), 
     fires = target(
       command = get_tweets(
         tbl = seed_fires,
-        n_tweets_reup = 3
+        n_tweets_reup = 3,
+        output_path = here(file_out(fire_path))
       ),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
@@ -338,7 +348,9 @@ plan <-
     fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
 
     time_graph = graph_fire_times(dat),
-    plot = plot_fires(dat, nyc)
+    plot = plot_fire_sums(dat, nyc,
+                          output_path =
+                                    here(file_out("plots/fire_sums.png")))
   )
 ```
 
@@ -371,7 +383,10 @@ config$cache_path
 config$graph
 
 # The dependencies of a given target encompass both functions (get_tweets) and targets that it depends on (seed_fires)
-deps_target(fires)
+deps_target(addresses)
+
+# You can get even more granular with
+dependency_profile(addresses, config)
 
 # Since we have a trigger on fires, everything downstream of fires is also perpetually outdated
 outdated(config)
