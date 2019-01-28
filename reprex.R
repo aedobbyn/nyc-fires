@@ -2,7 +2,9 @@
 library(drake)
 library(fs)
 library(here)
-library(readr)
+library(tidyverse)
+
+pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
 dir_create("dir")
 file_path <- here("dir", "mtcars.csv")
@@ -30,7 +32,7 @@ log_mtcars <- function(tbl = NULL,
   } else {
     out <-
       tbl %>%
-      purrr::map_dfr(log)
+      map_dfr(log)
 
     write_csv(out, output_path)
   }
@@ -71,7 +73,16 @@ plan <-
 # Warning about missing input files
 make(plan)
 
+# mt_seed is regular, mt_final is logged
+loadd(mt_seed)
+loadd(mt_final)
+mt_seed
+mt_final
+
 # No warning
+if (file_exists(file_path)) file_delete(file_path)
 write_csv(mtcars, file_path)
 make(plan)
+
+vis_drake_graph()
 

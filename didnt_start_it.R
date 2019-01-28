@@ -40,7 +40,7 @@ get_seed_tweets <- function(user = firewire_handle,
                             output_path = NULL,
                             write_out = FALSE,
                             ...) {
-  if (!is.null(input_path) && file.exists(input_path)) {
+  if (!is.null(input_path) && file_exists(input_path)) {
     out <-
       read_csv(input_path)
   } else {
@@ -121,7 +121,7 @@ get_tweets <- function(tbl = NULL,
                        n_tweets_reup = 20,
                        input_path = NULL,
                        output_path = NULL,
-                       write_out = FALSE,
+                       write_out_seed = FALSE,
                        verbose = TRUE, ...) {
   if (is.null(tbl) || is.na(tbl)) {
     out <- get_seed_tweets(
@@ -129,7 +129,7 @@ get_tweets <- function(tbl = NULL,
       n_tweets = n_tweets_seed,
       input_path = input_path,
       output_path = output_path,
-      write_out = write_out,
+      write_out_seed = write_out,
       max_id = max_id
     )
   } else {
