@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>pres</title>
+    <title>drake for Workflow Management in R</title>
     <meta charset="utf-8">
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# pres
+# <code>drake</code> for Workflow Management in R
 ### Amanda Dobbyn
 
 ---
@@ -25,11 +26,17 @@ I won't blame you if you want to make a quick exit.
 
 ---
 
+class: inverse
+
 ### Quick about me
 
 Day job: ultimate frisbee player.
 
 For fun: Data Scientist at Earlybird Software, former co-organizer of R-Ladies Chicago.
+
+https://github.com/aedobbyn
+
+@dobbleobble
 
 ---
 
@@ -45,26 +52,50 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ### What's the deal with the name?
 
+.pull-left[
+
 **d**ataframes in **R** for M**ake**
 
 [GNU Make](https://www.gnu.org/software/make/) uses workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
-![example_makefile](img/example_makefile.jpg)
+]
+
+.pull-right[![example_makefile](img/example_makefile.jpg)]
 
 ---
 
 ### Nice features of `drake`
 1. See how your pipeline fits together, in a tidy dataframe
+
+--
+
 2. Visualize dependencies in your code in graph format
+
+--
+
 3. Some high-performance computing advantages
+
+--
+
 4. Great for iteration and reproducibility; you know exactly how these results were generated
+
+--
+
 5. It's all in R -- no writing config files!
 
+---
 
+### Better workflows
+
+.pull-right[
 You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
 
+If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
+]
+
+.pull-left[
 `01_import.R`
 
 `02_clean.R`
@@ -78,8 +109,9 @@ You can avoid workflows like this, that are based on file names that could easil
 `06_analyze_more.R`
 
 `07_report.Rmd`
+]
 
-If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
+
 
 ---
 
@@ -88,6 +120,7 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 (Stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
 
 `drake` is sort of like `knitr` in the sense that 
+
 1) It makes your analysis reproducible and compact. You expect to be able to rerun someone's report from a single file.
 
 2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
@@ -102,15 +135,17 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
 
----
-
-### A few pieces of vocab
+--
 
 #### *plans*
 
 **Plans** wrap up the relationship between targets and commands into a workflow representation.
 
 In `drake` they're stored as a dataframe object, with one column for targets, and one column for their corresponding commands.
+
+---
+
+### More on plans
 
 You can think of the plan as that top-level script that sources all the other scripts and runs everything, like
 
@@ -293,16 +328,16 @@ get_tweets()
 ## # A tibble: 50 x 5
 ##    text                   user_id status_id created_at          screen_name
 ##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
-##  2 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
-##  3 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
-##  4 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
-##  5 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
-##  6 The FDNY’s diversity …  5.60e8   1.09e18 2019-01-27 01:12:13 NYCFireWire
-##  7 Fairfax County Fire &amp;…  5.60e8   1.09e18 2019-01-27 01:11:39 NYCFireWire
-##  8 https://t.co/dnYTm4ZA…  5.60e8   1.09e18 2019-01-26 23:06:02 NYCFireWire
-##  9 Queens *99-75-6833* 1…  5.60e8   1.09e18 2019-01-26 21:05:04 NYCFireWire
-## 10 Queens *99-75-4187* 5…  5.60e8   1.09e18 2019-01-26 20:14:02 NYCFireWire
+##  1 Bronx *66-75-3675* 71…  5.60e8   1.09e18 2019-01-27 20:53:52 NYCFireWire
+##  2 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
+##  3 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
+##  4 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
+##  5 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
+##  6 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
+##  7 The FDNY’s diversity …  5.60e8   1.09e18 2019-01-27 01:12:13 NYCFireWire
+##  8 Fairfax County Fire &amp;…  5.60e8   1.09e18 2019-01-27 01:11:39 NYCFireWire
+##  9 https://t.co/dnYTm4ZA…  5.60e8   1.09e18 2019-01-26 23:06:02 NYCFireWire
+## 10 Queens *99-75-6833* 1…  5.60e8   1.09e18 2019-01-26 21:05:04 NYCFireWire
 ## # … with 40 more rows
 ```
 
@@ -323,56 +358,56 @@ get_tweets() %&gt;%
 ## # A tibble: 50 x 1
 ##    text                                                                    
 ##    &lt;chr&gt;                                                                   
-##  1 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
-##  2 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
-##  3 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
-##  4 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
-##  5 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
-##  6 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
-##  7 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
-##  8 https://t.co/dnYTm4ZAAU                                                 
-##  9 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
-## 10 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
-## 11 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
-## 12 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
-## 13 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
-## 14 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
-## 15 Someone with a box cutter walked up to the ambulance and did this.... a…
-## 16 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
-## 17 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
-## 18 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
-## 19 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
-## 20 https://t.co/NHtiYI55vp                                                 
-## 21 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
-## 22 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
-## 23 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
-## 24 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
-## 25 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
-## 26 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
-## 27 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
-## 28 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
-## 29 Welcome back! https://t.co/CaVeK3NG0o                                   
-## 30 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
-## 31 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
-## 32 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
-## 33 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
-## 34 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
-## 35 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
-## 36 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
-## 37 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
-## 38 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.               
-## 39 Brooklyn *77-75-2306* 249 E 52 St. Fire private dwelling. Snyder Island…
-## 40 Why wasn't this considered when the plans were reviewed to start this p…
-## 41 "Hudson Yards developer Stephen Ross owns a lot of expensive things, in…
-## 42 It's with Regret we announce the passing of Active Firefighter &amp;amp; UF…
-## 43 Manhattan *66-75-1188* 224 E 89 St. Fire apt 3 in a 5 story 25x75.      
-## 44 Staten Island *88-75-2049* 204 Boundary Ave. Private dwelling           
-## 45 Another one caught! https://t.co/jpwguHFVjw                             
-## 46 Brooklyn *77-75-1986* 1753 Linden Blvd. Bn-58 transmitting the 10-75, 2…
-## 47 Queens *99-75-7899* 35-30 91 St. Basement fire 2 1/2 story private dwel…
-## 48 Brooklyn *77-75-3137* 1270 E 51 St. Fire 2nd floor 7 story multiple dwe…
-## 49 Queens *99-75-1122* 14-37 Eggert Pl. Fire in a vacant private dwelling. 
-## 50 Queens *99-33-9368**3rd alarm** 34-40 100 St. Heavy fire conditions in …
+##  1 Bronx *66-75-3675* 717 E 222nd St. Fire 2nd floor private dwelling. E-6…
+##  2 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
+##  3 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
+##  4 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
+##  5 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
+##  6 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
+##  7 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
+##  8 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
+##  9 https://t.co/dnYTm4ZAAU                                                 
+## 10 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
+## 11 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
+## 12 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
+## 13 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
+## 14 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
+## 15 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
+## 16 Someone with a box cutter walked up to the ambulance and did this.... a…
+## 17 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
+## 18 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
+## 19 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
+## 20 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
+## 21 https://t.co/NHtiYI55vp                                                 
+## 22 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
+## 23 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
+## 24 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
+## 25 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
+## 26 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
+## 27 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
+## 28 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
+## 29 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
+## 30 Welcome back! https://t.co/CaVeK3NG0o                                   
+## 31 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
+## 32 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
+## 33 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
+## 34 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
+## 35 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
+## 36 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
+## 37 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
+## 38 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
+## 39 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.               
+## 40 Brooklyn *77-75-2306* 249 E 52 St. Fire private dwelling. Snyder Island…
+## 41 Why wasn't this considered when the plans were reviewed to start this p…
+## 42 "Hudson Yards developer Stephen Ross owns a lot of expensive things, in…
+## 43 It's with Regret we announce the passing of Active Firefighter &amp;amp; UF…
+## 44 Manhattan *66-75-1188* 224 E 89 St. Fire apt 3 in a 5 story 25x75.      
+## 45 Staten Island *88-75-2049* 204 Boundary Ave. Private dwelling           
+## 46 Another one caught! https://t.co/jpwguHFVjw                             
+## 47 Brooklyn *77-75-1986* 1753 Linden Blvd. Bn-58 transmitting the 10-75, 2…
+## 48 Queens *99-75-7899* 35-30 91 St. Basement fire 2 1/2 story private dwel…
+## 49 Brooklyn *77-75-3137* 1270 E 51 St. Fire 2nd floor 7 story multiple dwe…
+## 50 Queens *99-75-1122* 14-37 Eggert Pl. Fire in a vacant private dwelling.
 ```
 
 
@@ -408,11 +443,11 @@ seed_tweets &lt;-
 ## # A tibble: 15 x 5
 ##    text                   user_id status_id created_at          screen_name
 ##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
-##  2 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
-##  3 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
-##  4 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
-##  5 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
+##  1 Bronx *66-75-3675* 71…  5.60e8   1.09e18 2019-01-27 20:53:52 NYCFireWire
+##  2 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
+##  3 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
+##  4 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
+##  5 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
 ##  6 "Staten Island *MVA/P…  5.60e8   1.08e18 2019-01-13 20:12:23 NYCFireWire
 ##  7 Queens 99-75-6810 111…  5.60e8   1.08e18 2019-01-13 17:57:22 NYCFireWire
 ##  8 Manhattan *66-75-1352…  5.60e8   1.08e18 2019-01-13 04:27:44 NYCFireWire
@@ -445,16 +480,16 @@ get_tweets() %&gt;%
 ## # A tibble: 50 x 4
 ##    street         borough   address              text                      
 ##    &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;                &lt;chr&gt;                     
-##  1 Howard Beach … Queens    Howard Beach Motor … Queens *Water Rescue* How…
-##  2 785 E 4th St … Brooklyn  785 E 4th St off Av… Brooklyn *77-75-2597* 785…
-##  3 1259 Madison … Brooklyn  1259 Madison St, Br… Brooklyn *77-75-0805* 125…
-##  4 280 Park Hill… Staten I… 280 Park Hill Ave o… Staten Island *88-75-0460…
-##  5 188 Garvey Bl… Brooklyn  188 Garvey Blvd, Br… Brooklyn *77-75-0689* 188…
-##  6 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 The FDNY’s diversity moni…
-##  7 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 Fairfax County Fire &amp;amp;…
-##  8 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 https://t.co/dnYTm4ZAAU   
-##  9 115-87 229 St  Queens    115-87 229 St, Quee… Queens *99-75-6833* 115-8…
-## 10 54-02 Flushin… Queens    54-02 Flushing Ave,… Queens *99-75-4187* 54-02…
+##  1 717 E 222nd St The Bronx 717 E 222nd St, The… Bronx *66-75-3675* 717 E …
+##  2 Howard Beach … Queens    Howard Beach Motor … Queens *Water Rescue* How…
+##  3 785 E 4th St … Brooklyn  785 E 4th St off Av… Brooklyn *77-75-2597* 785…
+##  4 1259 Madison … Brooklyn  1259 Madison St, Br… Brooklyn *77-75-0805* 125…
+##  5 280 Park Hill… Staten I… 280 Park Hill Ave o… Staten Island *88-75-0460…
+##  6 188 Garvey Bl… Brooklyn  188 Garvey Blvd, Br… Brooklyn *77-75-0689* 188…
+##  7 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 The FDNY’s diversity moni…
+##  8 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 Fairfax County Fire &amp;amp;…
+##  9 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 https://t.co/dnYTm4ZAAU   
+## 10 115-87 229 St  Queens    115-87 229 St, Quee… Queens *99-75-6833* 115-8…
 ## # … with 40 more rows
 ```
 
@@ -474,6 +509,10 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 ```
 
 ```
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=717%20E%20222nd%20St%2C%20The%20Bronx&amp;key=xxx
+```
+
+```
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Howard%20Beach%20Motor%20Boat%20Club%2C%20Queens&amp;key=xxx
 ```
 
@@ -490,18 +529,14 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 ```
 
 ```
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=188%20Garvey%20Blvd%2C%20Brooklyn&amp;key=xxx
-```
-
-```
 ## # A tibble: 5 x 7
 ##   address      lat  long lat_trunc long_trunc created_at          text     
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;    
-## 1 Howard Be…  40.7 -73.8      40.7      -73.8 2019-01-27 17:21:23 Queens *…
-## 2 785 E 4th…  40.6 -74.0      40.6      -74   2019-01-27 16:10:36 Brooklyn…
-## 3 1259 Madi…  40.7 -73.9      40.7      -73.9 2019-01-27 11:36:52 Brooklyn…
-## 4 280 Park …  40.6 -74.1      40.6      -74.1 2019-01-27 11:10:49 Staten I…
-## 5 188 Garve…  40.7 -73.9      40.7      -73.9 2019-01-27 01:36:24 Brooklyn…
+## 1 717 E 222…  40.9 -73.9      40.9      -73.9 2019-01-27 20:53:52 Bronx *6…
+## 2 Howard Be…  40.7 -73.8      40.7      -73.8 2019-01-27 17:21:23 Queens *…
+## 3 785 E 4th…  40.6 -74.0      40.6      -74   2019-01-27 16:10:36 Brooklyn…
+## 4 1259 Madi…  40.7 -73.9      40.7      -73.9 2019-01-27 11:36:52 Brooklyn…
+## 5 280 Park …  40.6 -74.1      40.6      -74.1 2019-01-27 11:10:49 Staten I…
 ```
 
 
@@ -511,11 +546,9 @@ That's our main pipeline. We can do a few bits of analysis of the data after tha
 
 ### Live coding time!
 
-We'll first test our reupping scheme with a 🔥 burner account 🔥
-
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-**[burner account!](https://twitter.com/didntstartit)**
+🔥 **[burner account!](https://twitter.com/didntstartit)** 🔥
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

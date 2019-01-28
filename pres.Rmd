@@ -1,9 +1,9 @@
 ---
-title: "pres"
+title: "`drake` for Workflow Management in R"
 author: "Amanda Dobbyn"
 output:
   xaringan::moon_reader:
-    css: ["default"]
+    css: ["default", "shinobi"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -23,11 +23,17 @@ I won't blame you if you want to make a quick exit.
 
 ---
 
+class: inverse
+
 ### Quick about me
 
 Day job: ultimate frisbee player.
 
 For fun: Data Scientist at Earlybird Software, former co-organizer of R-Ladies Chicago.
+
+https://github.com/aedobbyn
+
+@dobbleobble
 
 ---
 
@@ -43,26 +49,50 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ### What's the deal with the name?
 
+.pull-left[
+
 **d**ataframes in **R** for M**ake**
 
 [GNU Make](https://www.gnu.org/software/make/) uses workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
-![example_makefile](img/example_makefile.jpg)
+]
+
+.pull-right[![example_makefile](img/example_makefile.jpg)]
 
 ---
 
 ### Nice features of `drake`
 1. See how your pipeline fits together, in a tidy dataframe
+
+--
+
 2. Visualize dependencies in your code in graph format
+
+--
+
 3. Some high-performance computing advantages
+
+--
+
 4. Great for iteration and reproducibility; you know exactly how these results were generated
+
+--
+
 5. It's all in R -- no writing config files!
 
+---
 
+### Better workflows
+
+.pull-right[
 You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
 
+If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
+]
+
+.pull-left[
 `01_import.R`
 
 `02_clean.R`
@@ -76,8 +106,9 @@ You can avoid workflows like this, that are based on file names that could easil
 `06_analyze_more.R`
 
 `07_report.Rmd`
+]
 
-If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
+
 
 ---
 
@@ -86,6 +117,7 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 (Stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
 
 `drake` is sort of like `knitr` in the sense that 
+
 1) It makes your analysis reproducible and compact. You expect to be able to rerun someone's report from a single file.
 
 2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
@@ -100,15 +132,17 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
 
----
-
-### A few pieces of vocab
+--
 
 #### *plans*
 
 **Plans** wrap up the relationship between targets and commands into a workflow representation.
 
 In `drake` they're stored as a dataframe object, with one column for targets, and one column for their corresponding commands.
+
+---
+
+### More on plans
 
 You can think of the plan as that top-level script that sources all the other scripts and runs everything, like
 
@@ -364,9 +398,7 @@ That's our main pipeline. We can do a few bits of analysis of the data after tha
 
 ### Live coding time!
 
-We'll first test our reupping scheme with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
-
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-**[burner account!](https://twitter.com/didntstartit)**
+`r emo::ji("fire")` **[burner account!](https://twitter.com/didntstartit)** `r emo::ji("fire")`
 
