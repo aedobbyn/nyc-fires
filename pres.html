@@ -19,7 +19,7 @@ class: center, middle, inverse, title-slide
 
 
 
-### warning, ⚠️ Warning: this presentation contains less rap than you might have expected. warning, ⚠️
+###  Warning: this presentation contains less rap than you might have expected. 
 
 I won't blame you if you want to make a quick exit.
 
@@ -51,6 +51,8 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
+![example_makefile](img/example_makefile.jpg)
+
 ---
 
 ### Nice features of `drake`
@@ -63,15 +65,21 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
 
-01_import.R
-02_clean.R
-03_deep_clean.R
-04_join.R
-05_analyze.R
-06_analyze_more.R
-07_report.Rmd
+`01_import.R`
 
-If something breaks in 04_join.R, do you need to go through 01_import.R, 02_clean.R, and 03_deep_clean.R again?
+`02_clean.R`
+
+`03_deep_clean.R`
+
+`04_join.R`
+
+`05_analyze.R`
+
+`06_analyze_more.R`
+
+`07_report.Rmd`
+
+If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
 
 ---
 
@@ -84,7 +92,7 @@ If something breaks in 04_join.R, do you need to go through 01_import.R, 02_clea
 
 2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
 
-3) When an `Rmd` is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a `depedson` for.
+3) When an `Rmd` is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
 
 ---
 
@@ -93,6 +101,10 @@ If something breaks in 04_join.R, do you need to go through 01_import.R, 02_clea
 #### *targets* and *commands*
 
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
+
+---
+
+### A few pieces of vocab
 
 #### *plans*
 
@@ -159,15 +171,15 @@ After that, `drake` will only re-run the parts of the plan that are out of date 
 
 ### Where is all this info stored?
 
-How does `drake` store info/data about targets?
+**targets**
 
 In a hidden `.drake` cache when you run `make()`. In the `.drake/data` subdirectory, targets are stored as hashed `rds` objects. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `clean()` cleans that cache.
 
-How does `drake` keep track of dependencies?
+**dependencies**
 
-`drake` stores a dependency graph of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
+`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
 
 ---
 
@@ -207,6 +219,30 @@ This setup allows `drake` to know `first_target` needs to be built before work o
 
 ---
 
+### Other things `drake` can do that we won't get into
+
+- [Generate ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
+
+![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+
+for analyses that require lots of different permutations of a similar analysis
+
+(version 7.0.0 has new experimental syntax that makes it easier to create big plans)
+
+- Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
+
+- Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
+
+
+### Moar Resources
+
+- [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
+- [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
+- [Sina Rüeger's `drake` presentation](https://sinarueeger.github.io/2018/10/09/workflow/)
+- [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
+
+---
+
 ### Our plan
 
 I'll illustrate a way you might want to use `drake` with something that's close to home for us.
@@ -215,9 +251,9 @@ Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/107847836
 
 The Twitter account that let us know that this wasn't in fact aliens is [NYCFireWire](https://twitter.com/NYCFireWire).
 
-Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.
+Normally they just tweet out fires and their locations in a more or less predictable pattern, i.e.
 
-https://twitter.com/NYCFireWire/status/1087888350277705728
+`&lt;borough&gt; &lt;** some numbers **&gt; &lt;address&gt; &lt;description of fire&gt;`
 
 What if we were constructing an analysis of these tweets and wanted to make sure our pipeline worked end-to-end, but didn't want to unnecessarily re-run outdated parts of it unless we needed to?
 
@@ -227,7 +263,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 
 1. Pull in tweets, either the first big batch or any new ones that show up
 2. Extract addresses from the tweets (🎶 regex time 🎶)
-3. Send these to the Google Maps API to grab the addresses' latitudes and longitudes
+3. Send addresses to the Google Maps API to grab their latitudes and longitudes
 4. Profit
 
 All functions stored in `didnt_start_it.R`.
@@ -235,10 +271,6 @@ All functions stored in `didnt_start_it.R`.
 
 ```r
 source(here::here("didnt_start_it.R"))
-```
-
-```
-## Warning: package 'tibble' was built under R version 3.5.2
 ```
 
 
@@ -251,8 +283,6 @@ source(here::here("didnt_start_it.R"))
 - `get_tweets` runs `get_seed_tweets` if given a null `tbl` argument, otherwise runs `get_more_tweets`
 
 
-
-For example, starting with an old tweet ID, we can first grab a 10 tweets older than `old_tweet_id` and then, running the same function again, add 5 of the most recent tweets to our dataframe.
 
 
 ```r
@@ -275,6 +305,83 @@ get_tweets()
 ## 10 Queens *99-75-4187* 5…  5.60e8   1.09e18 2019-01-26 20:14:02 NYCFireWire
 ## # … with 40 more rows
 ```
+
+---
+
+### Grabbing tweets
+
+The most recent tweets from NYCFireWire:
+
+
+```r
+get_tweets() %&gt;% 
+  select(text) %&gt;% 
+  print(n = nrow(.))
+```
+
+```
+## # A tibble: 50 x 1
+##    text                                                                    
+##    &lt;chr&gt;                                                                   
+##  1 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
+##  2 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
+##  3 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
+##  4 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
+##  5 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
+##  6 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
+##  7 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
+##  8 https://t.co/dnYTm4ZAAU                                                 
+##  9 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
+## 10 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
+## 11 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
+## 12 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
+## 13 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
+## 14 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
+## 15 Someone with a box cutter walked up to the ambulance and did this.... a…
+## 16 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
+## 17 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
+## 18 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
+## 19 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
+## 20 https://t.co/NHtiYI55vp                                                 
+## 21 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
+## 22 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
+## 23 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
+## 24 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
+## 25 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
+## 26 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
+## 27 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
+## 28 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
+## 29 Welcome back! https://t.co/CaVeK3NG0o                                   
+## 30 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
+## 31 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
+## 32 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
+## 33 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
+## 34 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
+## 35 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
+## 36 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
+## 37 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
+## 38 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.               
+## 39 Brooklyn *77-75-2306* 249 E 52 St. Fire private dwelling. Snyder Island…
+## 40 Why wasn't this considered when the plans were reviewed to start this p…
+## 41 "Hudson Yards developer Stephen Ross owns a lot of expensive things, in…
+## 42 It's with Regret we announce the passing of Active Firefighter &amp;amp; UF…
+## 43 Manhattan *66-75-1188* 224 E 89 St. Fire apt 3 in a 5 story 25x75.      
+## 44 Staten Island *88-75-2049* 204 Boundary Ave. Private dwelling           
+## 45 Another one caught! https://t.co/jpwguHFVjw                             
+## 46 Brooklyn *77-75-1986* 1753 Linden Blvd. Bn-58 transmitting the 10-75, 2…
+## 47 Queens *99-75-7899* 35-30 91 St. Basement fire 2 1/2 story private dwel…
+## 48 Brooklyn *77-75-3137* 1270 E 51 St. Fire 2nd floor 7 story multiple dwe…
+## 49 Queens *99-75-1122* 14-37 Eggert Pl. Fire in a vacant private dwelling. 
+## 50 Queens *99-33-9368**3rd alarm** 34-40 100 St. Heavy fire conditions in …
+```
+
+
+---
+
+### Grabbing tweets
+
+Starting with an old tweet ID, we can first grab a 10 tweets older than `old_tweet_id` and then, running the same function again, add 5 of the most recent tweets to our dataframe.
+
 
 ```r
 old_tweet_id &lt;- "1084619203167031297" # Random tweet from a while ago so what we can set a max id in the past
@@ -318,6 +425,8 @@ seed_tweets &lt;-
 ## 15 Pregnant FDNY worker …  5.60e8   1.08e18 2019-01-12 09:12:38 NYCFireWire
 ```
 
+---
+
 ### Getting addresses
 
 
@@ -349,49 +458,13 @@ get_tweets() %&gt;%
 ## # … with 40 more rows
 ```
 
+---
+
+### Getting lat and long
 
 Then we can use the [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function (along with a [Google Maps](https://cloud.google.com/maps-platform/) API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we're returned `NA`s.)
 
 
-```r
-geo_to_list
-```
-
-```
-## function (inp) 
-## {
-##     geocode(inp) %&gt;% rename(long = lon) %&gt;% list()
-## }
-```
-
-```r
-truncate_lat_long
-```
-
-```
-## function (tbl, digits = 3) 
-## {
-##     if (!"long" %in% names(tbl) || !"lat" %in% names(tbl)) {
-##         stop("Input must contain columns lat and long.")
-##     }
-##     tbl %&gt;% mutate(lat_trunc = round(lat, digits = digits), long_trunc = round(long, 
-##         digits = digits))
-## }
-```
-
-```r
-get_lat_long
-```
-
-```
-## function (tbl) 
-## {
-##     tbl %&gt;% rowwise() %&gt;% mutate(l_l = ifelse(is.na(address), 
-##         tibble(lat = NA_real_, long = NA_real_) %&gt;% list(), geo_to_list(address))) %&gt;% 
-##         unnest() %&gt;% truncate_lat_long(digits = 1) %&gt;% select(address, 
-##         lat, long, lat_trunc, long_trunc, created_at, text)
-## }
-```
 
 
 ```r
@@ -434,27 +507,15 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 
 That's our main pipeline. We can do a few bits of analysis of the data after that, but that's the core of it.
 
-### Other things `drake` can do that we won't get into
+---
 
-- [Generating ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
+### Live coding time!
 
-![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+We'll first test our reupping scheme with a 🔥 burner account 🔥
 
-for analyses that require lots of different permutations of a similar analysis
+The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-(version 7.0.0 has new experimental syntax that makes it easier to create big plans)
-
-- Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
-
-- Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
-
-
-### Moar Resources
-
-- [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
-- [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
-- [Sina Rüeger's `drake` presentation](https://sinarueeger.github.io/2018/10/09/workflow/)
-- [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
+**[burner account!](https://twitter.com/didntstartit)**
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

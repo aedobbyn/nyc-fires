@@ -10,14 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 source(here::here("didnt_start_it.R"))
 ```
 
-
-### Testing our reupping with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
-
-The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
-
-[burner account!](https://twitter.com/didntstartit)
-
-Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
+### Burner account time
 
 Let's define a file path to dump the tweets we collect into.
 
@@ -47,6 +40,9 @@ burner_plan <-
       )
   )
 ```
+
+Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
+
 
 ### Test out v1 of our plan
 

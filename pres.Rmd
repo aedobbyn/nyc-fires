@@ -49,6 +49,8 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
+![example_makefile](img/example_makefile.jpg)
+
 ---
 
 ### Nice features of `drake`
@@ -61,15 +63,21 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
 
-01_import.R
-02_clean.R
-03_deep_clean.R
-04_join.R
-05_analyze.R
-06_analyze_more.R
-07_report.Rmd
+`01_import.R`
 
-If something breaks in 04_join.R, do you need to go through 01_import.R, 02_clean.R, and 03_deep_clean.R again?
+`02_clean.R`
+
+`03_deep_clean.R`
+
+`04_join.R`
+
+`05_analyze.R`
+
+`06_analyze_more.R`
+
+`07_report.Rmd`
+
+If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
 
 ---
 
@@ -91,6 +99,10 @@ If something breaks in 04_join.R, do you need to go through 01_import.R, 02_clea
 #### *targets* and *commands*
 
 From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
+
+---
+
+### A few pieces of vocab
 
 #### *plans*
 
@@ -155,15 +167,15 @@ After that, `drake` will only re-run the parts of the plan that are out of date 
 
 ### Where is all this info stored?
 
-How does `drake` store info/data about targets?
+**targets**
 
 In a hidden `.drake` cache when you run `make()`. In the `.drake/data` subdirectory, targets are stored as hashed `rds` objects. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `clean()` cleans that cache.
 
-How does `drake` keep track of dependencies?
+**dependencies**
 
-`drake` stores a dependency graph of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
+`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
 
 ---
 
@@ -201,6 +213,30 @@ This setup allows `drake` to know `first_target` needs to be built before work o
 
 ---
 
+### Other things `drake` can do that we won't get into
+
+- [Generate ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
+
+![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+
+for analyses that require lots of different permutations of a similar analysis
+
+(version 7.0.0 has new experimental syntax that makes it easier to create big plans)
+
+- Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
+
+- Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
+
+
+### Moar Resources
+
+- [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
+- [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
+- [Sina Rüeger's `drake` presentation](https://sinarueeger.github.io/2018/10/09/workflow/)
+- [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
+
+---
+
 ### Our plan
 
 I'll illustrate a way you might want to use `drake` with something that's close to home for us.
@@ -209,9 +245,9 @@ Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/107847836
 
 The Twitter account that let us know that this wasn't in fact aliens is [NYCFireWire](https://twitter.com/NYCFireWire).
 
-Normally they just tweet out fires and their locations in a more or less predictable pattern, e.g.
+Normally they just tweet out fires and their locations in a more or less predictable pattern, i.e.
 
-https://twitter.com/NYCFireWire/status/1087888350277705728
+`<borough> <** some numbers **> <address> <description of fire>`
 
 What if we were constructing an analysis of these tweets and wanted to make sure our pipeline worked end-to-end, but didn't want to unnecessarily re-run outdated parts of it unless we needed to?
 
@@ -221,12 +257,12 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 
 1. Pull in tweets, either the first big batch or any new ones that show up
 2. Extract addresses from the tweets (`r emo::ji("notes")` regex time `r emo::ji("notes")`)
-3. Send these to the Google Maps API to grab the addresses' latitudes and longitudes
+3. Send addresses to the Google Maps API to grab their latitudes and longitudes
 4. Profit
 
 All functions stored in `didnt_start_it.R`.
 
-```{r}
+```{r, warning=FALSE}
 source(here::here("didnt_start_it.R"))
 ```
 
@@ -247,11 +283,30 @@ get_more_tweets
 get_tweets
 ```
 
-For example, starting with an old tweet ID, we can first grab a 10 tweets older than `old_tweet_id` and then, running the same function again, add 5 of the most recent tweets to our dataframe.
-
 ```{r}
 get_tweets()
+```
 
+---
+
+### Grabbing tweets
+
+The most recent tweets from NYCFireWire:
+
+```{r}
+get_tweets() %>% 
+  select(text) %>% 
+  print(n = nrow(.))
+```
+
+
+---
+
+### Grabbing tweets
+
+Starting with an old tweet ID, we can first grab a 10 tweets older than `old_tweet_id` and then, running the same function again, add 5 of the most recent tweets to our dataframe.
+
+```{r}
 old_tweet_id <- "1084619203167031297" # Random tweet from a while ago so what we can set a max id in the past
 
 seed_tweets <- 
@@ -263,6 +318,8 @@ seed_tweets <-
 (full_tweets <- 
   get_tweets(seed_tweets, n_tweets_reup = 5))
 ```
+
+---
 
 ### Getting addresses
 
@@ -280,10 +337,13 @@ get_tweets() %>%
   select(street, borough, address, text)
 ```
 
+---
+
+### Getting lat and long
 
 Then we can use the [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function (along with a [Google Maps](https://cloud.google.com/maps-platform/) API key) from the `ggmap` package to attach the latitude and longitude to each address, if Google can find it. (Otherwise we're returned `NA`s.)
 
-```{r}
+```{r, include=FALSE}
 geo_to_list
 
 truncate_lat_long
@@ -300,24 +360,13 @@ get_tweets(n_tweets_seed = 5) %>%
 
 That's our main pipeline. We can do a few bits of analysis of the data after that, but that's the core of it.
 
-### Other things `drake` can do that we won't get into
+---
 
-- [Generating ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
+### Live coding time!
 
-![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+We'll first test our reupping scheme with a `r emo::ji("fire")` burner account `r emo::ji("fire")`
 
-for analyses that require lots of different permutations of a similar analysis
+The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-(version 7.0.0 has new experimental syntax that makes it easier to create big plans)
+**[burner account!](https://twitter.com/didntstartit)**
 
-- Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
-
-- Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
-
-
-### Moar Resources
-
-- [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
-- [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
-- [Sina Rüeger's `drake` presentation](https://sinarueeger.github.io/2018/10/09/workflow/)
-- [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
