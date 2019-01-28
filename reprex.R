@@ -19,6 +19,8 @@ seed_mtcars <- function(input_path = file_path,
     out <- mtcars %>%
       as_tibble()
   }
+  
+  write_csv(out, output_path)
   out
 }
 
@@ -45,9 +47,6 @@ if (file_exists(file_path)) file_delete(file_path)
 # Returns regular mtcars
 log_mtcars()
 
-# Nothing written to file
-file_exists(file_path)
-
 # Returns logged mtcars and saves to file
 log_mtcars() %>%
   log_mtcars()
@@ -58,7 +57,7 @@ read_csv(file_path)
 # Delete that file
 if (file_exists(file_path)) file_delete(file_path)
 
-plan <-
+mt_plan <-
   drake_plan(
     mt_seed = log_mtcars(
       input_path = here(file_in("dir/mtcars.csv")),
@@ -71,7 +70,7 @@ plan <-
   )
 
 # Warning about missing input files
-make(plan)
+make(mt_plan)
 
 # mt_seed is regular, mt_final is logged
 loadd(mt_seed)
@@ -82,7 +81,9 @@ mt_final
 # No warning
 if (file_exists(file_path)) file_delete(file_path)
 write_csv(mtcars, file_path)
-make(plan)
+make(mt_plan)
 
-vis_drake_graph()
+# Targets are always outdated and file is only listed as an input, not output
+mt_config <- drake_config(mt_plan)
+vis_drake_graph(mt_config)
 
