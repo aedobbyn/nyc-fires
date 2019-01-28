@@ -1,6 +1,0 @@
-
-- Grab ~3000 of nycfirewire's tweets and make a legit plot with a legit projection
-
-- Add an example of saving to a file and then readd-ing from that file
-
-- Write up slides
