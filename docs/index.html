@@ -22,7 +22,9 @@ class: center, middle, inverse, title-slide
 
 ###  Warning: this presentation contains less rap than you might have expected. 
 
-I won't blame you if you want to make a quick exit.
+I won't blame you if you want to make a quick getaway.
+
+.center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)]
 
 ---
 
@@ -32,13 +34,13 @@ class: inverse
 
 Day job: ultimate frisbee player.
 
-For fun: Data Scientist at Earlybird Software, former co-organizer of R-Ladies Chicago.
+For fun: Data Scientist at Earlybird Software, former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/).
 
-https://github.com/aedobbyn
+GitHub: https://github.com/aedobbyn
 
-https://dobb.ae
+Website: https://dobb.ae
 
-@dobbleobble
+Twitter: @dobbleobble
 
 ---
 
@@ -46,7 +48,9 @@ https://dobb.ae
 
 [`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
 
-In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
+*What that means*: 
+
+In an R pipeline, when changes occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
 
 &lt;p align="center"&gt;
 &lt;img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges"&gt;
@@ -56,40 +60,44 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ---
 
-### What's the deal with the name?
+## What's the deal with the name?
+
+--
+
+### **d**ataframes in **R** for M**ake**
+
+--
 
 .pull-left[
 
-The name stands for:
+What's Make?
 
-**d**ataframes in **R** for M**ake**
-
-or in other words, GNU Make reimagined for R.
-
-[GNU Make](https://www.gnu.org/software/make/) uses a workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
+[GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** and how targets should be rebuilt when they're out of date. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
 ]
+
+Example of a Makefile:
 
 .pull-right[![example_makefile](./img/example_makefile_r.jpg)]
 
 ---
 
 ### Nice features of `drake`
-1. See how your pipeline fits together, in a tidy dataframe
+1. See how your pipeline fits together, in a tidy **dataframe**
 
 --
 
-2. Visualize dependencies in your code in graph format
+2. Visualize the **dependency graph** of your code
 
 --
 
-3. Some high-performance computing advantages
+3. Great for iteration and **reproducibility**; you know exactly how these results were generated 
 
 --
 
-4. Great for iteration and reproducibility; you know exactly how these results were generated
+4. High-performance computing advantages
 
 --
 
@@ -99,13 +107,10 @@ or in other words, GNU Make reimagined for R.
 
 ### Better workflows
 
-.pull-right[
-You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
-
-If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
-]
-
 .pull-left[
+
+Does your directory look like this?
+
 `01_import.R`
 
 `02_clean.R`
@@ -121,42 +126,68 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 `07_report.Rmd`
 ]
 
+.pull-right[
+
+- Depends on correctly `source`ing the script before it. Need:
+  - Up-to-date file names
+  - Same input data
+  - Everything working correctly and in the right order
+
+
+- If something breaks in `04_join.R` 
+  - Can you be sure about where it broke?
+  - Do you need to re-run the entire pipeline again? 
+]
+
+
 
 ---
 
-### Analogy to `knitr`
+### `drake` : `knitr`
 
-(Stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
+(Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
 
-`drake` is sort of like `knitr` in the sense that 
+![tiny_hats](./img/tiny_hats.jpg)
 
-1) It makes your analysis reproducible and compact. You expect to be able to rerun someone's report from a single file.
 
-2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
 
-3) When an `Rmd` is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
+
+2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+3) It lives in a single file, making your analysis reproducible and **compact**. 
+
+
+
+
+???
+With knitr, you expect to be able to rerun someone's report from a single file.
 
 ---
 
-### A few pieces of vocab
+## A few pieces of vocab
 
-#### *targets* and *commands*
 
-From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
+**Targets** are the objects and files that drake generates, and
 
 --
 
-#### *plans*
+**commands** are the pieces of R code that produce them.
 
-**Plans** wrap up the relationship between targets and commands into a workflow representation.
+--
 
-In `drake` they're stored as a dataframe object, with one column for targets, and one column for their corresponding commands.
+**Plans** wrap up the relationship between targets and commands into a workflow representation: a dataframe.
+
+???
+
+one column for targets, and one column for their corresponding commands.
 
 ---
 
-### More on plans
+## More on plans
 
-You can think of the plan as that top-level script that sources all the other scripts and runs everything, like
+Plans are like that top-level script that runs the whole thing, like
 
 
 ```r
@@ -170,69 +201,132 @@ final &lt;- do_more_things(object_in_env)
 write_out_my_results(final)
 ```
 
-except that it knows about the dependencies of all objects and functions and is less cumbersome than this setup.
+
+*But*, the plan **knows about the dependencies** in your code.
+
 
 ---
 
-### How to `drake`
+## How to `drake`
 
-1. Store prework (loading packages and user-defined functions) in a file 
-2. Store a `drake` plan in another file
-3. Create the plan and run it
+1. Store **prework** (loading packages and user-defined functions) in a file 
+2. Store a `drake` **plan** in another file
+3. Create the plan and **run** it
+
+--
 
 
 ```r
 source("/path/to/my/prework.R")
 
-## Custom functions defined in prework are:
-# clean_my(), analyze_my(), and report_out_my()
-
 plan &lt;- 
   drake_plan(
-  cleaned_data = clean_my(raw_data),
-  results = analyze_my(cleaned_data),
-  report = report_out_my(results,
-                         file_out = "/path/to/my/report.md")
-)
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = 
+      report_out_my(results,
+          file_out = "/path/to/my/report.md")
+  )
 
 make(plan)
 ```
 
-The first run of `make(plan)` will run the plan from scratch. 
+---
 
-After that, `drake` will only re-run the parts of the plan that are out of date and everything downstream of that.
+## What `drake does`
 
-`drake` knows that, for example, `results` depends on `cleaned_data` because `cleaned_data` is part of the `analyze_my(cleaned_data)` command used to generate `results`.
+
+```r
+plan &lt;- 
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = 
+      report_out_my(results,
+          file_out = "/path/to/my/report.md")
+  )
+
+make(plan)
+```
+
+**First run** of `make(plan)`:
+
+`drake` runs the plan from scratch
+
+&lt;br&gt;
+
+**Thereafter**
+
+`drake` will only rebuild targets that are out of date, and everything downstream of them
+
+
 
 ---
 
 ### What makes a target become out of date?
 
-1. Some part of the code used to generate that target or one of its upstream targets has changed
-2. A trigger is activated (more on that later)
+1) A trigger is activated (more on these later)
+
+&lt;br&gt;
+
+2) Some part of the code used to generate that target or one of its upstream targets has changed
+
+
+```r
+plan &lt;- 
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = report_out_my(results)
+  )
+```
+
+
+`drake` knows that`results` depends on `cleaned_data`
+
+because `results` is generated by the `analyze_my(cleaned_data)` command
+
 
 ---
 
-### Where is all this info stored?
+## Where is all this info stored?
 
 **targets**
 
-In a hidden `.drake` cache when you run `make()`. In the `.drake/data` subdirectory, targets are stored as hashed `rds` objects. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
+In a hidden `.drake` cache. `drake` uses hashes to know when things change. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `clean()` cleans that cache.
 
+&lt;br&gt;
+
 **dependencies**
 
-`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
+`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config`.
+
+You can access all of it with `drake_config()`.
 
 ---
 
-### Big Idea #2
+## All about Functions
 
-`drake` is all built around *functions* rather than sourcing scripts.
-- A plan works by using functions to create targets. 
-- This allows `drake` to infer dependencies of objects and functions
-- Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+`drake` is all built around *functions* rather than scripts.
+
+- A plan works by using functions to create targets
+
+&lt;br&gt;
+
+- This allows `drake` to infer dependencies between
+  - objects and functions
+  - functions and other functions
+  
+&lt;br&gt;
+
+- Running `drake_plan` creates a dataframe relating each target to the command used to generate it
+
+---
+
+## All about Functions
+
 
 
 
@@ -244,7 +338,11 @@ bad_plan &lt;-
   )
 ```
 
+--
+
 Sourcing files breaks the dependency structure that makes `drake` useful. 
+
+--
 
 Instead, 
 
@@ -259,7 +357,7 @@ good_plan &lt;-
   )
 ```
 
-This setup allows `drake` to know `first_target` needs to be built before work on `second_target` can begin.
+Now `drake` knows`first_target` needs to be built before work on `second_target` can begin.
 
 ---
 
@@ -267,7 +365,7 @@ This setup allows `drake` to know `first_target` needs to be built before work o
 
 - [Generate ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
 
-![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+.pull_right[![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)]
 
 for analyses that require lots of different permutations of a similar analysis
 
@@ -284,7 +382,7 @@ for analyses that require lots of different permutations of a similar analysis
 - [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
 - [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
 - [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
-- [Sina Rüeger](https://sinarueeger.github.io/2018/10/09/workflow/) and [Christine Stawitz](https://github.com/cstawitz/RLadies_Sea_drake) `drake` presentations
+- [Sina Rüeger](https://sinarueeger.github.io/2018/10/09/workflow/) and [Christine Stawitz](https://github.com/cstawitz/RLadies_Sea_drake)'s `drake` presentations
 
 ---
 
@@ -335,20 +433,6 @@ To be able to run it in full you'll need a [Twitter API access token](https://rt
 
 ```r
 get_tweets()
-## # A tibble: 50 x 5
-##    text                 user_id status_id   created_at          screen_name
-##    &lt;chr&gt;                &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-##  1 We’ll have a cure f… 560024… 1090227942… 2019-01-29 07:39:31 NYCFireWire
-##  2 Someone got access … 560024… 1090153246… 2019-01-29 02:42:42 NYCFireWire
-##  3 Manhattan *66-75-15… 560024… 1090080741… 2019-01-28 21:54:36 NYCFireWire
-##  4 Queens *99-75-9625*… 560024… 1090050618… 2019-01-28 19:54:54 NYCFireWire
-##  5 Prayers for Houston… 560024… 1090033652… 2019-01-28 18:47:29 NYCFireWire
-##  6 Manhattan *66-75-15… 560024… 1089961497… 2019-01-28 14:00:46 NYCFireWire
-##  7 Queens *MVA/PIN* 11… 560024… 1089948361… 2019-01-28 13:08:34 NYCFireWire
-##  8 Manhattan *Stuck El… 560024… 1089922223… 2019-01-28 11:24:42 NYCFireWire
-##  9 Bronx *66-75-2722* … 560024… 1089753156… 2019-01-28 00:12:53 NYCFireWire
-## 10 Eng.88 requesting N… 560024… 1089751644… 2019-01-28 00:06:53 NYCFireWire
-## # … with 40 more rows
 ```
 
 ---
@@ -362,59 +446,6 @@ The most recent tweets from NYCFireWire:
 get_tweets() %&gt;% 
   select(text) %&gt;% 
   print(n = nrow(.))
-## # A tibble: 50 x 1
-##    text                                                                    
-##    &lt;chr&gt;                                                                   
-##  1 We’ll have a cure for cancer within a year, scientists claim https://t.…
-##  2 Someone got access to NNSS in Nevada. I was there last year taking the …
-##  3 Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor.                 
-##  4 Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy.
-##  5 Prayers for Houston Police https://t.co/pkaKLffji2                      
-##  6 Manhattan *66-75-1587* 240 W 139 St off Powell. E-69 transmitting the 1…
-##  7 Queens *MVA/PIN* 115 Ave &amp;amp; 200 St. Overturned van with occupant pin…
-##  8 Manhattan *Stuck Elevator* 48 E 65 St off Park Ave. L-16 is extricating…
-##  9 Bronx *66-75-2722* 14 Marcy Pl off Walton Ave. Fire 2nd floor multiple …
-## 10 Eng.88 requesting NYPD ESU forthwith. They have an EDP up on the fire e…
-## 11 @CalFireNews Your over your head with this one... stick to Fire News.   
-## 12 Bronx *66-75-3675* 717 E 222nd St. Fire 2nd floor private dwelling. E-6…
-## 13 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
-## 14 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
-## 15 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
-## 16 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
-## 17 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
-## 18 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
-## 19 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
-## 20 https://t.co/dnYTm4ZAAU                                                 
-## 21 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
-## 22 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
-## 23 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
-## 24 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
-## 25 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
-## 26 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
-## 27 Someone with a box cutter walked up to the ambulance and did this.... a…
-## 28 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
-## 29 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
-## 30 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
-## 31 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
-## 32 https://t.co/NHtiYI55vp                                                 
-## 33 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
-## 34 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
-## 35 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
-## 36 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
-## 37 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
-## 38 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
-## 39 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
-## 40 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
-## 41 Welcome back! https://t.co/CaVeK3NG0o                                   
-## 42 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
-## 43 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
-## 44 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
-## 45 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
-## 46 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
-## 47 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
-## 48 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
-## 49 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
-## 50 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.
 ```
 
 
@@ -437,26 +468,6 @@ seed_tweets &lt;-
 (full_tweets &lt;- 
   get_tweets(seed_tweets, n_tweets_reup = 5,
              output_path = here("data", "raw", "fires.csv")))
-## Searching for new tweets.
-## 5 new tweet(s) pulled.
-## # A tibble: 15 x 5
-##    text                 user_id status_id   created_at          screen_name
-##    &lt;chr&gt;                &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-##  1 We’ll have a cure f… 560024… 1090227942… 2019-01-29 07:39:31 NYCFireWire
-##  2 Someone got access … 560024… 1090153246… 2019-01-29 02:42:42 NYCFireWire
-##  3 Manhattan *66-75-15… 560024… 1090080741… 2019-01-28 21:54:36 NYCFireWire
-##  4 Queens *99-75-9625*… 560024… 1090050618… 2019-01-28 19:54:54 NYCFireWire
-##  5 Prayers for Houston… 560024… 1090033652… 2019-01-28 18:47:29 NYCFireWire
-##  6 "Staten Island *MVA… 560024… 1084619203… 2019-01-13 20:12:23 NYCFireWire
-##  7 Queens 99-75-6810 1… 560024… 1084585222… 2019-01-13 17:57:22 NYCFireWire
-##  8 Manhattan *66-75-13… 560024… 1084381472… 2019-01-13 04:27:44 NYCFireWire
-##  9 Staten Island *88-7… 560024… 1084363362… 2019-01-13 03:15:46 NYCFireWire
-## 10 Firefighter in hara… 560024… 1084286557… 2019-01-12 22:10:35 NYCFireWire
-## 11 Mom whose tot start… 560024… 1084277293… 2019-01-12 21:33:46 NYCFireWire
-## 12 Much love &amp;amp; app… 560024… 1084244820… 2019-01-12 19:24:44 NYCFireWire
-## 13 FCC: New York is si… 560024… 1084210814… 2019-01-12 17:09:36 NYCFireWire
-## 14 God bless the #NYPD… 560024… 1084205017… 2019-01-12 16:46:34 NYCFireWire
-## 15 Pregnant FDNY worke… 560024… 1084090782… 2019-01-12 09:12:38 NYCFireWire
 ```
 
 ---
@@ -470,23 +481,6 @@ seed_tweets &lt;-
 get_tweets() %&gt;% 
   pull_addresses() %&gt;% 
   select(street, borough, address, text)
-## Source: local data frame [50 x 4]
-## Groups: &lt;by row&gt;
-## 
-## # A tibble: 50 x 4
-##    street         borough  address            text                         
-##    &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;                        
-##  1 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               We’ll have a cure for cancer…
-##  2 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Someone got access to NNSS i…
-##  3 260 Convent A… Manhatt… 260 Convent Ave, … Manhattan *66-75-1597* 260 C…
-##  4 107-27 Atlant… Queens   107-27 Atlantic A… Queens *99-75-9625* 107-27 A…
-##  5 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Prayers for Houston Police h…
-##  6 240 W 139 St … Manhatt… 240 W 139 St off … Manhattan *66-75-1587* 240 W…
-##  7 115 Ave &amp;amp;… Queens   115 Ave &amp;amp; 200… Queens *MVA/PIN* 115 Ave &amp;am…
-##  8 48 E 65 St of… Manhatt… 48 E 65 St off Pa… Manhattan *Stuck Elevator* 4…
-##  9 14 Marcy Pl o… The Bro… 14 Marcy Pl off W… Bronx *66-75-2722* 14 Marcy …
-## 10 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Eng.88 requesting NYPD ESU f…
-## # … with 40 more rows
 ```
 
 ---
@@ -502,16 +496,6 @@ Then we can use the [`geocode`](https://www.rdocumentation.org/packages/ggmap/ve
 get_tweets(n_tweets_seed = 5) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=260%20Convent%20Ave%2C%20Manhattan&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=107-27%20Atlantic%20Ave%2C%20Queens&amp;key=xxx
-## # A tibble: 5 x 7
-##   address     lat  long lat_trunc long_trunc created_at          text      
-##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;     
-## 1 &lt;NA&gt;       NA    NA        NA         NA   2019-01-29 07:39:31 We’ll hav…
-## 2 &lt;NA&gt;       NA    NA        NA         NA   2019-01-29 02:42:42 Someone g…
-## 3 260 Conv…  40.8 -73.9      40.8      -73.9 2019-01-28 21:54:36 Manhattan…
-## 4 107-27 A…  40.7 -73.8      40.7      -73.8 2019-01-28 19:54:54 Queens *9…
-## 5 &lt;NA&gt;       NA    NA        NA         NA   2019-01-28 18:47:29 Prayers f…
 ```
 
 
@@ -540,14 +524,6 @@ get_tweets(n_tweets_seed = 5) %&gt;%
   pull_addresses() %&gt;% 
   get_lat_long() %&gt;% 
   count_fires()
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=260%20Convent%20Ave%2C%20Manhattan&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=107-27%20Atlantic%20Ave%2C%20Queens&amp;key=xxx
-## # A tibble: 2 x 3
-## # Groups:   lat, long [2]
-##     lat  long     n
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
-## 1  40.7 -73.8     1
-## 2  40.8 -73.9     1
 ```
 
 
@@ -569,10 +545,6 @@ b_mark &lt;-
 
 b_mark %&gt;% 
   select(median)
-## # A tibble: 1 x 1
-##     median
-##   &lt;bch:tm&gt;
-## 1    484ms
 ```
 
 

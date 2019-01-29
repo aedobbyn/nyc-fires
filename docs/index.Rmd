@@ -12,15 +12,16 @@ output:
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(collapse = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, collapse = TRUE)
 options(htmltools.dir.version = FALSE)
 ```
 
 
 ###  Warning: this presentation contains less rap than you might have expected. 
 
-I won't blame you if you want to make a quick exit.
+I won't blame you if you want to make a quick getaway.
+
+.center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)]
 
 ---
 
@@ -30,13 +31,13 @@ class: inverse
 
 Day job: ultimate frisbee player.
 
-For fun: Data Scientist at Earlybird Software, former co-organizer of R-Ladies Chicago.
+For fun: Data Scientist at Earlybird Software, former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/).
 
-https://github.com/aedobbyn
+GitHub: https://github.com/aedobbyn
 
-https://dobb.ae
+Website: https://dobb.ae
 
-@dobbleobble
+Twitter: @dobbleobble
 
 ---
 
@@ -44,7 +45,9 @@ https://dobb.ae
 
 [`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
 
-In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
+*What that means*: 
+
+In an R pipeline, when changes occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
 
 <p align="center">
 <img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges">
@@ -54,40 +57,44 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ---
 
-### What's the deal with the name?
+## What's the deal with the name?
+
+--
+
+### **d**ataframes in **R** for M**ake**
+
+--
 
 .pull-left[
 
-The name stands for:
+What's Make?
 
-**d**ataframes in **R** for M**ake**
-
-or in other words, GNU Make reimagined for R.
-
-[GNU Make](https://www.gnu.org/software/make/) uses a workflow outline file called a Makefile to specify dependencies and how targets should be rebuilt when they're out of date. 
+[GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** and how targets should be rebuilt when they're out of date. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
 ]
+
+Example of a Makefile:
 
 .pull-right[![example_makefile](./img/example_makefile_r.jpg)]
 
 ---
 
 ### Nice features of `drake`
-1. See how your pipeline fits together, in a tidy dataframe
+1. See how your pipeline fits together, in a tidy **dataframe**
 
 --
 
-2. Visualize dependencies in your code in graph format
+2. Visualize the **dependency graph** of your code
 
 --
 
-3. Some high-performance computing advantages
+3. Great for iteration and **reproducibility**; you know exactly how these results were generated 
 
 --
 
-4. Great for iteration and reproducibility; you know exactly how these results were generated
+4. High-performance computing advantages
 
 --
 
@@ -97,13 +104,10 @@ or in other words, GNU Make reimagined for R.
 
 ### Better workflows
 
-.pull-right[
-You can avoid workflows like this, that are based on file names that could easily be out of date and rely on `source`ing the script before it.
-
-If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02_clean.R`, and `03_deep_clean.R` again?
-]
-
 .pull-left[
+
+Does your directory look like this?
+
 `01_import.R`
 
 `02_clean.R`
@@ -119,42 +123,68 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 `07_report.Rmd`
 ]
 
+.pull-right[
+
+- Depends on correctly `source`ing the script before it. Need:
+  - Up-to-date file names
+  - Same input data
+  - Everything working correctly and in the right order
+
+
+- If something breaks in `04_join.R` 
+  - Can you be sure about where it broke?
+  - Do you need to re-run the entire pipeline again? 
+]
+
+
 
 ---
 
-### Analogy to `knitr`
+### `drake` : `knitr`
 
-(Stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
+(Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
 
-`drake` is sort of like `knitr` in the sense that 
+![tiny_hats](./img/tiny_hats.jpg)
 
-1) It makes your analysis reproducible and compact. You expect to be able to rerun someone's report from a single file.
 
-2) In `knitr`, chunks can be cached if they've already been run, so they don't need to be re-run unless something in them changes.
 
-3) When an `Rmd` is knit, a chunk successfully knitting depends on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
+
+2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+3) It lives in a single file, making your analysis reproducible and **compact**. 
+
+
+
+
+???
+With knitr, you expect to be able to rerun someone's report from a single file.
 
 ---
 
-### A few pieces of vocab
+## A few pieces of vocab
 
-#### *targets* and *commands*
 
-From `?drake_config`: "**Targets** are the objects and files that drake generates, and **commands** are the pieces of R code that produce them."
+**Targets** are the objects and files that drake generates, and
 
 --
 
-#### *plans*
+**commands** are the pieces of R code that produce them.
 
-**Plans** wrap up the relationship between targets and commands into a workflow representation.
+--
 
-In `drake` they're stored as a dataframe object, with one column for targets, and one column for their corresponding commands.
+**Plans** wrap up the relationship between targets and commands into a workflow representation: a dataframe.
+
+???
+
+one column for targets, and one column for their corresponding commands.
 
 ---
 
-### More on plans
+## More on plans
 
-You can think of the plan as that top-level script that sources all the other scripts and runs everything, like
+Plans are like that top-level script that runs the whole thing, like
 
 ```{r, eval=FALSE}
 source("01_import.R")
@@ -167,68 +197,129 @@ final <- do_more_things(object_in_env)
 write_out_my_results(final)
 ```
 
-except that it knows about the dependencies of all objects and functions and is less cumbersome than this setup.
+
+*But*, the plan **knows about the dependencies** in your code.
+
 
 ---
 
-### How to `drake`
+## How to `drake`
 
-1. Store prework (loading packages and user-defined functions) in a file 
-2. Store a `drake` plan in another file
-3. Create the plan and run it
+1. Store **prework** (loading packages and user-defined functions) in a file 
+2. Store a `drake` **plan** in another file
+3. Create the plan and **run** it
+
+--
 
 ```{r, eval=FALSE}
 source("/path/to/my/prework.R")
 
-## Custom functions defined in prework are:
-# clean_my(), analyze_my(), and report_out_my()
-
 plan <- 
   drake_plan(
-  cleaned_data = clean_my(raw_data),
-  results = analyze_my(cleaned_data),
-  report = report_out_my(results,
-                         file_out = "/path/to/my/report.md")
-)
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = 
+      report_out_my(results,
+          file_out = "/path/to/my/report.md")
+  )
 
 make(plan)
 ```
 
-The first run of `make(plan)` will run the plan from scratch. 
+---
 
-After that, `drake` will only re-run the parts of the plan that are out of date and everything downstream of that.
+## What `drake does`
 
-`drake` knows that, for example, `results` depends on `cleaned_data` because `cleaned_data` is part of the `analyze_my(cleaned_data)` command used to generate `results`.
+```{r, eval=FALSE}
+plan <- 
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = 
+      report_out_my(results,
+          file_out = "/path/to/my/report.md")
+  )
+
+make(plan)
+```
+
+**First run** of `make(plan)`:
+
+`drake` runs the plan from scratch
+
+<br>
+
+**Thereafter**
+
+`drake` will only rebuild targets that are out of date, and everything downstream of them
+
+
 
 ---
 
 ### What makes a target become out of date?
 
-1. Some part of the code used to generate that target or one of its upstream targets has changed
-2. A trigger is activated (more on that later)
+1) A trigger is activated (more on these later)
+
+<br>
+
+2) Some part of the code used to generate that target or one of its upstream targets has changed
+
+```{r}
+plan <- 
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data),
+    report = report_out_my(results)
+  )
+```
+
+
+`drake` knows that`results` depends on `cleaned_data`
+
+because `results` is generated by the `analyze_my(cleaned_data)` command
+
 
 ---
 
-### Where is all this info stored?
+## Where is all this info stored?
 
 **targets**
 
-In a hidden `.drake` cache when you run `make()`. In the `.drake/data` subdirectory, targets are stored as hashed `rds` objects. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
+In a hidden `.drake` cache. `drake` uses hashes to know when things change. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `clean()` cleans that cache.
 
+<br>
+
 **dependencies**
 
-`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in `config`, which you can access with `drake_config()`.
+`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config`.
+
+You can access all of it with `drake_config()`.
 
 ---
 
-### Big Idea #2
+## All about Functions
 
-`drake` is all built around *functions* rather than sourcing scripts.
-- A plan works by using functions to create targets. 
-- This allows `drake` to infer dependencies of objects and functions
-- Running `drake_plan` creates a dataframe relating each target to the function used to generate it.
+`drake` is all built around *functions* rather than scripts.
+
+- A plan works by using functions to create targets
+
+<br>
+
+- This allows `drake` to infer dependencies between
+  - objects and functions
+  - functions and other functions
+  
+<br>
+
+- Running `drake_plan` creates a dataframe relating each target to the command used to generate it
+
+---
+
+## All about Functions
+
 
 
 ```{r, eval=FALSE}
@@ -239,7 +330,11 @@ bad_plan <-
   )
 ```
 
+--
+
 Sourcing files breaks the dependency structure that makes `drake` useful. 
+
+--
 
 Instead, 
 
@@ -253,7 +348,7 @@ good_plan <-
   )
 ```
 
-This setup allows `drake` to know `first_target` needs to be built before work on `second_target` can begin.
+Now `drake` knows`first_target` needs to be built before work on `second_target` can begin.
 
 ---
 
@@ -261,7 +356,7 @@ This setup allows `drake` to know `first_target` needs to be built before work o
 
 - [Generate ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
 
-![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)
+.pull_right[![big_plans](https://media.giphy.com/media/DCslYLxUUgKX2ms0iw/giphy.gif)]
 
 for analyses that require lots of different permutations of a similar analysis
 
@@ -278,7 +373,7 @@ for analyses that require lots of different permutations of a similar analysis
 - [`drake` user manual](https://ropenscilabs.github.io/drake-manual/index.html)
 - [debugging drake](https://ropensci.github.io/drake/articles/debug.html)
 - [Kirill Müller's cheat sheet](https://github.com/krlmlr/drake-sib-zurich/blob/master/cheat-sheet.pdf)
-- [Sina Rüeger](https://sinarueeger.github.io/2018/10/09/workflow/) and [Christine Stawitz](https://github.com/cstawitz/RLadies_Sea_drake) `drake` presentations
+- [Sina Rüeger](https://sinarueeger.github.io/2018/10/09/workflow/) and [Christine Stawitz](https://github.com/cstawitz/RLadies_Sea_drake)'s `drake` presentations
 
 ---
 
