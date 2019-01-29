@@ -1,0 +1,3 @@
+
+- better map
+- put slides at a gh pages link

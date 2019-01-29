@@ -7,9 +7,9 @@ output:
 
 This is an intro to the [`drake`](https://github.com/ropensci/drake) R package for data pipeling. It might be useful for you if you're interested in reproducibility after you make changes to your code.
 
-<p align="center">
-  <img src="./img/happy_drake.jpg" height="250">
-</p>
+<!-- <p align="center"> -->
+<!--   <img src="./img/happy_drake.jpg" height="250"> -->
+<!-- </p> -->
 
 The talk is split into two parts: slides, and a [live coding walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.Rmd). The latter is meant to be stepped through in an R session rather than knit. 
 
