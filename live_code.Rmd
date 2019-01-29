@@ -22,7 +22,6 @@ Let's define a file path to dump the tweets we collect into.
 
 ```{r}
 burner_path <- here("data", "raw", "burn.csv") # Same as "<working_dir>/data/raw/burn.csv"
-burner_path_trunc <- "data/raw/burn.csv"
 
 # Delete the file in burner_path if it exists already so we start from scratch
 if (file_exists(burner_path)) file_delete(burner_path)
@@ -37,13 +36,13 @@ burner_plan <-
     # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
       user = burner_handle,
-      input_path = here(file_in(burner_path_trunc))
+      input_path = burner_path
     ),
     
     full_burn = get_tweets(
         tbl = seed_burn,
         user = burner_handle,
-        output_path = here(file_out(burner_path_trunc)) # Outputs to burner_path
+        output_path = burner_path # Outputs to burner_path
       )
   )
 
@@ -221,14 +220,14 @@ burner_plan_2 <-
     # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
     seed_burn = get_tweets(
       user = burner_handle,
-      input_path = here(file_in(burner_path_trunc))
+      input_path = burner_path
     ),
     
     full_burn = target(
       command = get_tweets(
         tbl = seed_burn,
         user = burner_handle,
-        output_path = here(file_out(burner_path_trunc)) # Outputs to burner_path
+        output_path = burner_path # Outputs to burner_path
       ),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
@@ -341,20 +340,20 @@ Let's go back to our original NYCFireWire Twitter account.
 For the purposes of illustration, I'll set a `max_id` on our `seed_fires` so that we can re-up and grab more tweets to build `fires`.
 
 ```{r}
-fire_path <- "data/raw/fires.csv"
+fire_path <- here("data", "raw", "fires.csv")
 
 plan <-
   drake_plan(
     seed_fires = get_tweets( 
       n_tweets_seed = 2,
       max_id = old_tweet_id,
-      input_path = here(file_in(fire_path))
+      input_path = fire_path
     ), 
     fires = target(
       command = get_tweets(
         tbl = seed_fires,
         n_tweets_reup = 3,
-        output_path = here(file_out(fire_path))
+        output_path = fire_path
       ),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
@@ -366,9 +365,7 @@ plan <-
     fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
 
     time_graph = graph_fire_times(dat),
-    plot = plot_fire_sums(dat, nyc,
-                          output_path =
-                                    here(file_out("plots/fire_sums.png")))
+    plot = plot_fire_sums(dat, nyc)
   )
 ```
 

@@ -239,6 +239,12 @@ get_lat_long <- function(tbl) {
 }
 
 
+nyc <-
+  ggplot2::map_data("state", region = "new york") %>%
+  truncate_lat_long(digits = 1) %>%
+  as_tibble()
+
+
 join_on_city_data <- function(tbl, city = nyc) {
   tbl %>%
     rename(
@@ -265,11 +271,6 @@ graph_fire_times <- function(tbl) {
     theme_light()
 }
 
-
-nyc <-
-  ggplot2::map_data("state", region = "new york") %>%
-  truncate_lat_long(digits = 1) %>%
-  as_tibble()
 
 fire_emoji <- emoji("fire")
 
