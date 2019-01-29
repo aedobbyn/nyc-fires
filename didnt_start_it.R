@@ -1,6 +1,5 @@
 suppressPackageStartupMessages({
   library(drake)
-  library(emojifont)
   library(fs)
   library(ggmap)
   library(glue)
@@ -271,17 +270,6 @@ count_fires <- function(tbl) {
 
 # Graph when fires happen 
 graph_fire_times <- function(tbl) {
-  day_range <-
-    (as.numeric(max(dat$created_at)) - as.numeric(min(dat$created_at))) / 86400 # 60*60*24
-  
-  if (day_range > 30) {
-    tbl <-
-      tbl %>% 
-      mutate(
-        mnth = lubridate::month(created_at)
-      )
-  }
-  
   ggplot(tbl, aes(created_at)) +
     geom_density() +
     ggtitle("Timing of Fires in NYC") +
@@ -290,35 +278,9 @@ graph_fire_times <- function(tbl) {
 }
 
 
-fire_emoji <- emoji("fire")
+fire_emoji <- emojifont::emoji("fire")
 
-plot_fires <- function(tbl, city = nyc,
-                       output_path = here("plots", "fire_plot.png")) {
-  tbl <-
-    tbl %>%
-    drop_na(lat, long)
-
-  ggplot() +
-    geom_polygon(data = nyc, aes(lat, long)) +
-    geom_text(
-      data = dat, aes(lat, long, label = fire_emoji),
-      family = "EmojiOne", size = 3, color = "red"
-    ) +
-    # geom_point(data = dat, aes(lat, long), color = "red") +
-    xlim(NA, 41) +
-    ylim(-75, -73) +
-    ggtitle("Fires were Started") +
-    labs(x = "latitude", y = "longitude") +
-    theme_light()
-
-  if (!is.null(output_path)) {
-    ggsave(output_path,
-      device = "png"
-    )
-  }
-}
-
-
+# Plot where fires occurred by lat/long combo
 plot_fire_sums <- function(tbl, city = nyc,
                            output_path = here("plots", "fire_sums_plot.png")) {
   tbl <-
@@ -326,10 +288,10 @@ plot_fire_sums <- function(tbl, city = nyc,
     drop_na(lat, long)
 
   ggplot() +
-    geom_polygon(data = nyc, aes(lat, long)) +
+    geom_polygon(data = nyc, aes(lat, long), fill = "orange") +
     geom_text(
       data = tbl, aes(lat, long, label = fire_emoji, size = n),
-      family = "EmojiOne", color = "red", fill = "orange"
+      family = "EmojiOne", color = "red"
     ) +
     xlim(NA, 41) +
     ylim(-75, -73) +

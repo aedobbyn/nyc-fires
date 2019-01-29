@@ -1,9 +1,12 @@
 
+# What the flow would look like if we didn't use drake
+# All of this would need to be re-run every time we wanted to reproduce the analysis :/
+
 source(here::here("didnt_start_it.R"))
 
 fires <-
   get_tweets(
-    output_path = here("data", "derived", "lots_o_fires.csv")
+    output_path = here("data", "raw", "fires.csv")
   )
 
 addresses <-
@@ -11,8 +14,6 @@ addresses <-
 
 lat_long <-
   get_lat_long(addresses)
-
-nyc <- get_city_data()
 
 dat <-
   join_on_city_data(lat_long)
@@ -27,13 +28,5 @@ write_csv(lat_long, here("data", "derived", "lat_long.csv"))
 write_csv(dat, here("data", "derived", "dat.csv"))
 write_csv(fire_sums, here("data", "derived", "fire_sums.csv"))
 
-# fires <- read_csv(here::here("data", "raw", "fires.csv"))
-# addresses <- read_csv(here::here("data", "derived", "addresses.csv"))
-# lat_long <- read_csv(here::here("data", "derived", "lat_long.csv"))
-# nyc <- read_csv(here::here("data", "raw", "addresses.csv"))
-# dat <- read_csv(here::here("data", "derived", "dat.csv"))
-# fire_sums <- read_csv(here::here("data", "derived", "fire_sums.csv"))
-
 graph_fire_times(dat)
-
-plot_fires(dat)
+plot_fire_sums(fire_sums)
