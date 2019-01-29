@@ -5,11 +5,10 @@ This is an intro to the [`drake`](https://github.com/ropensci/drake) R
 package for data pipeling. It might be useful for you if you’re
 interested in reproducibility after you make changes to your code.
 
-<p align="center">
-<img src="./img/happy_drake.jpg" height="250">
-</p>
-The talk is split into two parts: slides, and a [live coding
-walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.Rmd).
+The talk is split into two parts:
+[slides](https://aedobbyn.github.io/nyc-fires/index.html), and a [live
+coding
+walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md).
 The latter is meant to be stepped through in an R session rather than
 knit.
 
@@ -30,7 +29,7 @@ key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding)
 ### Other things you might want to know
 
 -   All functions live in
-    [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/didnt_start_it.R).
+    [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R).
 
 -   Feel free to use any and all of the data, including the
     [raw](https://github.com/aedobbyn/nyc-fires/blob/master/data/raw/lots_o_fires.csv)
@@ -38,6 +37,9 @@ key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding)
     [geocoded](https://github.com/aedobbyn/nyc-fires/blob/master/data/derived/dat.csv)
     tweet motherlode.
 
+<p align="center">
+<img src="./img/happy_drake.jpg" height="250">
+</p>
 -   The best resources on `drake` remain the [`drake`
     manual](https://ropenscilabs.github.io/drake-manual/) and
     [Will](https://twitter.com/wmlandau)

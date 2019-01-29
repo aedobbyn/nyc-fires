@@ -70,7 +70,7 @@ or in other words, GNU Make reimagined for R.
 
 ]
 
-.pull-right[![example_makefile](img/example_makefile_r.jpg)]
+.pull-right[![example_makefile](../img/example_makefile_r.jpg)]
 
 ---
 
@@ -308,7 +308,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R).
 
 ```{r, warning=FALSE}
-source(here("R", "didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R"))
 ```
 
 Caveat is that this analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.

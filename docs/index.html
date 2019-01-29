@@ -44,9 +44,13 @@ https://dobb.ae
 
 ### `drake`'s main idea
 
-`drake` is workflow manager for your R code.
+[`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
 
 In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
+
+&lt;p align="center"&gt;
+&lt;img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges"&gt;
+&lt;/p&gt;
 
 Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) and friends.
 
@@ -68,7 +72,7 @@ or in other words, GNU Make reimagined for R.
 
 ]
 
-.pull-right[![example_makefile](img/example_makefile.jpg)]
+.pull-right[![example_makefile](../img/example_makefile_r.jpg)]
 
 ---
 
@@ -89,7 +93,7 @@ or in other words, GNU Make reimagined for R.
 
 --
 
-5. It's all in R -- no writing config files!
+5. It's all in R so no writing config files! 🎉
 
 ---
 
@@ -116,7 +120,6 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 
 `07_report.Rmd`
 ]
-
 
 
 ---
@@ -274,6 +277,7 @@ for analyses that require lots of different permutations of a similar analysis
 
 - Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
 
+---
 
 ### Moar Resources
 
@@ -307,13 +311,16 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 3. Send addresses to the Google Maps API to grab their latitudes and longitudes
 4. Profit
 
-All functions stored in `didnt_start_it.R`.
+All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R).
 
 
 ```r
-source(here::here("didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R"))
 ```
 
+Caveat is that this analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
+
+To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
 
 ---
 
@@ -328,22 +335,19 @@ source(here::here("didnt_start_it.R"))
 
 ```r
 get_tweets()
-```
-
-```
 ## # A tibble: 50 x 5
-##    text                   user_id status_id created_at          screen_name
-##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 @CalFireNews Your ove…  5.60e8   1.09e18 2019-01-27 21:22:46 NYCFireWire
-##  2 Bronx *66-75-3675* 71…  5.60e8   1.09e18 2019-01-27 20:53:52 NYCFireWire
-##  3 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
-##  4 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
-##  5 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
-##  6 Staten Island *88-75-…  5.60e8   1.09e18 2019-01-27 11:10:49 NYCFireWire
-##  7 Brooklyn *77-75-0689*…  5.60e8   1.09e18 2019-01-27 01:36:24 NYCFireWire
-##  8 The FDNY’s diversity …  5.60e8   1.09e18 2019-01-27 01:12:13 NYCFireWire
-##  9 Fairfax County Fire &amp;…  5.60e8   1.09e18 2019-01-27 01:11:39 NYCFireWire
-## 10 https://t.co/dnYTm4ZA…  5.60e8   1.09e18 2019-01-26 23:06:02 NYCFireWire
+##    text                 user_id status_id   created_at          screen_name
+##    &lt;chr&gt;                &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
+##  1 We’ll have a cure f… 560024… 1090227942… 2019-01-29 07:39:31 NYCFireWire
+##  2 Someone got access … 560024… 1090153246… 2019-01-29 02:42:42 NYCFireWire
+##  3 Manhattan *66-75-15… 560024… 1090080741… 2019-01-28 21:54:36 NYCFireWire
+##  4 Queens *99-75-9625*… 560024… 1090050618… 2019-01-28 19:54:54 NYCFireWire
+##  5 Prayers for Houston… 560024… 1090033652… 2019-01-28 18:47:29 NYCFireWire
+##  6 Manhattan *66-75-15… 560024… 1089961497… 2019-01-28 14:00:46 NYCFireWire
+##  7 Queens *MVA/PIN* 11… 560024… 1089948361… 2019-01-28 13:08:34 NYCFireWire
+##  8 Manhattan *Stuck El… 560024… 1089922223… 2019-01-28 11:24:42 NYCFireWire
+##  9 Bronx *66-75-2722* … 560024… 1089753156… 2019-01-28 00:12:53 NYCFireWire
+## 10 Eng.88 requesting N… 560024… 1089751644… 2019-01-28 00:06:53 NYCFireWire
 ## # … with 40 more rows
 ```
 
@@ -358,62 +362,59 @@ The most recent tweets from NYCFireWire:
 get_tweets() %&gt;% 
   select(text) %&gt;% 
   print(n = nrow(.))
-```
-
-```
 ## # A tibble: 50 x 1
 ##    text                                                                    
 ##    &lt;chr&gt;                                                                   
-##  1 @CalFireNews Your over your head with this one... stick to Fire News.   
-##  2 Bronx *66-75-3675* 717 E 222nd St. Fire 2nd floor private dwelling. E-6…
-##  3 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
-##  4 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
-##  5 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
-##  6 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
-##  7 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
-##  8 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
-##  9 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
-## 10 https://t.co/dnYTm4ZAAU                                                 
-## 11 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
-## 12 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
-## 13 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
-## 14 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
-## 15 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
-## 16 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
-## 17 Someone with a box cutter walked up to the ambulance and did this.... a…
-## 18 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
-## 19 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
-## 20 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
-## 21 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
-## 22 https://t.co/NHtiYI55vp                                                 
-## 23 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
-## 24 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
-## 25 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
-## 26 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
-## 27 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
-## 28 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
-## 29 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
-## 30 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
-## 31 Welcome back! https://t.co/CaVeK3NG0o                                   
-## 32 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
-## 33 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
-## 34 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
-## 35 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
-## 36 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
-## 37 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
-## 38 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
-## 39 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
-## 40 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.               
-## 41 Brooklyn *77-75-2306* 249 E 52 St. Fire private dwelling. Snyder Island…
-## 42 Why wasn't this considered when the plans were reviewed to start this p…
-## 43 "Hudson Yards developer Stephen Ross owns a lot of expensive things, in…
-## 44 It's with Regret we announce the passing of Active Firefighter &amp;amp; UF…
-## 45 Manhattan *66-75-1188* 224 E 89 St. Fire apt 3 in a 5 story 25x75.      
-## 46 Staten Island *88-75-2049* 204 Boundary Ave. Private dwelling           
-## 47 Another one caught! https://t.co/jpwguHFVjw                             
-## 48 Brooklyn *77-75-1986* 1753 Linden Blvd. Bn-58 transmitting the 10-75, 2…
-## 49 Queens *99-75-7899* 35-30 91 St. Basement fire 2 1/2 story private dwel…
-## 50 Brooklyn *77-75-3137* 1270 E 51 St. Fire 2nd floor 7 story multiple dwe…
+##  1 We’ll have a cure for cancer within a year, scientists claim https://t.…
+##  2 Someone got access to NNSS in Nevada. I was there last year taking the …
+##  3 Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor.                 
+##  4 Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy.
+##  5 Prayers for Houston Police https://t.co/pkaKLffji2                      
+##  6 Manhattan *66-75-1587* 240 W 139 St off Powell. E-69 transmitting the 1…
+##  7 Queens *MVA/PIN* 115 Ave &amp;amp; 200 St. Overturned van with occupant pin…
+##  8 Manhattan *Stuck Elevator* 48 E 65 St off Park Ave. L-16 is extricating…
+##  9 Bronx *66-75-2722* 14 Marcy Pl off Walton Ave. Fire 2nd floor multiple …
+## 10 Eng.88 requesting NYPD ESU forthwith. They have an EDP up on the fire e…
+## 11 @CalFireNews Your over your head with this one... stick to Fire News.   
+## 12 Bronx *66-75-3675* 717 E 222nd St. Fire 2nd floor private dwelling. E-6…
+## 13 Queens *Water Rescue* Howard Beach Motor Boat Club. Person fell off the…
+## 14 Brooklyn *77-75-2597* 785 E 4th St off Avenue F. Fire 4th floor.        
+## 15 Brooklyn *77-75-0805* 1259 Madison St. Fire on 2nd fl                   
+## 16 Staten Island *88-75-0460* 280 Park Hill Ave off Sobel ct. Fire in an 8…
+## 17 Brooklyn *77-75-0689* 188 Garvey Blvd. Fire in a 4 story multiple dwell…
+## 18 The FDNY’s diversity monitor has cost the city $23 million in 7 years h…
+## 19 Fairfax County Fire &amp;amp; Rescue are hiring. https://t.co/LdaKIjnOIB    
+## 20 https://t.co/dnYTm4ZAAU                                                 
+## 21 Queens *99-75-6833* 115-87 229 St. Basement fire private dwelling. E-31…
+## 22 Queens *99-75-4187* 54-02 Flushing Ave. Fire 1st floor chinese restaura…
+## 23 Queens *99-75-5692* 99-43 213 St. x 102 Ave. Fire in a private dwelling 
+## 24 Queens *99-75-5692* 99-43 213 St. House fire. Bed ridden person trapped…
+## 25 Brooklyn *77-22-2743**2nd Alarm** 1859 Nostrand Ave. Basement fire in a…
+## 26 Brooklyn *77-75-2743* 1859 Nostrand Ave. Basement fire in a store.      
+## 27 Someone with a box cutter walked up to the ambulance and did this.... a…
+## 28 Queens *99-75-9340* 42-03 108 St. Fire in a private dwelling            
+## 29 Bronx *66-75-3933* 5631 Post Rd. Attic fire private dwelling. E-52/L-52…
+## 30 De Blasio Defends Big Gap in Pay Separating EMS From Cops, Fire https:/…
+## 31 Bronx *66-75-4846* 685 E 237 St. Fire in a private dwelling             
+## 32 https://t.co/NHtiYI55vp                                                 
+## 33 Bronx *66-75-2929* 1668 Montgomery Ave. Fire 2nd floor                  
+## 34 Another criminal gets to walk. God bless the #NYPD. #FDNYPD #ProtectThe…
+## 35 Bronx *66-75-2375* 1023 Bruckner Blvd. Fire 1st floor taxpayer in a 5 s…
+## 36 Queens *99-75-4746* 163-56 25 Dr. Fire in a private dwelling.           
+## 37 Queens **99-44-4763**4th Alarm*** 114-39 157 St. 3 houses on fire       
+## 38 Queens **99-33-4763**3rd Alarm*** 114-39 157 St. 3 houses on fire. E-30…
+## 39 Queens *99-75-8644* 117-41 164 St. Fire in a private dwelling. All Hand…
+## 40 Bronx *66-75-2577* 1200 Woodycrest Ave off W 167 St. Fire apt 6D 6 stor…
+## 41 Welcome back! https://t.co/CaVeK3NG0o                                   
+## 42 Manhattan *66-75-1630* 1724 Amsterdam Ave off W 146 St. Fire 2nd floor …
+## 43 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. E…
+## 44 Staten Island **88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. F…
+## 45 Staten Island *88-22-0227**2nd Alarm** 192 Victory Blvd off Pike St. Ho…
+## 46 Staten Island *88-75-0227* 192 Victory Blvd off Pike St. House fire. E-…
+## 47 Brooklyn *77-75-0757* 108 Himrod St off Central Ave. Fire in the cocklo…
+## 48 Brooklyn *77-75-2280* 1407 E 92 St. Fire 1st floor rear setback         
+## 49 Queens *99-75-3124* 80-44 Cornish Ave off Queens Blvd. Fire in a 3 stor…
+## 50 Brooklyn *77-75-3514* 3709 Laurel ave off of seagate ave.
 ```
 
 
@@ -434,36 +435,28 @@ seed_tweets &lt;-
   )
 
 (full_tweets &lt;- 
-  get_tweets(seed_tweets, n_tweets_reup = 5))
-```
-
-```
+  get_tweets(seed_tweets, n_tweets_reup = 5,
+             output_path = here("data", "raw", "fires.csv")))
 ## Searching for new tweets.
-```
-
-```
 ## 5 new tweet(s) pulled.
-```
-
-```
 ## # A tibble: 15 x 5
-##    text                   user_id status_id created_at          screen_name
-##    &lt;chr&gt;                    &lt;dbl&gt;     &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      
-##  1 @CalFireNews Your ove…  5.60e8   1.09e18 2019-01-27 21:22:46 NYCFireWire
-##  2 Bronx *66-75-3675* 71…  5.60e8   1.09e18 2019-01-27 20:53:52 NYCFireWire
-##  3 Queens *Water Rescue*…  5.60e8   1.09e18 2019-01-27 17:21:23 NYCFireWire
-##  4 Brooklyn *77-75-2597*…  5.60e8   1.09e18 2019-01-27 16:10:36 NYCFireWire
-##  5 Brooklyn *77-75-0805*…  5.60e8   1.09e18 2019-01-27 11:36:52 NYCFireWire
-##  6 "Staten Island *MVA/P…  5.60e8   1.08e18 2019-01-13 20:12:23 NYCFireWire
-##  7 Queens 99-75-6810 111…  5.60e8   1.08e18 2019-01-13 17:57:22 NYCFireWire
-##  8 Manhattan *66-75-1352…  5.60e8   1.08e18 2019-01-13 04:27:44 NYCFireWire
-##  9 Staten Island *88-75-…  5.60e8   1.08e18 2019-01-13 03:15:46 NYCFireWire
-## 10 Firefighter in harass…  5.60e8   1.08e18 2019-01-12 22:10:35 NYCFireWire
-## 11 Mom whose tot started…  5.60e8   1.08e18 2019-01-12 21:33:46 NYCFireWire
-## 12 Much love &amp;amp; appre…  5.60e8   1.08e18 2019-01-12 19:24:44 NYCFireWire
-## 13 FCC: New York is siph…  5.60e8   1.08e18 2019-01-12 17:09:36 NYCFireWire
-## 14 God bless the #NYPD h…  5.60e8   1.08e18 2019-01-12 16:46:34 NYCFireWire
-## 15 Pregnant FDNY worker …  5.60e8   1.08e18 2019-01-12 09:12:38 NYCFireWire
+##    text                 user_id status_id   created_at          screen_name
+##    &lt;chr&gt;                &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
+##  1 We’ll have a cure f… 560024… 1090227942… 2019-01-29 07:39:31 NYCFireWire
+##  2 Someone got access … 560024… 1090153246… 2019-01-29 02:42:42 NYCFireWire
+##  3 Manhattan *66-75-15… 560024… 1090080741… 2019-01-28 21:54:36 NYCFireWire
+##  4 Queens *99-75-9625*… 560024… 1090050618… 2019-01-28 19:54:54 NYCFireWire
+##  5 Prayers for Houston… 560024… 1090033652… 2019-01-28 18:47:29 NYCFireWire
+##  6 "Staten Island *MVA… 560024… 1084619203… 2019-01-13 20:12:23 NYCFireWire
+##  7 Queens 99-75-6810 1… 560024… 1084585222… 2019-01-13 17:57:22 NYCFireWire
+##  8 Manhattan *66-75-13… 560024… 1084381472… 2019-01-13 04:27:44 NYCFireWire
+##  9 Staten Island *88-7… 560024… 1084363362… 2019-01-13 03:15:46 NYCFireWire
+## 10 Firefighter in hara… 560024… 1084286557… 2019-01-12 22:10:35 NYCFireWire
+## 11 Mom whose tot start… 560024… 1084277293… 2019-01-12 21:33:46 NYCFireWire
+## 12 Much love &amp;amp; app… 560024… 1084244820… 2019-01-12 19:24:44 NYCFireWire
+## 13 FCC: New York is si… 560024… 1084210814… 2019-01-12 17:09:36 NYCFireWire
+## 14 God bless the #NYPD… 560024… 1084205017… 2019-01-12 16:46:34 NYCFireWire
+## 15 Pregnant FDNY worke… 560024… 1084090782… 2019-01-12 09:12:38 NYCFireWire
 ```
 
 ---
@@ -477,25 +470,22 @@ seed_tweets &lt;-
 get_tweets() %&gt;% 
   pull_addresses() %&gt;% 
   select(street, borough, address, text)
-```
-
-```
 ## Source: local data frame [50 x 4]
 ## Groups: &lt;by row&gt;
 ## 
 ## # A tibble: 50 x 4
-##    street         borough   address              text                      
-##    &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;                &lt;chr&gt;                     
-##  1 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 @CalFireNews Your over yo…
-##  2 717 E 222nd St The Bronx 717 E 222nd St, The… Bronx *66-75-3675* 717 E …
-##  3 Howard Beach … Queens    Howard Beach Motor … Queens *Water Rescue* How…
-##  4 785 E 4th St … Brooklyn  785 E 4th St off Av… Brooklyn *77-75-2597* 785…
-##  5 1259 Madison … Brooklyn  1259 Madison St, Br… Brooklyn *77-75-0805* 125…
-##  6 280 Park Hill… Staten I… 280 Park Hill Ave o… Staten Island *88-75-0460…
-##  7 188 Garvey Bl… Brooklyn  188 Garvey Blvd, Br… Brooklyn *77-75-0689* 188…
-##  8 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 The FDNY’s diversity moni…
-##  9 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 Fairfax County Fire &amp;amp;…
-## 10 &lt;NA&gt;           &lt;NA&gt;      &lt;NA&gt;                 https://t.co/dnYTm4ZAAU   
+##    street         borough  address            text                         
+##    &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;                        
+##  1 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               We’ll have a cure for cancer…
+##  2 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Someone got access to NNSS i…
+##  3 260 Convent A… Manhatt… 260 Convent Ave, … Manhattan *66-75-1597* 260 C…
+##  4 107-27 Atlant… Queens   107-27 Atlantic A… Queens *99-75-9625* 107-27 A…
+##  5 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Prayers for Houston Police h…
+##  6 240 W 139 St … Manhatt… 240 W 139 St off … Manhattan *66-75-1587* 240 W…
+##  7 115 Ave &amp;amp;… Queens   115 Ave &amp;amp; 200… Queens *MVA/PIN* 115 Ave &amp;am…
+##  8 48 E 65 St of… Manhatt… 48 E 65 St off Pa… Manhattan *Stuck Elevator* 4…
+##  9 14 Marcy Pl o… The Bro… 14 Marcy Pl off W… Bronx *66-75-2722* 14 Marcy …
+## 10 &lt;NA&gt;           &lt;NA&gt;     &lt;NA&gt;               Eng.88 requesting NYPD ESU f…
 ## # … with 40 more rows
 ```
 
@@ -512,37 +502,81 @@ Then we can use the [`geocode`](https://www.rdocumentation.org/packages/ggmap/ve
 get_tweets(n_tweets_seed = 5) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
-```
-
-```
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=717%20E%20222nd%20St%2C%20The%20Bronx&amp;key=xxx
-```
-
-```
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Howard%20Beach%20Motor%20Boat%20Club%2C%20Queens&amp;key=xxx
-```
-
-```
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=785%20E%204th%20St%20off%20Avenue%20F%2C%20Brooklyn&amp;key=xxx
-```
-
-```
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1259%20Madison%20St%2C%20Brooklyn&amp;key=xxx
-```
-
-```
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=260%20Convent%20Ave%2C%20Manhattan&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=107-27%20Atlantic%20Ave%2C%20Queens&amp;key=xxx
 ## # A tibble: 5 x 7
-##   address      lat  long lat_trunc long_trunc created_at          text     
-##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;    
-## 1 &lt;NA&gt;        NA    NA        NA         NA   2019-01-27 21:22:46 @CalFire…
-## 2 717 E 222…  40.9 -73.9      40.9      -73.9 2019-01-27 20:53:52 Bronx *6…
-## 3 Howard Be…  40.7 -73.8      40.7      -73.8 2019-01-27 17:21:23 Queens *…
-## 4 785 E 4th…  40.6 -74.0      40.6      -74   2019-01-27 16:10:36 Brooklyn…
-## 5 1259 Madi…  40.7 -73.9      40.7      -73.9 2019-01-27 11:36:52 Brooklyn…
+##   address     lat  long lat_trunc long_trunc created_at          text      
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;     
+## 1 &lt;NA&gt;       NA    NA        NA         NA   2019-01-29 07:39:31 We’ll hav…
+## 2 &lt;NA&gt;       NA    NA        NA         NA   2019-01-29 02:42:42 Someone g…
+## 3 260 Conv…  40.8 -73.9      40.8      -73.9 2019-01-28 21:54:36 Manhattan…
+## 4 107-27 A…  40.7 -73.8      40.7      -73.8 2019-01-28 19:54:54 Queens *9…
+## 5 &lt;NA&gt;       NA    NA        NA         NA   2019-01-28 18:47:29 Prayers f…
 ```
 
 
-That's our main pipeline. We can do a few bits of analysis of the data after that, but that's the core of it.
+That's our main pipeline. We can do a few bits of analysis of the data after that.
+
+---
+
+### Late pipeline
+
+Later in the pipeline we can join 
+
+
+```r
+nyc &lt;-
+  ggplot2::map_data("state", region = "new york") %&gt;%
+  truncate_lat_long(digits = 1) %&gt;%
+  as_tibble()
+```
+
+
+or `count_fires`, summing up the total number of fires per `lat`-`long` combo.
+
+
+```r
+get_tweets(n_tweets_seed = 5) %&gt;% 
+  pull_addresses() %&gt;% 
+  get_lat_long() %&gt;% 
+  count_fires()
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=260%20Convent%20Ave%2C%20Manhattan&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=107-27%20Atlantic%20Ave%2C%20Queens&amp;key=xxx
+## # A tibble: 2 x 3
+## # Groups:   lat, long [2]
+##     lat  long     n
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+## 1  40.7 -73.8     1
+## 2  40.8 -73.9     1
+```
+
+
+---
+
+### Quick benchmark
+
+Even though it didn't take too long to pull 5 tweets from Twitter and send 5 addresses to Google Maps, we wouldn't want to re-run this part of the pipeline every time we changed an analysis step.
+
+
+
+```r
+b_mark &lt;-
+  bench::mark({
+    get_tweets(n_tweets_seed = 1) %&gt;% 
+    pull_addresses() %&gt;% 
+    get_lat_long()
+})
+
+b_mark %&gt;% 
+  select(median)
+## # A tibble: 1 x 1
+##     median
+##   &lt;bch:tm&gt;
+## 1    214ms
+```
+
+
+
 
 ---
 
