@@ -1,7 +1,7 @@
 
 # Not done during live coding for time reasons (mainly the round trip to/from Google)
 
-source(here::here("didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R"))
 
 lots_o_fires <-
   get_seed_tweets(

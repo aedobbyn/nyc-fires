@@ -2,7 +2,7 @@
 # What the flow would look like if we didn't use drake
 # All of this would need to be re-run every time we wanted to reproduce the analysis :/
 
-source(here::here("didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R"))
 
 fires <-
   get_tweets(

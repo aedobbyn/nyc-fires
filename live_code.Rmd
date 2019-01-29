@@ -6,8 +6,9 @@ output: md_document
 
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_knit$set(eval = FALSE)
 
-source(here::here("didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R"))
 ```
 
 ```{r}

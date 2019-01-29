@@ -305,10 +305,10 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 3. Send addresses to the Google Maps API to grab their latitudes and longitudes
 4. Profit
 
-All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/didnt_start_it.R).
+All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R).
 
 ```{r, warning=FALSE}
-source(here("didnt_start_it.R"))
+source(here("R", "didnt_start_it.R"))
 ```
 
 Caveat is that this analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.

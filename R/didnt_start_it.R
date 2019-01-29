@@ -11,7 +11,7 @@ suppressPackageStartupMessages({
 })
 
 # Read in gitignored GMaps and Twitter keys
-source(here("key.R"))
+source(here("R", "key.R"))
 
 # Set up Google Maps key
 register_google(gmaps_key)

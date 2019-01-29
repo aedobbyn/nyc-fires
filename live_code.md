@@ -1,0 +1,431 @@
+    # Will not be necessary to set in the upcoming release
+    pkgconfig::set_config("drake::strings_in_dots" = "literals")
+
+### Burner account time
+
+Let’s define a file path to dump the tweets we collect into.
+
+    burner_path <- here("data", "raw", "burn.csv") # Same as "<working_dir>/data/raw/burn.csv"
+
+    # Delete the file in burner_path if it exists already so we start from scratch
+    if (file_exists(burner_path)) file_delete(burner_path)
+
+Now we’ll create our first draft of the plan:
+
+    burner_plan <-
+      drake_plan(
+        # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
+        seed_burn = get_tweets(
+          user = burner_handle,
+          input_path = burner_path
+        ),
+        
+        full_burn = get_tweets(
+            tbl = seed_burn,
+            user = burner_handle,
+            output_path = burner_path # Outputs to burner_path
+          )
+      )
+
+Every time `burner_plan` is run, new any tweets collected will be stored
+in `burner_path` and be read into the next iteration of `seed_burn`.
+
+### Quick note on files
+
+We’re not using `drake`’s
+[`file_in`](https://ropensci.github.io/drake/reference/file_in.html) and
+[`file_out`](https://ropenscilabs.github.io/drake-manual/vis.html#output-files)
+functions, which allow `drake` to recognize and track the file. That
+lets us see when the targets associated with the file (both upstream and
+downstream of it) are invalidated.
+
+### Test out v1 of our plan
+
+Since `seed_burn` hasn’t changed and the code to generate the targets
+hasn’t changed, every time after the first time we run this plan `drake`
+will let us know that our targets are up to date and not re-run
+anything.
+
+    # Take a look at the dataframe that represents our plan
+    burner_plan 
+
+    # Save the config in an object we can look at
+    burner_config <- drake_config(burner_plan)
+
+    # Remove targets if they were already built
+    clean() 
+
+    # Both seed_burn and full_burn should be outdated
+    vis_drake_graph(burner_config) 
+
+    # Make the plan
+    make(burner_plan)  
+
+    # Everything should already be up to date 
+    outdated(burner_config)
+
+    # Which is reflected in our graph
+    vis_drake_graph(burner_config) 
+
+    # Can show just targets if things are too crowded
+    vis_drake_graph(burner_config, targets_only = TRUE)
+
+We can now load these targets into our working environment.
+
+    # They won't be found if we don't loadd() them
+    seed_burn
+
+    loadd(seed_burn)
+    seed_burn
+
+Every subsequent time we re-`make` the plan, `drake` should tell us we
+don’t need to do anything.
+
+    make(burner_plan)
+    make(burner_plan)
+    make(burner_plan)
+
+If we `clean()`, however, we’ll remake the plan from scratch.
+
+    clean()
+
+    # Targets are outdated now
+    vis_drake_graph(burner_config, targets_only = TRUE) 
+
+    # Make the plan again.
+    # Since we saved the previous output of full_burn to a file, this time we read that in for our seed_burn
+    make(burner_plan) 
+
+    # And now everything is up to date again
+    vis_drake_graph(burner_config, targets_only = TRUE) 
+
+### Changing Code
+
+One way we can guarantee that `drake` will re-`make` a target is if some
+part of the code used to generate that target changes.
+
+Right now, nothing outdated becuase we just ran `make(burner_plan)`.
+
+    outdated(burner_config)
+    vis_drake_graph(burner_config)
+
+Let’s modify the code to a function called by `get_tweets`. Note that
+`drake` recognizes that targets that incorporate this function at some
+point in the pipeline are out of date, even though this function isn’t
+called in the plan directly.
+
+Our original function, `there_are_new_tweets` which checks if the
+specified user has tweeted anything since the most recent tweet in our
+`tbl` argument:
+
+    there_are_new_tweets <- function(tbl,
+                                     user = firewire_handle,
+                                     verbose = TRUE) {
+      latest_dt <-
+        tbl %>%
+        arrange(desc(created_at)) %>%
+        slice(1) %>%
+        pull(created_at)
+
+      if (verbose) message("Searching for new tweets.")
+
+      new <- get_seed_tweets(user = user, n_tweets = 1)
+
+      if (max(new$created_at) <= latest_dt) {
+        if (verbose) message("No new tweets to pull.")
+        FALSE
+      } else {
+        TRUE
+      }
+    }
+
+We’ll change the message to include a smiley emoji `emo::ji('smile')`
+when `there_are_new_tweets` is called.
+
+    there_are_new_tweets <- function(tbl,
+                                     user = firewire_handle,
+                                     verbose = TRUE) {
+      latest_dt <-
+        tbl %>%
+        arrange(desc(created_at)) %>%
+        slice(1) %>%
+        pull(created_at)
+
+      if (verbose) message(glue("Searching for new tweets! {emo::ji('smile')}"))
+
+      new <- get_seed_tweets(user = user, n_tweets = 1)
+
+      if (max(new$created_at) <= latest_dt) {
+        if (verbose) message("No new tweets to pull.")
+        FALSE
+      } else {
+        TRUE
+      }
+    }
+
+Without doing anything else, we can check that both targets which had
+been up to date has now been invalidated.
+
+    outdated(burner_config)
+    vis_drake_graph(burner_config)
+
+Notice that we didn’t even need to re-define our plan; `drake` can tell
+that a function a target in our plan relies on has meaningfully changed.
+
+When we re-`make` our plan we should be messaged an 😄.
+
+    make(burner_plan)
+
+And now `seed_burn` and `full_burn` should both be up to date again.
+
+    outdated(burner_config)
+    vis_drake_graph(burner_config)
+
+### Add Triggers
+
+I mentioned that a way to guarantee that targets are re-made even if
+code *doesn’t* change is to associate a trigger with a target.
+
+Let’s add a
+[trigger](https://ropensci.github.io/drake/articles/debug.html#test-with-triggers-)
+so that we always run `get_tweets` to look for new tweets at the burner
+handle.
+
+    burner_plan_2 <-
+      drake_plan(
+        # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
+        seed_burn = get_tweets(
+          user = burner_handle,
+          input_path = burner_path
+        ),
+        
+        full_burn = target(
+          command = get_tweets(
+            tbl = seed_burn,
+            user = burner_handle,
+            output_path = burner_path # Outputs to burner_path
+          ),
+          trigger = trigger(
+            condition = TRUE # Always look for new tweets
+          )
+        )
+      )
+
+    burner_plan_2
+
+This trigger will make our `full_burn` target look always out of date to
+`drake` since it knows we need to re-make `full_burn` every time
+`make()` is run.
+
+Our `condition` always evaluates to `TRUE` because it’s just the value
+`TRUE`, but you can also sub in any expression that returns a boolean.
+
+    is_even_day <- function(input_date = Sys.Date()) {
+      this_day <- 
+        input_date %>% lubridate::day()
+      
+      this_day %% 2 == 0
+    }
+
+    is_even_day()
+    is_even_day(Sys.Date() + 1)
+    is_even_day(Sys.Date() + 2)
+
+### Test out the `burner_plan` 2.0
+
+First we’ll clean out the previous file we saved and start from scratch.
+
+    if (file_exists(burner_path)) file_delete(burner_path)
+
+Our `full_burn` target will always be out of date because the trigger
+indicates that it always needs to be rebuilt, but `seed_burn` will now
+be up-to-date.
+
+    clean()
+
+    # Notice our new trigger column
+    burner_plan_2 
+
+    # seed_burn is outdated becuase we haven't made the plan yet.
+    # full_burn is always out of date, no matter what, because of the trigger.
+    burner_config_2 <- drake_config(burner_plan_2)
+    outdated(burner_config_2)
+    vis_drake_graph(burner_config_2)
+
+All tweets are now stored in `burner_path`, which we specified as our
+`output_path` when making `full_burn`.
+
+What’s stored in this file is the same as both `seed_burn` and
+`full_burn` becuase there were no tweets posted between when we made
+`seed_burn` and `full_burn`.
+
+    make(burner_plan_2)
+
+    # Load the results of seed_burn and full_burn into our environment
+    loadd(seed_burn) 
+    loadd(full_burn)
+    # These should be the same since no new tweets posted
+    expect_identical(seed_burn, full_burn) 
+
+    # full_burn always outdated, seed_burn no longer outdated
+    outdated(burner_config_2) 
+    vis_drake_graph(burner_config_2)
+
+Now let’s post a new tweet and re-`make` the plan.
+
+`seed_burn` will be read in from the file, which reflects the state of
+the world before this tweet. Then `full_burn` will incorporate the new
+tweet.
+
+    # Tweet here
+    post_tweet(status = 
+                 digest::digest(sample(100, 1)), 
+               token = firewire_token)
+
+
+    # seed_burn (read from file) is up to date, and full_burn will always look outdated
+    make(burner_plan_2) 
+    vis_drake_graph(burner_config_2) 
+
+    loadd(seed_burn)
+    loadd(full_burn)
+    # We should have one extra row in full_burn than in seed_burn
+    expect_gt(nrow(full_burn), nrow(seed_burn)) 
+
+    seed_burn
+    full_burn
+
+    # Let's check that full_burn was saved to file
+    saved_burn <- read_csv(burner_path)
+    expect_identical(nrow(full_burn), nrow(saved_burn))
+
+Now we’ve proven that we can successfully trigger the re-building of
+`full_burn` every time and save it as the latest state of the world to a
+file.
+
+Every time new tweets arrive, that file will be updated at the end of
+the `make()` run.
+
+### Write our full plan
+
+Let’s go back to our original NYCFireWire Twitter account.
+
+For the purposes of illustration, I’ll set a `max_id` on our
+`seed_fires` so that we can re-up and grab more tweets to build `fires`.
+
+    fire_path <- here("data", "raw", "fires.csv")
+
+    plan <-
+      drake_plan(
+        seed_fires = get_tweets( 
+          n_tweets_seed = 2,
+          max_id = old_tweet_id,
+          input_path = fire_path
+        ), 
+        fires = target(
+          command = get_tweets(
+            tbl = seed_fires,
+            n_tweets_reup = 3,
+            output_path = fire_path
+          ),
+          trigger = trigger(
+            condition = TRUE # Always look for new tweets
+          )
+        ),
+        addresses = pull_addresses(fires), # Extract addresses from tweets
+        lat_long = get_lat_long(addresses), # Send to Google for lat-longs
+        dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
+        fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
+
+        time_graph = graph_fire_times(dat),
+        plot = plot_fire_sums(dat, nyc)
+      )
+
+### Run our plan
+
+    plan
+
+    make(plan, verbose = 4)
+
+    # See what a couple of our targets look like
+    loadd(addresses)
+    addresses
+
+    loadd(dat)
+    dat
+
+### Info drake stores
+
+Let’s get a little deeper into what `drake` stores in the `config`.
+
+    config <- drake_config(plan)
+    sort(names(config))
+    config$plan
+    config$prework
+    config$targets
+    config$cache_path
+    config$graph
+
+    # The dependencies of a given target encompass both functions (get_tweets) and targets that it depends on (seed_fires)
+    deps_target(addresses)
+
+    # You can get even more granular with
+    dependency_profile(addresses, config)
+
+    # Since we have a trigger on fires, everything downstream of fires is also perpetually outdated
+    outdated(config)
+    vis_drake_graph(config)
+
+    # We can clean just one target instead of cleaning everything
+    clean(fires)
+
+    # Since we didn't clean() seed_fires (upstream of fires), this target remains built and our dependency graph looks the same
+    vis_drake_graph(config)
+
+    # And again, if we re-make the plan we'll pull in new tweets because of our trigger
+    make(plan)
+
+### Previously `geocode`d
+
+For kicks, let’s make our plots with data from 3000 tweets pulled from
+NYCFireWire and sent to Google for geocoding.
+
+We’ll stop at `pull_addresses(fires)` so we don’t re-geocode all 3k
+fires.
+
+We’ll set the `input_path` to `seed_fires` to that file, and still grab
+the most recent 3 tweets.
+
+    big_plan <-
+      drake_plan(
+        seed_fires = get_tweets( # Grab seed fires from file
+          input_path = here("data", "derived", "lots_o_fires.csv")
+        ), 
+        fires = target(
+          command = get_tweets(
+            tbl = seed_fires,
+            n_tweets_reup = 3
+          ),
+          trigger = trigger(
+            condition = TRUE 
+          )
+        ),
+        addresses = pull_addresses(fires)
+        # Not sending all 3k addresses to Google
+      )
+
+    make(big_plan)
+
+    loadd(addresses)
+    addresses
+
+Make our final plot from the 3k fires:
+
+    dat <- 
+      read_csv(here("data", "derived", "dat.csv"))
+
+    fire_sums <-
+      read_csv(here("data", "derived", "fire_sums.csv"))
+
+    graph_fire_times(dat)
+    plot_fire_sums(fire_sums)
