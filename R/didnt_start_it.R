@@ -46,13 +46,13 @@ get_seed_tweets <- function(user = firewire_handle,
     out <-
       read_csv(input_path)
   } else {
-    out <- 
+    out <-
       get_timeline(user = user, n = n_tweets, max_id = max_id) %>%
       mutate(
         user_id = as.character(user_id),
         status_id = as.character(status_id),
         created_at = # UTC by default
-          lubridate::as_datetime(created_at, tz = "America/New_York")
+        lubridate::as_datetime(created_at, tz = "America/New_York")
       ) %>%
       select(text, user_id, status_id, created_at, screen_name) %>%
       arrange(desc(created_at))
@@ -115,8 +115,8 @@ get_more_tweets <- function(tbl,
 get_tweets <- function(tbl = NULL,
                        user = firewire_handle,
                        max_id = NULL,
-                       n_tweets_seed = 50,
-                       n_tweets_reup = 20,
+                       n_tweets_seed = 10,
+                       n_tweets_reup = 5,
                        input_path = NULL,
                        output_path = NULL,
                        write_out = TRUE,
@@ -185,9 +185,9 @@ pull_addresses <- function(tbl) {
       borough = str_extract(text, "^[^\\s]*\\s") %>%
         str_remove("\\s"),
       # All text after an asterisk and before a comma or period
-      street = str_extract(text, "(\\*[^\\.,]*)") %>% 
+      street = str_extract(text, "(\\*[^\\.,]*)") %>%
         # Get rid of stuff in between asterisks
-        str_remove_all("(\\*.+\\*)") %>% 
+        str_remove_all("(\\*.+\\*)") %>%
         str_trim()
     ) %>%
     rowwise() %>%
@@ -235,12 +235,12 @@ get_lat_long <- function(tbl) {
   tbl %>%
     rowwise() %>%
     mutate(
-      l_l = ifelse(is.na(address), 
-                   tibble(
-        lat = NA_real_,
-        long = NA_real_
-      ) %>% list(),
-      geo_to_list(address)
+      l_l = ifelse(is.na(address),
+        tibble(
+          lat = NA_real_,
+          long = NA_real_
+        ) %>% list(),
+        geo_to_list(address)
       )
     ) %>%
     unnest() %>%
@@ -277,7 +277,7 @@ count_fires <- function(tbl) {
 }
 
 
-# Graph when fires happen 
+# Graph when fires happen
 graph_fire_times <- function(tbl) {
   ggplot(tbl, aes(created_at)) +
     geom_density() +
