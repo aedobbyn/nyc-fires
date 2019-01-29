@@ -1,11 +1,11 @@
 ---
-title: "drake live code"
+title: "`drake` ~ live coding sesh ~"
 author: "Amanda Dobbyn"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
 
 source(here::here("didnt_start_it.R"))
 ```

@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
+# Read in gitignored GMaps and Twitter keys
 source(here("key.R"))
 
 # Set up Google Maps key
@@ -27,14 +28,12 @@ firewire_token <- create_token(
 firewire_handle <- "NYCFireWire"
 burner_handle <- "didntstartit"
 
-# Bronx will later become The Bronx and Staten will become Staten Island in clean_borough()
-boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
-borough_reg <- boroughs %>%
-  str_c(collapse = "|")
-
 # Random old NYCFireWire tweet ID so we can test pulling in new ones
 # (By default, the most recent tweets are pulled in first)
 old_tweet_id <- "1084619203167031297"
+
+
+# ------------------------ Getting tweets ------------------------
 
 # Get a batch of tweets, either from file or from Twitter
 get_seed_tweets <- function(user = firewire_handle,
@@ -150,6 +149,14 @@ get_tweets <- function(tbl = NULL,
 }
 
 
+# ------------------------ Extracting stuff from tweets ------------------------
+
+# Bronx will become The Bronx and Staten will become Staten Island in clean_borough()
+boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
+borough_reg <- boroughs %>%
+  str_c(collapse = "|")
+
+
 # Helper used inside pull_addresses()
 # If a tweet has a borough anywhere in it, pull it out
 clean_borough <- function(x) {
@@ -216,13 +223,6 @@ truncate_lat_long <- function(tbl, digits = 3) {
 }
 
 
-# Save some lat and long info about NYC that ggplot2 knows about
-nyc <-
-  ggplot2::map_data("state", region = "new york") %>%
-  truncate_lat_long(digits = 1) %>%
-  as_tibble()
-
-
 geo_to_list <- function(inp) {
   geocode(inp) %>%
     rename(long = lon) %>%
@@ -247,6 +247,15 @@ get_lat_long <- function(tbl) {
     truncate_lat_long(digits = 1) %>%
     select(address, lat, long, lat_trunc, long_trunc, created_at, text)
 }
+
+
+# ------------------------ Analyzing tweet content ------------------------
+
+# Save some lat and long info about NYC that ggplot2 knows about
+nyc <-
+  ggplot2::map_data("state", region = "new york") %>%
+  truncate_lat_long(digits = 1) %>%
+  as_tibble()
 
 
 join_on_city_data <- function(tbl, city = nyc) {

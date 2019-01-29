@@ -42,7 +42,7 @@ https://dobb.ae
 
 ### `drake`'s main idea
 
-`drake` is workflow manager for your R code.
+[`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
 
 In an R pipeline, when changes occur that make the most recent results out-of-date, rebuild *only* the parts of the pipeline that need to be rebuilt.
 
