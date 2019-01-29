@@ -1,4 +1,3 @@
-
 suppressPackageStartupMessages({
   library(drake)
   library(emojifont)
@@ -13,9 +12,11 @@ suppressPackageStartupMessages({
 })
 
 source(here("key.R"))
-register_google(gmaps_key)
-# https://developers.google.com/maps/documentation/geocoding/intro#Geocoding
 
+# Set up Google Maps key
+register_google(gmaps_key)
+
+# And Twitter burner account token
 firewire_token <- create_token(
   app = firewire_app_name,
   consumer_key = firewire_consumer_key,
@@ -27,29 +28,33 @@ firewire_token <- create_token(
 firewire_handle <- "NYCFireWire"
 burner_handle <- "didntstartit"
 
+# Bronx will later become The Bronx and Staten will become Staten Island in clean_borough()
 boroughs <- c("Brooklyn", "Bronx", "Manhattan", "Staten", "Queens")
 borough_reg <- boroughs %>%
   str_c(collapse = "|")
 
+# Random old NYCFireWire tweet ID so we can test pulling in new ones
+# (By default, the most recent tweets are pulled in first)
 old_tweet_id <- "1084619203167031297"
 
+# Get a batch of tweets, either from file or from Twitter
 get_seed_tweets <- function(user = firewire_handle,
                             n_tweets = 50,
                             max_id = NULL, # Max ID of the tweet
                             input_path = NULL, # Read from a file or grab from Twitter?
                             output_path = NULL,
-                            write_out = FALSE,
-                            ...) {
+                            write_out = FALSE) {
   if (!is.null(input_path) && file_exists(input_path)) {
     out <-
       read_csv(input_path)
   } else {
-    out <- get_timeline(user = user, n = n_tweets, max_id = max_id) %>%
+    out <- 
+      get_timeline(user = user, n = n_tweets, max_id = max_id) %>%
       mutate(
-        user_id = as.numeric(user_id),
-        status_id = as.numeric(status_id),
+        user_id = as.character(user_id),
+        status_id = as.character(status_id),
         created_at = # UTC by default
-        lubridate::as_datetime(created_at, tz = "America/New_York")
+          lubridate::as_datetime(created_at, tz = "America/New_York")
       ) %>%
       select(text, user_id, status_id, created_at, screen_name) %>%
       arrange(desc(created_at))
@@ -63,10 +68,10 @@ get_seed_tweets <- function(user = firewire_handle,
 }
 
 
+# Check if there are new tweets at an account
 there_are_new_tweets <- function(tbl,
                                  user = firewire_handle,
-                                 verbose = TRUE,
-                                 ...) {
+                                 verbose = TRUE) {
   latest_dt <-
     tbl %>%
     arrange(desc(created_at)) %>%
@@ -85,19 +90,12 @@ there_are_new_tweets <- function(tbl,
   }
 }
 
-get_latest_dt <- function(user = firewire_handle) {
-  get_seed_tweets(user) %>%
-    arrange(desc(created_at)) %>%
-    slice(1) %>%
-    pull(created_at)
-}
 
-
+# Given a tbl of tweets, reup if there_are_new_tweets()
 get_more_tweets <- function(tbl,
                             user = firewire_handle,
                             n_tweets = 20,
-                            verbose = TRUE,
-                            ...) {
+                            verbose = TRUE) {
   if (!there_are_new_tweets(tbl = tbl, user = user)) {
     return(NULL)
   }
@@ -114,6 +112,8 @@ get_more_tweets <- function(tbl,
 }
 
 
+# Run get_seed_tweets() if tbl is null, otherwise reup with get_more_tweets()
+# and write the result out to file if write_out is true
 get_tweets <- function(tbl = NULL,
                        user = firewire_handle,
                        max_id = NULL,
@@ -121,15 +121,15 @@ get_tweets <- function(tbl = NULL,
                        n_tweets_reup = 20,
                        input_path = NULL,
                        output_path = NULL,
-                       write_out_seed = FALSE,
-                       verbose = TRUE, ...) {
+                       write_out = TRUE,
+                       verbose = TRUE) {
   if (is.null(tbl) || is.na(tbl)) {
     out <- get_seed_tweets(
       user = user,
       n_tweets = n_tweets_seed,
       input_path = input_path,
       output_path = output_path,
-      write_out_seed = write_out,
+      write_out = FALSE,
       max_id = max_id
     )
   } else {
@@ -142,19 +142,17 @@ get_tweets <- function(tbl = NULL,
       arrange(desc(created_at))
   }
 
-  if (!is.null(output_path)) {
+  # Always write to file
+  if (!is.null(output_path) && write_out == TRUE) {
     write_csv(out, output_path)
   }
 
   out
 }
 
-try_get_fires <- possibly(get_tweets,
-  otherwise = NULL,
-  quiet = FALSE
-)
 
-
+# Helper used inside pull_addresses()
+# If a tweet has a borough anywhere in it, pull it out
 clean_borough <- function(x) {
   if (is.na(x) || !str_detect(x, borough_reg)) {
     return(NA_character_)
@@ -173,13 +171,17 @@ clean_borough <- function(x) {
 }
 
 
+# From the text of a tweet, pull out the borough, the street, and stick them
+# together to make the address
 pull_addresses <- function(tbl) {
   tbl %>%
     mutate(
       borough = str_extract(text, "^[^\\s]*\\s") %>%
         str_remove("\\s"),
-      street = str_extract(text, "(\\*[^\\.,]*)") %>% # All text after an asterisk and before a comma or period
-        str_remove_all("(\\*.+\\*)") %>% # Get rid of stuff in between asterisks
+      # All text after an asterisk and before a comma or period
+      street = str_extract(text, "(\\*[^\\.,]*)") %>% 
+        # Get rid of stuff in between asterisks
+        str_remove_all("(\\*.+\\*)") %>% 
         str_trim()
     ) %>%
     rowwise() %>%
@@ -201,13 +203,6 @@ pull_addresses <- function(tbl) {
 }
 
 
-geo_to_list <- function(inp) {
-  geocode(inp) %>%
-    rename(long = lon) %>%
-    list()
-}
-
-
 truncate_lat_long <- function(tbl, digits = 3) {
   if (!"long" %in% names(tbl) ||
     !"lat" %in% names(tbl)) {
@@ -222,11 +217,27 @@ truncate_lat_long <- function(tbl, digits = 3) {
 }
 
 
+# Save some lat and long info about NYC that ggplot2 knows about
+nyc <-
+  ggplot2::map_data("state", region = "new york") %>%
+  truncate_lat_long(digits = 1) %>%
+  as_tibble()
+
+
+geo_to_list <- function(inp) {
+  geocode(inp) %>%
+    rename(long = lon) %>%
+    list()
+}
+
+# Given an address extracted from a tweet, if it's not NA send it to Google
+# to grab its assocated lat and long. Add truncated versions for good measure.
 get_lat_long <- function(tbl) {
   tbl %>%
     rowwise() %>%
     mutate(
-      l_l = ifelse(is.na(address), tibble(
+      l_l = ifelse(is.na(address), 
+                   tibble(
         lat = NA_real_,
         long = NA_real_
       ) %>% list(),
@@ -239,12 +250,6 @@ get_lat_long <- function(tbl) {
 }
 
 
-nyc <-
-  ggplot2::map_data("state", region = "new york") %>%
-  truncate_lat_long(digits = 1) %>%
-  as_tibble()
-
-
 join_on_city_data <- function(tbl, city = nyc) {
   tbl %>%
     rename(
@@ -255,6 +260,7 @@ join_on_city_data <- function(tbl, city = nyc) {
 }
 
 
+# Count number of fires at each lat/long combo
 count_fires <- function(tbl) {
   tbl %>%
     drop_na() %>%
@@ -263,11 +269,23 @@ count_fires <- function(tbl) {
 }
 
 
+# Graph when fires happen 
 graph_fire_times <- function(tbl) {
+  day_range <-
+    (as.numeric(max(dat$created_at)) - as.numeric(min(dat$created_at))) / 86400 # 60*60*24
+  
+  if (day_range > 30) {
+    tbl <-
+      tbl %>% 
+      mutate(
+        mnth = lubridate::month(created_at)
+      )
+  }
+  
   ggplot(tbl, aes(created_at)) +
     geom_density() +
-    ggtitle("Frequency of Fires in NYC") +
-    labs(x = "Time of Tweet", y = "Density") +
+    ggtitle("Timing of Fires in NYC") +
+    labs(x = "Datetime of Tweet", y = "Density") +
     theme_light()
 }
 

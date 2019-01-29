@@ -50,7 +50,9 @@ burner_plan <-
 
 Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
 
-The `file_in` and `file_out` syntax allow `drake` to recognize and track the file. That lets us see when the targets associated with the file (both upstream and downstream of it) are invalidated.
+### Quick note on files
+
+We're not using `drake`'s [`file_in`](https://ropensci.github.io/drake/reference/file_in.html) and [`file_out`](https://ropenscilabs.github.io/drake-manual/vis.html#output-files) functions, which allow `drake` to recognize and track the file. That lets us see when the targets associated with the file (both upstream and downstream of it) are invalidated.
 
 ### Test out v1 of our plan
 

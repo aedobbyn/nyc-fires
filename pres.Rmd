@@ -87,7 +87,7 @@ or in other words, GNU Make reimagined for R.
 
 --
 
-5. It's all in R -- no writing config files!
+5. It's all in R so no writing config files! `r emo::ji("tada")`
 
 ---
 
@@ -114,7 +114,6 @@ If something breaks in `04_join.R`, do you need to go through `01_import.R`, `02
 
 `07_report.Rmd`
 ]
-
 
 
 ---
@@ -268,6 +267,7 @@ for analyses that require lots of different permutations of a similar analysis
 
 - Compatibility with [high performance computing](https://ropenscilabs.github.io/drake-manual/hpc.html) backends
 
+---
 
 ### Moar Resources
 
@@ -301,12 +301,15 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 3. Send addresses to the Google Maps API to grab their latitudes and longitudes
 4. Profit
 
-All functions stored in `didnt_start_it.R`.
+All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/didnt_start_it.R).
 
 ```{r, warning=FALSE}
-source(here::here("didnt_start_it.R"))
+source(here("didnt_start_it.R"))
 ```
 
+Caveat is that this analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
+
+To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
 
 ---
 
@@ -402,7 +405,21 @@ get_tweets(n_tweets_seed = 5) %>%
 
 That's our main pipeline. We can do a few bits of analysis of the data after that.
 
-For instance we could `count_fires`, summing up the total number of fires per `lat`-`long` combo.
+---
+
+### Late pipeline
+
+Later in the pipeline we can join 
+
+```{r, eval=FALSE}
+nyc <-
+  ggplot2::map_data("state", region = "new york") %>%
+  truncate_lat_long(digits = 1) %>%
+  as_tibble()
+```
+
+
+or `count_fires`, summing up the total number of fires per `lat`-`long` combo.
 
 ```{r}
 get_tweets(n_tweets_seed = 5) %>% 
