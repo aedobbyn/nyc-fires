@@ -7,13 +7,14 @@ output: md_document
 ```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 knitr::opts_knit$set(eval = FALSE)
-
-source(here::here("R", "didnt_start_it.R"))
 ```
 
 ```{r}
 # Will not be necessary to set in the upcoming release
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
+
+# Grab all funs
+source(here::here("R", "didnt_start_it.R"))
 ```
 
 

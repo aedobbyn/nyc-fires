@@ -37,10 +37,11 @@ key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding)
     [geocoded](https://github.com/aedobbyn/nyc-fires/blob/master/data/derived/dat.csv)
     tweet motherlode.
 
-<p align="center">
-<img src="./img/happy_drake.jpg" height="250">
-</p>
+<!-- <p align="right"> -->
+<img src="./img/happy_drake.jpg" height="20" align="right">
+<!-- </p> -->
+
 -   The best resources on `drake` remain the [`drake`
     manual](https://ropenscilabs.github.io/drake-manual/) and
     [Will](https://twitter.com/wmlandau)
-    [Landau](https://github.com/wlandau) 😄
+    [Landau](https://github.com/wlandau) :)

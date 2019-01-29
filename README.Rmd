@@ -21,9 +21,10 @@ It relies on the [**`rtweet`**](https://github.com/mkearney/rtweet) and [**`ggma
 
 * Feel free to use any and all of the data, including the [raw](https://github.com/aedobbyn/nyc-fires/blob/master/data/raw/lots_o_fires.csv) and [geocoded](https://github.com/aedobbyn/nyc-fires/blob/master/data/derived/dat.csv) tweet motherlode.
 
-<p align="center">
-  <img src="./img/happy_drake.jpg" height="250">
-</p>
+<!-- <p align="right"> -->
+  <img src="./img/happy_drake.jpg" height="20" align="right">
+<!-- </p> -->
 
-* The best resources on `drake` remain the [`drake` manual](https://ropenscilabs.github.io/drake-manual/) and [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) `r emo::ji("smile")`
+
+* The best resources on `drake` remain the [`drake` manual](https://ropenscilabs.github.io/drake-manual/) and [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) :)
 
