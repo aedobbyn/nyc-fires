@@ -2,7 +2,7 @@
 ==================================
 
 This is an intro to the [`drake`](https://github.com/ropensci/drake) R
-package for data pipeling. It might be useful for you if you’re
+package for data pipelining. It might be useful for you if you’re
 interested in reproducibility after you make changes to your code.
 
 The talk is split into two parts:
@@ -12,7 +12,10 @@ walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md).
 The latter is meant to be stepped through in an R session rather than
 knit.
 
-### The conceit
+### Why all the fire emoji tho
+
+…especially if the whole point of `drake` is that you don’t need to burn
+it all down and start from scratch each time?
 
 This talk is motivated by the [**NYCFireWire Twitter
 account**](https://twitter.com/NYCFireWire) with an assist from
@@ -38,7 +41,7 @@ key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding)
     tweet motherlode.
 
 <!-- <p align="right"> -->
-<img src="./img/happy_drake.jpg" height="20" align="right">
+<img src="./img/happy_drake.jpg" height="200" align="right">
 <!-- </p> -->
 
 -   The best resources on `drake` remain the [`drake`

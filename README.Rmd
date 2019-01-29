@@ -5,11 +5,13 @@ output:
 
 # `r emo::ji("fire")` `drake` for Workflow Happiness `r emo::ji("fire")`
 
-This is an intro to the [`drake`](https://github.com/ropensci/drake) R package for data pipeling. It might be useful for you if you're interested in reproducibility after you make changes to your code.
+This is an intro to the [`drake`](https://github.com/ropensci/drake) R package for data pipelining. It might be useful for you if you're interested in reproducibility after you make changes to your code.
 
 The talk is split into two parts: [slides](https://aedobbyn.github.io/nyc-fires/index.html), and a [live coding walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md). The latter is meant to be stepped through in an R session rather than knit. 
 
-### The conceit
+### Why all the fire emoji tho
+
+...especially if the whole point of `drake` is that you don't need to burn it all down and start from scratch each time?
 
 This talk is motivated by the [**NYCFireWire Twitter account**](https://twitter.com/NYCFireWire) with an assist from [Gritty](https://youtu.be/FNt0anp7WK8?t=8) at a [burner account](https://twitter.com/didntstartit).
 
@@ -22,7 +24,7 @@ It relies on the [**`rtweet`**](https://github.com/mkearney/rtweet) and [**`ggma
 * Feel free to use any and all of the data, including the [raw](https://github.com/aedobbyn/nyc-fires/blob/master/data/raw/lots_o_fires.csv) and [geocoded](https://github.com/aedobbyn/nyc-fires/blob/master/data/derived/dat.csv) tweet motherlode.
 
 <!-- <p align="right"> -->
-  <img src="./img/happy_drake.jpg" height="20" align="right">
+  <img src="./img/happy_drake.jpg" height="200" align="right">
 <!-- </p> -->
 
 
