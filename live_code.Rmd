@@ -350,7 +350,9 @@ For the purposes of illustration, I'll set a `max_id` on our `seed_fires` so tha
 ```{r}
 fire_path <- here("data", "raw", "fires.csv")
 if (file_exists(fire_path)) file_delete(fire_path)
+```
 
+```{r}
 plan <-
   drake_plan(
     seed_fires = get_tweets( 
@@ -441,7 +443,7 @@ We'll set the `input_path` to `seed_fires` to that file, and still grab the most
 big_plan <-
   drake_plan(
     seed_fires = get_tweets( # Grab seed fires from file
-      input_path = here("data", "derived", "lots_o_fires.csv")
+      input_path = here("data", "raw", "lots_o_fires.csv")
     ), 
     fires = target(
       command = get_tweets(
@@ -459,6 +461,7 @@ big_plan <-
 make(big_plan)
 
 loadd(addresses)
+nrow(addresses)
 addresses
 ```
 
@@ -474,4 +477,10 @@ fire_sums <-
 graph_fire_times(dat)
 plot_fire_sums(fire_sums)
 ```
+
+
+### That's all!
+
+Any q's?
+
 
