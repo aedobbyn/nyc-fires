@@ -221,21 +221,6 @@ pull_addresses <- function(tbl) {
     select(borough, street, address, text, created_at)
 }
 
-
-truncate_lat_long <- function(tbl, digits = 3) {
-  if (!"long" %in% names(tbl) ||
-    !"lat" %in% names(tbl)) {
-    stop("Input must contain columns lat and long.")
-  }
-
-  tbl %>%
-    mutate(
-      lat_trunc = round(lat, digits = digits),
-      long_trunc = round(long, digits = digits)
-    )
-}
-
-
 geo_to_list <- function(inp) {
   geocode(inp) %>%
     rename(long = lon) %>%
@@ -257,30 +242,11 @@ get_lat_long <- function(tbl) {
       )
     ) %>%
     unnest() %>%
-    truncate_lat_long(digits = 1) %>%
-    select(address, lat, long, lat_trunc, long_trunc, created_at, text)
+    select(address, lat, long, created_at, text)
 }
 
 
 # ------------------------ Analyzing tweet content ------------------------
-
-# Save some lat and long info about NYC that ggplot2 knows about
-nyc <-
-  ggplot2::map_data("state", region = "new york") %>%
-  truncate_lat_long(digits = 1) %>%
-  as_tibble()
-
-
-join_on_city_data <- function(tbl, city = nyc) {
-  tbl %>%
-    rename(
-      lat_tweet = lat,
-      long_tweet = long
-    ) %>%
-    inner_join(city, by = c("lat_trunc", "long_trunc")) %>%
-    distinct(address, .keep_all = TRUE)
-}
-
 
 # Count number of fires at each lat/long combo
 count_fires <- function(tbl) {

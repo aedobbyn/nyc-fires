@@ -372,11 +372,10 @@ plan <-
     ),
     addresses = pull_addresses(fires), # Extract addresses from tweets
     lat_long = get_lat_long(addresses), # Send to Google for lat-longs
-    dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
-    fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
+    fire_sums = count_fires(lat_long), # Sum up n fires per lat-long combo
 
-    time_graph = graph_fire_times(dat),
-    plot = plot_fire_sums(fire_sums, nyc)
+    time_graph = graph_fire_times(lat_long),
+    plot = plot_fire_sums(fire_sums)
   )
 ```
 
@@ -468,13 +467,13 @@ addresses
 Make our final plot from the 3k fires:
 
 ```{r}
-dat <- 
-  read_csv(here("data", "derived", "dat.csv"))
+lat_long <- 
+  read_csv(here("data", "derived", "lat_long.csv"))
 
 fire_sums <-
   read_csv(here("data", "derived", "fire_sums.csv"))
 
-graph_fire_times(dat)
+graph_fire_times(lat_long)
 plot_fire_sums(fire_sums)
 ```
 

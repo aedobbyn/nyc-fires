@@ -919,11 +919,10 @@ count_fires <- function(tbl) {
 
 ## Analysis chunks of the pipeline
 
-or join on some `ggplot2::map_data`
+and plot them on a map
 
 ```{r}
-ggplot2::map_data("state", region = "new york") %>%
-  as_tibble()
+get_map("new york city") %>% ggmap()
 ```
 
 
