@@ -10,9 +10,6 @@ knitr::opts_knit$set(eval = FALSE)
 ```
 
 ```{r}
-# Will not be necessary to set in the upcoming release
-pkgconfig::set_config("drake::strings_in_dots" = "literals")
-
 # Grab all funs
 source(here::here("R", "didnt_start_it.R"))
 ```
@@ -47,7 +44,6 @@ burner_plan <-
         output_path = burner_path # Outputs to burner_path
       )
   )
-
 ```
 
 Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
@@ -100,6 +96,7 @@ seed_burn
 Every subsequent time we re-`make` the plan, `drake` should tell us we don't need to do anything.
 
 ```{r}
+# Unloads (removes) the global variable seed burn we've loadd'd to prevent conflicts
 make(burner_plan)
 make(burner_plan)
 make(burner_plan)

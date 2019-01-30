@@ -192,6 +192,84 @@ With knitr, you expect to be able to rerun someone's report from a single file.
 
 ---
 
+## Is this also kinda like memoising?
+
+--
+
+Yes!
+
+--
+
+But better.
+
+--
+
+Memoising (in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)):
+
+**caches the return value of a function given a set of arguments**
+
+- if that funciton is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --> saves time
+
+--
+
+The downside:
+
+Memoising only applies to one function. 
+
+What if a function upstream of the memoised function changes? We could get the wrong answer.
+
+---
+
+## On Memoising
+
+```{r}
+add <- function(a, b) {
+  a + b
+}
+
+add_and_square <- function(a, b) {
+  add(a, b) ^ 2
+}
+```
+
+--
+
+```{r}
+add(2, 3)
+add_and_square(2, 3)
+```
+
+
+---
+
+## On Memoising
+
+If we've memoised `add_and_square`
+```{r}
+add_and_square <- memoise::memoise(add_and_square)
+```
+
+But now we redefine `add` so that it subtracts `b` from `a`...
+```{r}
+add <- function(a, b) {
+  a - b
+}
+```
+
+
+We should get
+```{r}
+add(2, 3) ^ 2
+```
+
+But instead we return the old answer, which is now wrong:
+
+```{r}
+add_and_square(2, 3)
+```
+
+---
+
 class: inverse
 
 ## A few pieces of vocab
@@ -778,6 +856,16 @@ plan <-
   )
 ```
 
+---
+
+class: inverse
+
+## Questions so far?
+
+```{r}
+devtools::session_info()
+```
+
 
 ---
 
@@ -792,4 +880,5 @@ The `rtweet` package also supports posting tweets, so we can test out whether ou
 <br>
 
 Okay on to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) after this message from our sponsor.
+
 
