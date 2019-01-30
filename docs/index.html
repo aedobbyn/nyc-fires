@@ -68,15 +68,23 @@ In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `dra
 
 ## `drake`'s main idea
 
+--
+
 [`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
+
+&lt;br&gt;
+
+--
 
 *What that means*: 
 
-In an R pipeline, when changes occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
+In an R pipeline, when **changes** occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
 
 &lt;p align="center"&gt;
 &lt;img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges"&gt;
 &lt;/p&gt;
+
+--
 
 Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://github.com/wlandau) and friends.
 
@@ -121,7 +129,7 @@ Example of a Makefile:
 
 --
 
-2) Visualize the **dependency graph** of your code
+2) Visualize your pipeline's **dependency graph** 
 
 
 .pull-right[![](./img/iris_dependency_graph.jpg)] 
@@ -444,7 +452,9 @@ make(plan)
 
 ---
 
-## What `drake does`
+## What `drake` does
+
+--
 
 
 ```r
@@ -476,7 +486,8 @@ plan
 
 ---
 
-## What `drake does`
+## What `drake` does
+
 
 
 ```r
@@ -488,18 +499,20 @@ plan &lt;-
   )
 ```
 
+--
 
 
 ```r
 make(plan)
 ```
 
-
-## What `drake does`
+--
 
 **First run** of `make(plan)`:
 
 `drake` runs the plan from scratch
+
+--
 
 &lt;br&gt;
 
@@ -540,6 +553,8 @@ because those are both part of the command used to generate `results`.
 
 &lt;br&gt;
 
+--
+
 **So, if `cleaned_data` changes or `analyze_my` changes, `results` is out of date.**
 
 
@@ -561,10 +576,10 @@ In a hidden `.drake` directory, or cache. (You can check that it's there with `l
 
 **dependencies**
 
-`drake` hashes a target's dependencies to know when one of those dependencies changes, invalidating the target. 
+`drake` hashes a target's dependencies to know when one of those dependencies changes. 
 You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-algorithms) over the hashing algorithm used, location of the cache, etc.
 
-`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config`.
+`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config` list.
 
 You can access all of this with `drake_config()`.
 
@@ -709,12 +724,16 @@ Normally they just tweet out fires and their locations in a more or less predict
 
 &lt;br&gt;
 
+--
+
 `&lt;borough&gt; ** &lt;some numbers&gt; ** &lt;address&gt; &lt;description of fire&gt;`
+
+--
 
 &lt;br&gt;
 
 
-We can analyze these tweets to get some info on fires in NYC.
+We can analyze these tweets to get some info on where and when fires happen in NYC.
 
 
 ???
@@ -729,13 +748,24 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 ## The Pipeline
 
 1. Pull in tweets, either the first big batch or any new ones that show up
+
+--
+
 2. Extract addresses from the tweets (🎶 regex time 🎶)
+
+--
+
 3. Send addresses to the Google Maps API to grab their latitudes and longitudes
+
+--
+
 4. Profit
+
+--
 
 &lt;br&gt;
 
-All functions stored in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
+All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
 
 
 ```r
@@ -845,9 +875,9 @@ get_tweets() %&gt;%
 
 ## Reupping tweets
 
-To show how `get_tweets` can start with a `tbl` of tweets and look for new ones
+To show how `get_tweets` can start with a `tbl` of tweets and look for new ones,
 
-we'll grab 10 `seed_tweets` that are all older than an old tweet ID.
+we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
 
 --
 
@@ -871,9 +901,11 @@ nrow(seed_tweets)
 
 ## Reupping tweets
 
-Using `seed_tweets` as an input to the same `get_tweets` function
+Using `seed_tweets` as an input to the same `get_tweets` function,
 
 we check for new tweets, and, if there are any, pull them in.
+
+--
 
 
 ```r
@@ -885,6 +917,8 @@ full_tweets &lt;-
 ```
 
 --
+
+&lt;br&gt;
 
 
 ```r
@@ -988,14 +1022,19 @@ get_tweets() %&gt;%
 
 ## Getting lat and long
 
-Final step of the main pipeline, now that we can pull addresses from tweets.
+Last step of the main pipeline! 
+
+--
 
 **Reverse geocoding** = getting latitude and longitude from an address.
 
 The `ggmap` package exposes this feature of the [Google Maps](https://cloud.google.com/maps-platform/) API in their [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function.
 
-If Google can't find the address, we return `NA`s.
+--
 
+We will **send address** and **receive lat long**
+
+--
 
 
 
@@ -1026,10 +1065,10 @@ Later in the pipeline we can join on some `ggplot2::map_data`
 
 
 ```r
-(nyc &lt;-
+nyc &lt;-
   ggplot2::map_data("state", region = "new york") %&gt;%
   truncate_lat_long(digits = 1) %&gt;%
-  as_tibble())
+  as_tibble()
 ```
 
 
@@ -1052,13 +1091,13 @@ count_fires &lt;- function(tbl) {
 
 So where does `drake` really come in handy here?
 
-We don't want to re-run the API pipeline every time we change a downstream analysis step.
+We don't want to re-run the main pipeline every time we change a downstream analysis step.
 
 --
 
 &lt;br&gt;
 
-What's the estimate of running the whole pipeline on a single tweet? 
+What's the estimate of running the pipeline on a single tweet? 
 
 --
 
@@ -1072,7 +1111,7 @@ What's the estimate of running the whole pipeline on a single tweet?
     }) %&gt;% 
       as_tibble() %&gt;% 
       pull(median))
-## [1] 326ms
+## [1] 228ms
 ```
 
 ???
@@ -1091,7 +1130,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 16.30758
+## [1] 11.42354
 ```
 
 &lt;br&gt;
@@ -1100,12 +1139,10 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **16 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **11 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
-
-class: inverse
 
 ## Live coding time!
 
