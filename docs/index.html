@@ -194,6 +194,8 @@ With knitr, you expect to be able to rerun someone's report from a single file.
 
 ---
 
+class: inverse
+
 ## A few pieces of vocab
 
 &lt;br&gt;
@@ -402,6 +404,8 @@ You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-a
 You can access all of this with `drake_config()`.
 
 ---
+
+class: inverse
 
 ## It's all about Functions
 
@@ -878,7 +882,7 @@ b_mark &lt;-
 ## # A tibble: 1 x 1
 ##     median
 ##   &lt;bch:tm&gt;
-## 1    288ms
+## 1    395ms
 ```
 
 
@@ -893,7 +897,7 @@ How many **minutes** would the pipeline take for 3k tweets?
 (n_mins &lt;- (as.numeric(our_bench$median) # as.numeric returns seconds
  * 3000) / # 3k tweets
   60) # 60 seconds in a minute
-## [1] 14.38912
+## [1] 19.75868
 ```
 
 &lt;br&gt;
@@ -902,7 +906,7 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **14 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **20 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
@@ -917,17 +921,9 @@ An exclusive sneak peek:
 ```r
 plan &lt;-
   drake_plan(
-    seed_fires = get_tweets( 
-      n_tweets_seed = 2,
-      max_id = old_tweet_id,
-      input_path = fire_path
-    ), 
+    seed_fires = get_tweets(), 
     fires = target(
-      command = get_tweets(
-        tbl = seed_fires,
-        n_tweets_reup = 3,
-        output_path = fire_path
-      ),
+      command = get_tweets(tbl = seed_fires),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
       )
@@ -949,7 +945,7 @@ plan &lt;-
 
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-
+&lt;br&gt;
 
 ## 🔥 **[burner account!](https://twitter.com/didntstartit)** 🔥
 

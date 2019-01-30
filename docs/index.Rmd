@@ -192,6 +192,8 @@ With knitr, you expect to be able to rerun someone's report from a single file.
 
 ---
 
+class: inverse
+
 ## A few pieces of vocab
 
 <br>
@@ -380,6 +382,8 @@ You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-a
 You can access all of this with `drake_config()`.
 
 ---
+
+class: inverse
 
 ## It's all about Functions
 
@@ -757,17 +761,9 @@ An exclusive sneak peek:
 ```{r}
 plan <-
   drake_plan(
-    seed_fires = get_tweets( 
-      n_tweets_seed = 2,
-      max_id = old_tweet_id,
-      input_path = fire_path
-    ), 
+    seed_fires = get_tweets(), 
     fires = target(
-      command = get_tweets(
-        tbl = seed_fires,
-        n_tweets_reup = 3,
-        output_path = fire_path
-      ),
+      command = get_tweets(tbl = seed_fires),
       trigger = trigger(
         condition = TRUE # Always look for new tweets
       )
@@ -789,7 +785,7 @@ plan <-
 
 The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
 
-
+<br>
 
 ## `r emo::ji("fire")` **[burner account!](https://twitter.com/didntstartit)** `r emo::ji("fire")`
 
