@@ -88,13 +88,15 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ### **d**ataframes in **R** for M**ake**
 
+&lt;br&gt;
+
 --
 
 .pull-left[
 
 What's Make?
 
-[GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** and how targets should be rebuilt when they're out of date. 
+[GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** in a pipeline. 
 
 `drake` takes that idea and implements it in a way that's more native to how we work in R.
 
@@ -107,23 +109,59 @@ Example of a Makefile:
 ---
 
 ## Nice features of `drake`
-1. See how your pipeline fits together, in a tidy **dataframe**
+
+
+.pull-left[
+
+1) See how your pipeline fits together, in a tidy **dataframe**
+
+&lt;br&gt;
+
+]
 
 --
 
-2. Visualize the **dependency graph** of your code
+2) Visualize the **dependency graph** of your code
+
+
+.pull-right[![](./img/iris_dependency_graph.jpg)] 
+
+&lt;br&gt;
+&lt;br&gt;
 
 --
 
-3. Great for iteration and **reproducibility**; you know exactly how these results were generated 
+.pull-left[
+
+3) Great for iteration and **reproducibility**; you know exactly how these results were generated 
+
+]
+
+&lt;br&gt;
+&lt;br&gt;
 
 --
 
-4. High-performance computing advantages
+.pull-left[
+
+4) High-performance computing advantages
+
+]
+
+&lt;br&gt;
+&lt;br&gt;
 
 --
 
-5. It's all in R so no writing config files! 🎉
+.pull-left[
+
+5) It's all in R so no writing config files! 🎉
+
+&lt;br&gt;
+
+]
+
+&lt;!-- .pull-right[![](./img/mtcars_dependency_graph.jpg)] --&gt;
 
 ---
 
@@ -210,15 +248,15 @@ Memoising (in R implemented nicely in the [`memoise` package](https://github.com
 
 **caches the return value of a function given a set of arguments**
 
-- if that funciton is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --&gt; saves time
+- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --&gt; saves time 👍
 
 --
 
 The downside:
 
-Memoising only applies to one function. 
+**Memoising only applies to one function.**
 
-What if a function upstream of the memoised function changes? We could get the wrong answer.
+What if a function upstream of the memoised function changes? We could get the wrong answer. 👎
 
 ---
 
@@ -250,13 +288,26 @@ add_and_square(2, 3)
 
 ## On Memoising
 
-If we've memoised `add_and_square`
+If we've memoised `add_and_square`,
+
 
 ```r
 add_and_square &lt;- memoise::memoise(add_and_square)
 ```
 
-But now we redefine `add` so that it subtracts `b` from `a`...
+we return `add_and_square(2, 3)` from the cache rather than computing it. (Yay, fast!)
+
+
+```r
+add_and_square(2, 3)
+## [1] 25
+```
+
+&lt;br&gt;
+
+--
+
+**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
 
 ```r
 add &lt;- function(a, b) {
@@ -265,6 +316,16 @@ add &lt;- function(a, b) {
 ```
 
 
+--
+
+What will happen when we call `add_and_square(2, 3)`?
+
+---
+
+## On Memoising
+
+--
+
 We should get
 
 ```r
@@ -272,13 +333,23 @@ add(2, 3) ^ 2
 ## [1] 1
 ```
 
+--
+
 But instead we return the old answer, which is now wrong:
 
 
 ```r
 add_and_square(2, 3)
-## [1] 1
+## [1] 25
 ```
+
+--
+
+&lt;br&gt;
+
+Luckily, `drake` knows the *all* the dependency relationships between functions and files as they relate to your targets.
+
+So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
 
 ---
 
@@ -385,7 +456,11 @@ plan &lt;-
   )
 ```
 
+--
+
 `drake_plan` stores your plan as targets and commands in a dataframe.
+
+--
 
 
 ```r
@@ -443,7 +518,9 @@ make(plan)
 
 --
 
-2) Some part of the code used to generate that target or one of its upstream targets has changed
+2) Something used to generate that target *or one of its upstream targets* has changed
+
+--
 
 
 ```r
@@ -768,7 +845,13 @@ get_tweets() %&gt;%
 
 ## Reupping tweets
 
-Starting with an old tweet ID, we can first grab a 10 tweets older than `old_tweet_id` and then, running the same function again, add 5 of the most recent tweets to our dataframe.
+To show how `get_tweets` can start with a `tbl` of tweets and look for new ones
+
+we'll grab 10 `seed_tweets` that are all older than an old tweet ID.
+
+--
+
+&lt;br&gt;
 
 
 ```r
@@ -780,17 +863,37 @@ seed_tweets &lt;-
     max_id = old_tweet_id
   )
 
+nrow(seed_tweets)
+## [1] 10
+```
+
+---
+
+## Reupping tweets
+
+Using `seed_tweets` as an input to the same `get_tweets` function
+
+we check for new tweets, and, if there are any, pull them in.
+
+
+```r
 full_tweets &lt;- 
   get_tweets(seed_tweets, 
              n_tweets_reup = 5)
 ## Searching for new tweets.
 ## 5 new tweet(s) pulled.
+```
 
+--
+
+
+```r
 nrow(seed_tweets)
 ## [1] 10
 nrow(full_tweets)
 ## [1] 15
 ```
+
 
 ---
 
@@ -804,79 +907,79 @@ With `pull_addresses` we parse the text of the tweet to pull out borough and str
 ```r
 get_tweets() %&gt;% 
   pull_addresses() %&gt;% 
-  select(street, borough, address, text) %&gt;% 
+  select(text, street, borough, address) %&gt;% 
   kable(format = "html")
 ```
 
 &lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
    &lt;th style="text-align:left;"&gt; street &lt;/th&gt;
    &lt;th style="text-align:left;"&gt; borough &lt;/th&gt;
    &lt;th style="text-align:left;"&gt; address &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; https://t.co/Nd5r636LGB &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Retired firefighters take a stand after American flag destroyed in the East Village https://t.co/ZOtoo2UI10 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens *99-75-1326* Hammel Houses 84-14 Rockaway Beach Bl. Compactor fire &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl, Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-1326* Hammel Houses 84-14 Rockaway Beach Bl. Compactor fire &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3046* 3602 Avenue J. &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 3602 Avenue J &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 3602 Avenue J, Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3046* 3602 Avenue J. &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-1605* 1673 Carroll St. Fire top floor 2 story &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 1673 Carroll St &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 1673 Carroll St, Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-1605* 1673 Carroll St. Fire top floor 2 story &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3646* 296 West end Ave off Orietal Blvd. Fire in a 3 story &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 296 West end Ave off Orietal Blvd &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 296 West end Ave off Orietal Blvd, Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3646* 296 West end Ave off Orietal Blvd. Fire in a 3 story &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; We’ll have a cure for cancer within a year, scientists claim https://t.co/wtiN92bdRz &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Someone got access to NNSS in Nevada. I was there last year taking the Rad/Nuc course. This is a heavily secured site. Not a good move. https://t.co/pCBIRIPUx9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor. &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 260 Convent Ave &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Manhattan &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 260 Convent Ave, Manhattan &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor. &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy. &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 107-27 Atlantic Ave &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 107-27 Atlantic Ave, Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy. &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -949,41 +1052,46 @@ count_fires &lt;- function(tbl) {
 
 So where does `drake` really come in handy here?
 
-Even though it didn't take too long to pull 5 tweets from Twitter and send 5 addresses to Google Maps, we wouldn't want to re-run this part of the pipeline every time we changed an analysis step.
+We don't want to re-run the API pipeline every time we change a downstream analysis step.
 
+--
+
+&lt;br&gt;
+
+What's the estimate of running the whole pipeline on a single tweet? 
+
+--
 
 
 ```r
-b_mark &lt;-
+(our_bench &lt;-
   bench::mark({
     get_tweets(n_tweets_seed = 1) %&gt;% 
     pull_addresses() %&gt;% 
     get_lat_long()
-})
-## Warning: Some expressions had a GC in every iteration; so filtering is
-## disabled.
-
-(our_bench &lt;- b_mark %&gt;% 
-  select(median))
-## # A tibble: 1 x 1
-##     median
-##   &lt;bch:tm&gt;
-## 1    277ms
+    }) %&gt;% 
+      as_tibble() %&gt;% 
+      pull(median))
+## [1] 326ms
 ```
 
+???
+We don't get any batch speedups because we send each tweet one by one to Google Maps
 
 ---
 
 ## Quick benchmark
 
-How many **minutes** would the pipeline take for 3k tweets?
+Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 
 ```r
-(n_mins &lt;- (as.numeric(our_bench$median) # as.numeric returns seconds
- * 3000) / # 3k tweets
-  60) # 60 seconds in a minute
-## [1] 13.84024
+(n_mins &lt;- 
+   (as.numeric(our_bench) # Returns this in seconds
+      * 3000)  # 3k tweets
+       / 60 # 60 seconds in a minute
+ ) 
+## [1] 16.30758
 ```
 
 &lt;br&gt;
@@ -992,10 +1100,12 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **14 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **16 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
+
+class: inverse
 
 ## Live coding time!
 
@@ -1010,9 +1120,7 @@ plan &lt;-
     seed_fires = get_tweets(), 
     fires = target(
       command = get_tweets(tbl = seed_fires),
-      trigger = trigger(
-        condition = TRUE # Always look for new tweets
-      )
+      trigger = trigger(condition = TRUE) # Always look for new tweets
     ),
     addresses = pull_addresses(fires), # Extract addresses from tweets
     lat_long = get_lat_long(addresses), # Send to Google for lat-longs
@@ -1025,8 +1133,6 @@ plan &lt;-
 ```
 
 ---
-
-class: inverse
 
 ## Questions so far?
 
@@ -1258,6 +1364,8 @@ devtools::session_info()
 
 
 ---
+
+class: inverse
 
 ## Live coding time!
 
