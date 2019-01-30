@@ -1,5 +1,5 @@
-    # Will not be necessary to set in the upcoming release
-    pkgconfig::set_config("drake::strings_in_dots" = "literals")
+    # Grab all funs
+    source(here::here("R", "didnt_start_it.R"))
 
 ### Burner account time
 
@@ -81,6 +81,7 @@ We can now load these targets into our working environment.
 Every subsequent time we re-`make` the plan, `drake` should tell us we
 don’t need to do anything.
 
+    # Unloads (removes) the global variable seed burn we've loadd'd to prevent conflicts
     make(burner_plan)
     make(burner_plan)
     make(burner_plan)

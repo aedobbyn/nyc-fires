@@ -10,6 +10,9 @@ knitr::opts_knit$set(eval = FALSE)
 ```
 
 ```{r}
+# Will not be necessary to set in the upcoming release
+pkgconfig::set_config("drake::strings_in_dots" = "literals")
+
 # Grab all funs
 source(here::here("R", "didnt_start_it.R"))
 ```
@@ -98,6 +101,9 @@ Every subsequent time we re-`make` the plan, `drake` should tell us we don't nee
 ```{r}
 # Unloads (removes) the global variable seed burn we've loadd'd to prevent conflicts
 make(burner_plan)
+# Not in our env anymore
+seed_burn
+
 make(burner_plan)
 make(burner_plan)
 ```
@@ -106,6 +112,9 @@ If we `clean()`, however, we'll remake the plan from scratch.
 
 ```{r}
 clean()
+
+# Targets we built are gone from the cache
+loadd(seed_burn)
 
 # Targets are outdated now
 vis_drake_graph(burner_config, targets_only = TRUE) 
@@ -235,8 +244,6 @@ burner_plan_2 <-
       )
     )
   )
-
-burner_plan_2
 ```
 
 
@@ -342,6 +349,7 @@ For the purposes of illustration, I'll set a `max_id` on our `seed_fires` so tha
 
 ```{r}
 fire_path <- here("data", "raw", "fires.csv")
+if (file_exists(fire_path)) file_delete(fire_path)
 
 plan <-
   drake_plan(
@@ -366,7 +374,7 @@ plan <-
     fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
 
     time_graph = graph_fire_times(dat),
-    plot = plot_fire_sums(dat, nyc)
+    plot = plot_fire_sums(fire_sums, nyc)
   )
 ```
 
@@ -383,6 +391,9 @@ addresses
 
 loadd(dat)
 dat
+
+loadd(time_graph)
+time_graph
 ```
 
 ### Info drake stores
