@@ -1048,14 +1048,14 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20Street%20Near%20Otis%20Avenue%2C%20Queens&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Hammel%20Houses%2084-14%20Rockaway%20Beach%20Bl%2C%20Queens&amp;key=xxx
-## # A tibble: 5 x 7
-##   address      lat  long lat_trunc long_trunc created_at          text     
-##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;    
-## 1 60-15 Cal…  40.7 -73.9      40.7      -73.9 2019-01-30 14:31:57 Queens *…
-## 2 60-15 Cal…  40.7 -73.9      40.7      -73.9 2019-01-30 14:17:49 Queens *…
-## 3 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 10:49:18 https://…
-## 4 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 05:44:20 Retired …
-## 5 Hammel Ho…  40.6 -73.8      40.6      -73.8 2019-01-29 18:34:13 Queens *…
+## # A tibble: 5 x 5
+##   address              lat  long created_at          text                  
+##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;                 
+## 1 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:31:57 Queens *99-75-9298* 6…
+## 2 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:17:49 Queens **99-75-9298**…
+## 3 &lt;NA&gt;                NA    NA   2019-01-30 10:49:18 https://t.co/Nd5r636L…
+## 4 &lt;NA&gt;                NA    NA   2019-01-30 05:44:20 Retired firefighters …
+## 5 Hammel Houses 84-…  40.6 -73.8 2019-01-29 18:34:13 Queens *99-75-1326* H…
 ```
 
 
@@ -1123,8 +1123,7 @@ What's the estimate of running the pipeline on a single tweet?
       pull(median))
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
-## [1] 396ms
+## [1] 713ms
 ```
 
 ???
@@ -1143,7 +1142,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 19.82239
+## [1] 35.65969
 ```
 
 &lt;br&gt;
@@ -1152,7 +1151,7 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **20 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **36 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
@@ -1174,11 +1173,10 @@ plan &lt;-
     ),
     addresses = pull_addresses(fires), # Extract addresses from tweets
     lat_long = get_lat_long(addresses), # Send to Google for lat-longs
-    dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
     fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
 
-    time_graph = graph_fire_times(dat),
-    plot = plot_fire_sums(dat, nyc)
+    time_graph = graph_fire_times(lat_long),
+    plot = plot_fire_sums(fire_sums)
   )
 ```
 
