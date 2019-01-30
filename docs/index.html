@@ -805,9 +805,9 @@ get_tweets(n_tweets_seed = 3)
 ## # A tibble: 3 x 5
 ##   text                  user_id status_id   created_at          screen_name
 ##   &lt;chr&gt;                 &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-## 1 https://t.co/Nd5r636… 560024… 1090638089… 2019-01-30 10:49:18 NYCFireWire
-## 2 Retired firefighters… 560024… 1090561341… 2019-01-30 05:44:20 NYCFireWire
-## 3 Queens *99-75-1326* … 560024… 1090392701… 2019-01-29 18:34:13 NYCFireWire
+## 1 Queens *99-75-9298* … 560024… 1090694122… 2019-01-30 14:31:57 NYCFireWire
+## 2 Queens **99-75-9298*… 560024… 1090690563… 2019-01-30 14:17:49 NYCFireWire
+## 3 https://t.co/Nd5r636… 560024… 1090638089… 2019-01-30 10:49:18 NYCFireWire
 ```
 
 ???
@@ -838,6 +838,12 @@ get_tweets() %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens **99-75-9298** 60-15 Calloway Street Near Otis Avenue, Battalion 46 is putting All hands to work and is requesting an additional engine and truck for a heavy smoke condition on the top floor of A Multiple Dwelling. &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; https://t.co/Nd5r636LGB &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
@@ -860,12 +866,6 @@ get_tweets() %&gt;%
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Someone got access to NNSS in Nevada. I was there last year taking the Rad/Nuc course. This is a heavily secured site. Not a good move. https://t.co/pCBIRIPUx9 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor. &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy. &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -956,6 +956,18 @@ get_tweets() %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 60-15 Calloway St &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 60-15 Calloway St, Queens &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens **99-75-9298** 60-15 Calloway Street Near Otis Avenue, Battalion 46 is putting All hands to work and is requesting an additional engine and truck for a heavy smoke condition on the top floor of A Multiple Dwelling. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 60-15 Calloway Street Near Otis Avenue &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 60-15 Calloway Street Near Otis Avenue, Queens &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; https://t.co/Nd5r636LGB &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
@@ -1003,18 +1015,6 @@ get_tweets() %&gt;%
    &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
   &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Manhattan *66-75-1597* 260 Convent Ave. Fire 2nd floor. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 260 Convent Ave &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Manhattan &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 260 Convent Ave, Manhattan &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-9625* 107-27 Atlantic Ave. Fire 2nd floor mixed occupancy. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 107-27 Atlantic Ave &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 107-27 Atlantic Ave, Queens &lt;/td&gt;
-  &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
@@ -1043,17 +1043,17 @@ We will **send address** and **receive lat long**
 get_tweets(n_tweets_seed = 5) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20Street%20Near%20Otis%20Avenue%2C%20Queens&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Hammel%20Houses%2084-14%20Rockaway%20Beach%20Bl%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=3602%20Avenue%20J%2C%20Brooklyn&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1673%20Carroll%20St%2C%20Brooklyn&amp;key=xxx
 ## # A tibble: 5 x 7
 ##   address      lat  long lat_trunc long_trunc created_at          text     
 ##   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;    
-## 1 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 10:49:18 https://…
-## 2 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 05:44:20 Retired …
-## 3 Hammel Ho…  40.6 -73.8      40.6      -73.8 2019-01-29 18:34:13 Queens *…
-## 4 3602 Aven…  40.6 -73.9      40.6      -73.9 2019-01-29 16:08:36 Brooklyn…
-## 5 1673 Carr…  40.7 -73.9      40.7      -73.9 2019-01-29 14:25:26 Brooklyn…
+## 1 60-15 Cal…  40.7 -73.9      40.7      -73.9 2019-01-30 14:31:57 Queens *…
+## 2 60-15 Cal…  40.7 -73.9      40.7      -73.9 2019-01-30 14:17:49 Queens *…
+## 3 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 10:49:18 https://…
+## 4 &lt;NA&gt;        NA    NA        NA         NA   2019-01-30 05:44:20 Retired …
+## 5 Hammel Ho…  40.6 -73.8      40.6      -73.8 2019-01-29 18:34:13 Queens *…
 ```
 
 
@@ -1061,18 +1061,11 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 
 ## Analysis chunks of the pipeline
 
-Later in the pipeline we can join on some `ggplot2::map_data`
+Later in the pipeline we can 
 
+`count_fires`, summing up the total number of fires per `lat`-`long` combo
 
-```r
-nyc &lt;-
-  ggplot2::map_data("state", region = "new york") %&gt;%
-  truncate_lat_long(digits = 1) %&gt;%
-  as_tibble()
-```
-
-
-or `count_fires`, summing up the total number of fires per `lat`-`long` combo.
+&lt;br&gt;
 
 
 ```r
@@ -1082,6 +1075,32 @@ count_fires &lt;- function(tbl) {
     group_by(lat, long) %&gt;%
     count()
 }
+```
+
+---
+
+## Analysis chunks of the pipeline
+
+or join on some `ggplot2::map_data`
+
+
+```r
+ggplot2::map_data("state", region = "new york") %&gt;%
+  as_tibble()
+## # A tibble: 495 x 6
+##     long   lat group order region   subregion
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    
+##  1 -73.9  40.8     1     1 new york manhattan
+##  2 -73.9  40.8     1     2 new york manhattan
+##  3 -74.0  40.8     1     3 new york manhattan
+##  4 -74.0  40.8     1     4 new york manhattan
+##  5 -74.0  40.7     1     5 new york manhattan
+##  6 -74.0  40.7     1     6 new york manhattan
+##  7 -74.0  40.7     1     7 new york manhattan
+##  8 -74.0  40.7     1     8 new york manhattan
+##  9 -74.0  40.7     1     9 new york manhattan
+## 10 -74.0  40.8     1    10 new york manhattan
+## # … with 485 more rows
 ```
 
 
@@ -1111,7 +1130,10 @@ What's the estimate of running the pipeline on a single tweet?
     }) %&gt;% 
       as_tibble() %&gt;% 
       pull(median))
-## [1] 228ms
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
+## [1] 305ms
 ```
 
 ???
@@ -1130,7 +1152,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 11.42354
+## [1] 15.2487
 ```
 
 &lt;br&gt;
@@ -1139,7 +1161,7 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **11 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **15 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
@@ -1192,7 +1214,6 @@ devtools::session_info()
 ##  package     * version    date       lib
 ##  assertthat    0.2.0      2017-04-11 [1]
 ##  backports     1.1.3      2018-12-14 [1]
-##  base64url     1.4        2018-05-14 [1]
 ##  bench         1.0.1      2018-06-06 [1]
 ##  bindr         0.1.1      2018-03-13 [1]
 ##  bindrcpp    * 0.2.2      2018-03-29 [1]
@@ -1201,6 +1222,7 @@ devtools::session_info()
 ##  callr         2.0.4      2018-05-15 [1]
 ##  cellranger    1.1.0      2016-07-27 [1]
 ##  cli           1.0.1      2018-09-25 [1]
+##  codetools     0.2-15     2016-10-05 [1]
 ##  colorspace    1.4-0      2019-01-13 [1]
 ##  crayon        1.3.4      2018-12-20 [1]
 ##  curl          3.3        2019-01-10 [1]
@@ -1209,15 +1231,19 @@ devtools::session_info()
 ##  devtools      2.0.1      2018-10-26 [1]
 ##  digest        0.6.18     2018-10-10 [1]
 ##  dplyr       * 0.7.8      2018-11-10 [1]
-##  drake       * 6.2.1.9002 2019-01-29 [1]
+##  drake       * 6.2.1      2018-12-10 [1]
 ##  emo           0.0.0.9000 2018-07-05 [1]
-##  emojifont     0.5.2      2019-01-17 [1]
+##  emojifont   * 0.5.2      2019-01-17 [1]
+##  enc           0.2.0      2018-03-03 [1]
 ##  evaluate      0.11       2018-07-17 [1]
 ##  fansi         0.4.0      2018-12-20 [1]
 ##  forcats     * 0.3.0      2018-02-19 [1]
+##  formatR       1.5        2017-04-25 [1]
 ##  fs          * 1.2.6      2018-08-23 [1]
+##  future        1.8.1      2018-05-03 [1]
 ##  ggmap       * 2.7.904    2019-01-04 [1]
 ##  ggplot2     * 3.1.0      2018-10-25 [1]
+##  globals       0.12.1     2018-06-25 [1]
 ##  glue        * 1.3.0      2018-07-17 [1]
 ##  gtable        0.2.0      2016-02-26 [1]
 ##  haven         1.1.2      2018-06-27 [1]
@@ -1232,9 +1258,11 @@ devtools::session_info()
 ##  jpeg          0.1-8      2014-01-23 [1]
 ##  jsonlite      1.6        2018-12-07 [1]
 ##  knitr       * 1.21       2018-12-10 [1]
+##  labeling      0.3        2014-08-23 [1]
 ##  later         0.7.3      2018-06-08 [1]
 ##  lattice       0.20-38    2018-11-04 [1]
 ##  lazyeval      0.2.1      2017-10-29 [1]
+##  listenv       0.7.0      2018-01-21 [1]
 ##  lubridate     1.7.4      2018-04-11 [1]
 ##  magrittr      1.5        2014-11-22 [1]
 ##  maps        * 3.3.0      2018-04-03 [1]
@@ -1261,6 +1289,7 @@ devtools::session_info()
 ##  Rcpp          1.0.0      2018-11-07 [1]
 ##  readr       * 1.3.1      2018-12-21 [1]
 ##  readxl        1.1.0.9000 2018-07-05 [1]
+##  rematch2      2.0.1      2017-06-20 [1]
 ##  remotes       2.0.2      2018-10-30 [1]
 ##  RgoogleMaps   1.4.3      2018-11-07 [1]
 ##  rjson         0.2.20     2018-06-08 [1]
@@ -1278,6 +1307,7 @@ devtools::session_info()
 ##  storr         1.2.1      2018-10-18 [1]
 ##  stringi       1.2.4      2018-07-20 [1]
 ##  stringr     * 1.3.1      2018-05-10 [1]
+##  styler        1.0.2      2018-06-26 [1]
 ##  sysfonts      0.8        2018-10-11 [1]
 ##  testthat    * 2.0.1      2018-10-13 [1]
 ##  tibble      * 2.0.1      2019-01-12 [1]
@@ -1303,7 +1333,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.2)                          
 ##  Github (r-lib/crayon@74bee76)           
 ##  CRAN (R 3.5.2)                          
@@ -1312,11 +1342,14 @@ devtools::session_info()
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  Github (ropensci/drake@953917b)         
+##  CRAN (R 3.5.0)                          
 ##  Github (hadley/emo@02a5206)             
 ##  Github (GuangchuangYu/emojifont@f7ba3ec)
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  Github (brodieG/fansi@ab11e9c)          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  Github (dkahle/ggmap@4dfe516)           
@@ -1334,9 +1367,12 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1367,16 +1403,18 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.2)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          

@@ -900,17 +900,11 @@ get_tweets(n_tweets_seed = 5) %>%
 
 ## Analysis chunks of the pipeline
 
-Later in the pipeline we can join on some `ggplot2::map_data`
+Later in the pipeline we can 
 
-```{r, eval=FALSE}
-nyc <-
-  ggplot2::map_data("state", region = "new york") %>%
-  truncate_lat_long(digits = 1) %>%
-  as_tibble()
-```
+`count_fires`, summing up the total number of fires per `lat`-`long` combo
 
-
-or `count_fires`, summing up the total number of fires per `lat`-`long` combo.
+<br>
 
 ```{r}
 count_fires <- function(tbl) {
@@ -919,6 +913,17 @@ count_fires <- function(tbl) {
     group_by(lat, long) %>%
     count()
 }
+```
+
+---
+
+## Analysis chunks of the pipeline
+
+or join on some `ggplot2::map_data`
+
+```{r}
+ggplot2::map_data("state", region = "new york") %>%
+  as_tibble()
 ```
 
 

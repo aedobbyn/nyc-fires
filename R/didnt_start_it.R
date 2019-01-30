@@ -43,21 +43,21 @@ get_seed_tweets <- function(user = firewire_handle,
                             max_id = NULL, # Max ID of the tweet
                             input_path = NULL, # Read from a file or grab from Twitter?
                             output_path = NULL,
-                            write_out = FALSE, 
+                            write_out = FALSE,
                             verbose = TRUE) {
   if (!is.null(input_path) && file_exists(input_path)) {
-    
     if (verbose) message("Reading in tweets from CSV.")
     out <-
-      read_csv(input_path, 
-               col_types = 
-                 list(
-                   text = col_character(),
-                   user_id = col_character(),
-                   status_id = col_character(),
-                   created_at = col_datetime(format = ""),
-                   screen_name = col_character()
-                 ))
+      read_csv(input_path,
+        col_types =
+          list(
+            text = col_character(),
+            user_id = col_character(),
+            status_id = col_character(),
+            created_at = col_datetime(format = ""),
+            screen_name = col_character()
+          )
+      )
   } else {
     out <-
       get_timeline(user = user, n = n_tweets, max_id = max_id) %>%
@@ -277,7 +277,7 @@ join_on_city_data <- function(tbl, city = nyc) {
       lat_tweet = lat,
       long_tweet = long
     ) %>%
-    inner_join(city, by = c("lat_trunc", "long_trunc")) %>% 
+    inner_join(city, by = c("lat_trunc", "long_trunc")) %>%
     distinct(address, .keep_all = TRUE)
 }
 
@@ -303,22 +303,33 @@ graph_fire_times <- function(tbl) {
 
 fire_emoji <- emoji("fire")
 
+nyc_map <- get_map("new york city")
+
 # Plot where fires occurred by lat/long combo
-plot_fire_sums <- function(tbl, city = nyc,
+plot_fire_sums <- function(tbl, city = nyc_map,
+                           use_emoji = FALSE,
                            output_path = here("plots", "fire_sums_plot.png")) {
+  
   tbl <-
     tbl %>%
     drop_na(lat, long)
+  
+  if (use_emoji) {
+    fire_layer <- 
+      geom_text(
+        data = tbl, aes(long, lat, label = fire_emoji, size = n),
+        family = "EmojiOne", color = "red"
+      ) 
+  } else {
+    fire_layer <- 
+      geom_point(
+        data = tbl, aes(long, lat, size = n),
+        color = "red", alpha = 0.5
+      ) 
+  }
 
-  ggplot() +
-    geom_polygon(data = nyc, aes(lat, long), 
-                 fill = "darkorange", alpha = 0.5) +
-    geom_text(
-      data = tbl, aes(lat, long, label = fire_emoji, size = n),
-      family = "EmojiOne", color = "red"
-    ) +
-    xlim(NA, 41) +
-    ylim(-74.5, -73) +
+  ggmap(nyc_map) +
+    fire_layer +
     ggtitle("Fires were Started") +
     labs(x = "latitude", y = "longitude") +
     theme_light()
