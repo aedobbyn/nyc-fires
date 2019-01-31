@@ -6,6 +6,7 @@
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
+    <link rel="stylesheet" href="dobbs.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -20,7 +21,7 @@ class: center, middle, inverse, title-slide
 
 
 
-###  Warning: this presentation contains less rap than you might have expected. 
+##  Warning: this presentation contains less rap than you might have expected. 
 
 --
 
@@ -56,11 +57,19 @@ Twitter: [@dobbleobble](https://twitter.com/dobbleobble)
 
 ---
 
-## Overview
+## The plan
 
 I'll give an intro to what `drake` is and how it works.
 
-Then we'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break.
+--
+
+&lt;br&gt;
+
+Then we'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break 🤞
+
+--
+
+&lt;br&gt;
 
 In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `drake` pipeline.
 
@@ -213,7 +222,7 @@ Does your analysis directory look like this?
 
 ---
 
-### `drake` : `knitr`
+## `drake` : `knitr`
 
 (Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
 
@@ -252,11 +261,13 @@ But better.
 
 --
 
-Memoising (in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)):
+Memoising:
 
 **caches the return value of a function given a set of arguments**
 
 - if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --&gt; saves time 👍
+
+- in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
 
 --
 
@@ -564,7 +575,7 @@ because those are both part of the command used to generate `results`.
 
 **targets**
 
-In a hidden `.drake` directory, or cache. (You can check that it's there with `ls -a`.) [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
+In a hidden `.drake` directory, or cache, in your project's root. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `loadd()` loads targets from the cache into your R session.
 
@@ -576,12 +587,16 @@ In a hidden `.drake` directory, or cache. (You can check that it's there with `l
 
 **dependencies**
 
-`drake` hashes a target's dependencies to know when one of those dependencies changes. 
-You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-algorithms) over the hashing algorithm used, location of the cache, etc.
+`drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
 `drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config` list.
 
 You can access all of this with `drake_config()`.
+
+???
+You can check that the cache is there with `ls -a`.
+
+You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-algorithms) over the hashing algorithm used, location of the cache, etc.
 
 ---
 
@@ -807,9 +822,9 @@ get_tweets(n_tweets_seed = 3)
 ## # A tibble: 3 x 5
 ##   text                  user_id status_id   created_at          screen_name
 ##   &lt;chr&gt;                 &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-## 1 Queens *99-75-9298* … 560024… 1090694122… 2019-01-30 14:31:57 NYCFireWire
-## 2 Queens **99-75-9298*… 560024… 1090690563… 2019-01-30 14:17:49 NYCFireWire
-## 3 https://t.co/Nd5r636… 560024… 1090638089… 2019-01-30 10:49:18 NYCFireWire
+## 1 Queens **99-75-5985*… 560024… 1090764990… 2019-01-30 19:13:33 NYCFireWire
+## 2 Big fire in Bergen C… 560024… 1090762878… 2019-01-30 19:05:10 NYCFireWire
+## 3 Blocking the hydrant… 560024… 1090739760… 2019-01-30 17:33:18 NYCFireWire
 ```
 
 ???
@@ -840,6 +855,18 @@ get_tweets() %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens **99-75-5985** 220-19 145th Avenue Near 221st Street, Battalion 54 reports all hands going to work for a basement fire in A Private Dwelling &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Big fire in Bergen County, NJ. Old timber buildings, they just said the fire is making it's way to the Propane Filling station. &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Blocking the hydrant is dangerous! https://t.co/IFNDVK41u3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; From NYC OEM: Snow Squall Warning in effect for NYC on 1/30 until 4 PM. Heavy and blowing snow with wind gusts up to 50 mph causing whiteout conditions, zero visibility and life-threatening travel conditions.... https://t.co/HlqrDX2UcX &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
@@ -856,18 +883,6 @@ get_tweets() %&gt;%
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3046* 3602 Avenue J. &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-1605* 1673 Carroll St. Fire top floor 2 story &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3646* 296 West end Ave off Orietal Blvd. Fire in a 3 story &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; We’ll have a cure for cancer within a year, scientists claim https://t.co/wtiN92bdRz &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Someone got access to NNSS in Nevada. I was there last year taking the Rad/Nuc course. This is a heavily secured site. Not a good move. https://t.co/pCBIRIPUx9 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -958,6 +973,30 @@ get_tweets() %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens **99-75-5985** 220-19 145th Avenue Near 221st Street, Battalion 54 reports all hands going to work for a basement fire in A Private Dwelling &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 220-19 145th Avenue Near 221st Street &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 220-19 145th Avenue Near 221st Street, Queens &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Big fire in Bergen County, NJ. Old timber buildings, they just said the fire is making it's way to the Propane Filling station. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Blocking the hydrant is dangerous! https://t.co/IFNDVK41u3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; From NYC OEM: Snow Squall Warning in effect for NYC on 1/30 until 4 PM. Heavy and blowing snow with wind gusts up to 50 mph causing whiteout conditions, zero visibility and life-threatening travel conditions.... https://t.co/HlqrDX2UcX &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 60-15 Calloway St &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
@@ -993,30 +1032,6 @@ get_tweets() %&gt;%
    &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 3602 Avenue J, Brooklyn &lt;/td&gt;
   &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-1605* 1673 Carroll St. Fire top floor 2 story &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 1673 Carroll St &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 1673 Carroll St, Brooklyn &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3646* 296 West end Ave off Orietal Blvd. Fire in a 3 story &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 296 West end Ave off Orietal Blvd &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 296 West end Ave off Orietal Blvd, Brooklyn &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; We’ll have a cure for cancer within a year, scientists claim https://t.co/wtiN92bdRz &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Someone got access to NNSS in Nevada. I was there last year taking the Rad/Nuc course. This is a heavily secured site. Not a good move. https://t.co/pCBIRIPUx9 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
@@ -1045,17 +1060,16 @@ We will **send address** and **receive lat long**
 get_tweets(n_tweets_seed = 5) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20Street%20Near%20Otis%20Avenue%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Hammel%20Houses%2084-14%20Rockaway%20Beach%20Bl%2C%20Queens&amp;key=xxx
 ## # A tibble: 5 x 5
 ##   address              lat  long created_at          text                  
 ##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;                 
-## 1 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:31:57 Queens *99-75-9298* 6…
-## 2 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:17:49 Queens **99-75-9298**…
-## 3 &lt;NA&gt;                NA    NA   2019-01-30 10:49:18 https://t.co/Nd5r636L…
-## 4 &lt;NA&gt;                NA    NA   2019-01-30 05:44:20 Retired firefighters …
-## 5 Hammel Houses 84-…  40.6 -73.8 2019-01-29 18:34:13 Queens *99-75-1326* H…
+## 1 220-19 145th Aven…  40.7 -73.8 2019-01-30 19:13:33 Queens **99-75-5985**…
+## 2 &lt;NA&gt;                NA    NA   2019-01-30 19:05:10 Big fire in Bergen Co…
+## 3 &lt;NA&gt;                NA    NA   2019-01-30 17:33:18 Blocking the hydrant …
+## 4 &lt;NA&gt;                NA    NA   2019-01-30 15:33:27 From NYC OEM: Snow Sq…
+## 5 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:31:57 Queens *99-75-9298* 6…
 ```
 
 
@@ -1121,9 +1135,10 @@ What's the estimate of running the pipeline on a single tweet?
     }) %&gt;% 
       as_tibble() %&gt;% 
       pull(median))
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
-## [1] 713ms
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
+## [1] 384ms
 ```
 
 ???
@@ -1142,7 +1157,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 35.65969
+## [1] 19.20059
 ```
 
 &lt;br&gt;
@@ -1151,7 +1166,7 @@ All our downstream mapping and counting analysis depends on these trips to and f
 
 If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
 
-`drake` will save us **36 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+`drake` will save us **19 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
 
 
 ---
@@ -1223,16 +1238,13 @@ devtools::session_info()
 ##  drake       * 6.2.1      2018-12-10 [1]
 ##  emo           0.0.0.9000 2018-07-05 [1]
 ##  emojifont   * 0.5.2      2019-01-17 [1]
-##  enc           0.2.0      2018-03-03 [1]
 ##  evaluate      0.11       2018-07-17 [1]
 ##  fansi         0.4.0      2018-12-20 [1]
 ##  forcats     * 0.3.0      2018-02-19 [1]
 ##  formatR       1.5        2017-04-25 [1]
 ##  fs          * 1.2.6      2018-08-23 [1]
-##  future        1.8.1      2018-05-03 [1]
 ##  ggmap       * 2.7.904    2019-01-04 [1]
 ##  ggplot2     * 3.1.0      2018-10-25 [1]
-##  globals       0.12.1     2018-06-25 [1]
 ##  glue        * 1.3.0      2018-07-17 [1]
 ##  gtable        0.2.0      2016-02-26 [1]
 ##  haven         1.1.2      2018-06-27 [1]
@@ -1240,7 +1252,6 @@ devtools::session_info()
 ##  highr         0.7        2018-06-09 [1]
 ##  hms           0.4.2      2018-03-10 [1]
 ##  htmltools     0.3.6      2017-04-28 [1]
-##  htmlwidgets   1.2        2018-04-19 [1]
 ##  httpuv        1.4.5.1    2018-12-18 [1]
 ##  httr          1.4.0      2018-12-11 [1]
 ##  igraph        1.2.2      2018-07-27 [1]
@@ -1251,10 +1262,8 @@ devtools::session_info()
 ##  later         0.7.3      2018-06-08 [1]
 ##  lattice       0.20-38    2018-11-04 [1]
 ##  lazyeval      0.2.1      2017-10-29 [1]
-##  listenv       0.7.0      2018-01-21 [1]
 ##  lubridate     1.7.4      2018-04-11 [1]
 ##  magrittr      1.5        2014-11-22 [1]
-##  mapproj       1.2.6      2018-03-29 [1]
 ##  maps        * 3.3.0      2018-04-03 [1]
 ##  memoise       1.1.0      2018-10-26 [1]
 ##  mime          0.6        2018-10-05 [1]
@@ -1279,7 +1288,6 @@ devtools::session_info()
 ##  Rcpp          1.0.0      2018-11-07 [1]
 ##  readr       * 1.3.1      2018-12-21 [1]
 ##  readxl        1.1.0.9000 2018-07-05 [1]
-##  rematch2      2.0.1      2017-06-20 [1]
 ##  remotes       2.0.2      2018-10-30 [1]
 ##  RgoogleMaps   1.4.3      2018-11-07 [1]
 ##  rjson         0.2.20     2018-06-08 [1]
@@ -1297,7 +1305,6 @@ devtools::session_info()
 ##  storr         1.2.1      2018-10-18 [1]
 ##  stringi       1.2.4      2018-07-20 [1]
 ##  stringr     * 1.3.1      2018-05-10 [1]
-##  styler        1.0.2      2018-06-26 [1]
 ##  sysfonts      0.8        2018-10-11 [1]
 ##  testthat    * 2.0.1      2018-10-13 [1]
 ##  tibble      * 2.0.1      2019-01-12 [1]
@@ -1306,7 +1313,6 @@ devtools::session_info()
 ##  tidyverse   * 1.2.1      2017-11-14 [1]
 ##  usethis       1.4.0      2018-08-14 [1]
 ##  utf8          1.1.4      2018-05-24 [1]
-##  visNetwork    2.0.4      2018-06-14 [1]
 ##  withr         2.1.2      2018-03-15 [1]
 ##  xaringan      0.8        2018-10-23 [1]
 ##  xfun          0.4        2018-10-23 [1]
@@ -1336,9 +1342,7 @@ devtools::session_info()
 ##  Github (hadley/emo@02a5206)             
 ##  Github (GuangchuangYu/emojifont@f7ba3ec)
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  Github (brodieG/fansi@ab11e9c)          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1356,14 +1360,10 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1394,7 +1394,6 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1411,9 +1410,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          

@@ -3,7 +3,7 @@ title: "`drake` for Workflow Happiness in R"
 author: "Amanda Dobbyn"
 output:
   xaringan::moon_reader:
-    css: ["default", "shinobi"]
+    css: ["default", "shinobi", "dobbs.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -18,7 +18,7 @@ options(htmltools.dir.version = FALSE)
 ```
 
 
-###  Warning: this presentation contains less rap than you might have expected. 
+##  Warning: this presentation contains less rap than you might have expected. 
 
 --
 
@@ -54,11 +54,19 @@ Twitter: [@dobbleobble](https://twitter.com/dobbleobble)
 
 ---
 
-## Overview
+## The plan
 
 I'll give an intro to what `drake` is and how it works.
 
-Then we'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break.
+--
+
+<br>
+
+Then we'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break `r emo::ji("crossed_fingers")`
+
+--
+
+<br>
 
 In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `drake` pipeline.
 
@@ -211,7 +219,7 @@ Does your analysis directory look like this?
 
 ---
 
-### `drake` : `knitr`
+## `drake` : `knitr`
 
 (Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
 
@@ -250,11 +258,13 @@ But better.
 
 --
 
-Memoising (in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)):
+Memoising:
 
 **caches the return value of a function given a set of arguments**
 
 - if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --> saves time `r emo::ji("thumbsup")`
+
+- in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
 
 --
 
@@ -530,7 +540,7 @@ because those are both part of the command used to generate `results`.
 
 **targets**
 
-In a hidden `.drake` directory, or cache. (You can check that it's there with `ls -a`.) [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
+In a hidden `.drake` directory, or cache, in your project's root. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
 `loadd()` loads targets from the cache into your R session.
 
@@ -542,12 +552,16 @@ In a hidden `.drake` directory, or cache. (You can check that it's there with `l
 
 **dependencies**
 
-`drake` hashes a target's dependencies to know when one of those dependencies changes. 
-You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-algorithms) over the hashing algorithm used, location of the cache, etc.
+`drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
 `drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config` list.
 
 You can access all of this with `drake_config()`.
+
+???
+You can check that the cache is there with `ls -a`.
+
+You have [control](https://ropensci.github.io/drake/articles/storage.html#hash-algorithms) over the hashing algorithm used, location of the cache, etc.
 
 ---
 
@@ -883,8 +897,6 @@ We will **send address** and **receive lat long**
 
 ```{r, include=FALSE}
 geo_to_list
-
-truncate_lat_long
 
 get_lat_long
 ```

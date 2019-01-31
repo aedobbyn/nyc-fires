@@ -464,7 +464,7 @@ nrow(addresses)
 addresses
 ```
 
-Make our final plot from the 3k fires:
+Make our quick plot from the 3k fires:
 
 ```{r}
 lat_long <- 
