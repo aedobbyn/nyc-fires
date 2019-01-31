@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>drake for Workflow Happiness in R</title>
+    <title>[drake](https://github.com/ropensci/drake) for Workflow Happiness in R</title>
     <meta charset="utf-8">
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
@@ -12,8 +12,8 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# <code>drake</code> for Workflow Happiness in R
-### Amanda Dobbyn
+# <code>[drake](https://github.com/ropensci/drake)</code> for Workflow Happiness in R
+### <code>Amanda Dobbyn</code>
 
 ---
 
@@ -171,7 +171,6 @@ Does your analysis directory look like this?
 
 .pull-left[
 
-&lt;br&gt;
 
 `01_import.R`
 
@@ -260,58 +259,51 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 .pull-left[
 
-1) See how your pipeline fits together, in a tidy **dataframe**
-
-&lt;br&gt;
+1) Tidy **dataframe** shows how pieces in your pipeline fit together
 
 ]
 
 --
 
-2) Visualize your pipeline's **dependency graph** 
-
-
-.pull-right[![](./img/iris_dependency_graph.jpg)] 
-
 &lt;br&gt;
+
+.pull-right[
+
+2) **Dependency graph** of all inputs and outputs
+
+]
+
 &lt;br&gt;
 
 --
 
 .pull-left[
 
-3) Great for iteration and **reproducibility**; you know exactly how these results were generated 
+3) Great for iteration and **reproducibility**, especially if used with git
 
 ]
 
 &lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
 
 --
 
-.pull-left[
+.pull-right[
 
 4) High-performance computing advantages
 
 ]
 
 &lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
 
 --
 
 .pull-left[
 
-5) It's all in R so no writing config files! 🎉
-
-&lt;br&gt;
+5) It's all in R, so no writing config files! 🎉
 
 ]
+
+&lt;!-- .pull-right[![](./img/iris_dependency_graph.jpg)]  --&gt;
 
 &lt;!-- .pull-right[![](./img/mtcars_dependency_graph.jpg)] --&gt;
 
@@ -320,7 +312,7 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 ## `drake` : `knitr`
 
-(Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
+(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
 
 &lt;p align="center"&gt;
 &lt;img src="./img/tiny_hats.jpg"&gt;
@@ -1054,7 +1046,7 @@ we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
 
 
 ```r
-old_tweet_id &lt;- "1084619203167031297" # Random tweet from a while ago so what we can set a max id in the past
+old_tweet_id &lt;- "1084948074588487680" # From Jan 14
 
 seed_tweets &lt;- 
   get_tweets(
@@ -1108,7 +1100,7 @@ With `pull_addresses` we parse the text of the tweet to pull out borough and str
 
 
 ```r
-get_tweets() %&gt;% 
+get_tweets(max_id = old_tweet_id) %&gt;% 
   pull_addresses() %&gt;% 
   select(text, street, borough, address) %&gt;% 
   kable() 
@@ -1125,64 +1117,67 @@ get_tweets() %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; FDNY*EMS's response to recent statements against them. https://t.co/qa3biggcbL &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; *EMS's response to recent statements against them &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; *EMS's response to recent statements against them, &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bronx *66-75-3049* 1449 Commonwealth ave. Attic fire private dwelling. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1449 Commonwealth ave &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The Bronx &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1449 Commonwealth ave, The Bronx &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens **99-75-5985** 220-19 145th Avenue Near 221st Street, Battalion 54 reports all hands going to work for a basement fire in A Private Dwelling &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 220-19 145th Avenue Near 221st Street &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan *66-75-0755* 330 E 39 St. Fire in the duct work 3rd floor. 10-77(HiRise Residential). E-16/TL-7 1st due &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 330 E 39 St &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 330 E 39 St, Manhattan &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan 10-77* 66-75-2017* 70 Little West St x 2nd Pl. BC01 has a fire on the 7th floor in the laundry area. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 70 Little West St x 2nd Pl &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 70 Little West St x 2nd Pl, Manhattan &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Bronx *66-75-2251* 2922 3rd Avenue at Westchester Avenue, Battalion 14 transmitting a 10-75 for a fire on the 4th floor of a 6 story commercial building. Squad 41 First Due &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2922 3rd Avenue at Westchester Avenue &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The Bronx &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2922 3rd Avenue at Westchester Avenue, The Bronx &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn **77-75-0270** 330 Bushwick Avenue Near McKibbin Street, Fire on the 4th Floor &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 330 Bushwick Avenue Near McKibbin Street &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 330 Bushwick Avenue Near McKibbin Street, Brooklyn &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-0855* 899 Hancock St. Fire top floor 3 story &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 899 Hancock St &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 899 Hancock St, Brooklyn &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn **77-75-0855** 899 Hancock Street Near Howard Avenue, All hands going to work for fire I’m the top floor &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 899 Hancock Street Near Howard Avenue &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 899 Hancock Street Near Howard Avenue, Brooklyn &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Bronx *66-75-3937* 3840 Orloff Av. Fire 4th floor. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3840 Orloff Av &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The Bronx &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3840 Orloff Av, The Bronx &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Staten Island *MVA/PIN* Box 1744-
+490 Harold St off Forest Hill Rd. Hurst tool in operation. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Box 1744-
+490 Harold St off Forest Hill Rd &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Staten Island &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Box 1744-
+490 Harold St off Forest Hill Rd, Staten Island &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Queens 99-75-6810 111-15 227 St BC-54 using all hands for a fire in a pvt dwelling &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 220-19 145th Avenue Near 221st Street, Queens &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Big fire in Bergen County, NJ. Old timber buildings, they just said the fire is making it's way to the Propane Filling station. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Blocking the hydrant is dangerous! https://t.co/IFNDVK41u3 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; From NYC OEM: Snow Squall Warning in effect for NYC on 1/30 until 4 PM. Heavy and blowing snow with wind gusts up to 50 mph causing whiteout conditions, zero visibility and life-threatening travel conditions.... https://t.co/HlqrDX2UcX &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 60-15 Calloway St &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 60-15 Calloway St, Queens &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens **99-75-9298** 60-15 Calloway Street Near Otis Avenue, Battalion 46 is putting All hands to work and is requesting an additional engine and truck for a heavy smoke condition on the top floor of A Multiple Dwelling. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 60-15 Calloway Street Near Otis Avenue &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 60-15 Calloway Street Near Otis Avenue, Queens &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; https://t.co/Nd5r636LGB &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Retired firefighters take a stand after American flag destroyed in the East Village https://t.co/ZOtoo2UI10 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-1326* Hammel Houses 84-14 Rockaway Beach Bl. Compactor fire &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl, Queens &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1210,18 +1205,19 @@ get_tweets(n_tweets_seed = 5,
            max_id = old_tweet_id) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Box%201744-%0A490%20Harold%20St%20off%20Forest%20Hill%20Rd%2C%20Staten%20Island&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1858%20Powell%20Blvd%2C%20Manhattan&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=150%20fingerboard%20Rd%2C%20Staten%20Island&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1449%20Commonwealth%20ave%2C%20The%20Bronx&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=330%20E%2039%20St%2C%20Manhattan&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=70%20Little%20West%20St%20x%202nd%20Pl%2C%20Manhattan&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=2922%203rd%20Avenue%20at%20Westchester%20Avenue%2C%20The%20Bronx&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=330%20Bushwick%20Avenue%20Near%20McKibbin%20Street%2C%20Brooklyn&amp;key=xxx
 ## # A tibble: 5 x 5
-##   address                lat  long created_at          text                
-##   &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;               
-## 1 "Box 1744-\n490 Har…  40.6 -74.1 2019-01-13 20:12:23 "Staten Island *MVA…
-## 2 Queens                40.7 -73.8 2019-01-13 17:57:22 Queens 99-75-6810 1…
-## 3 1858 Powell Blvd, M…  40.8 -74.0 2019-01-13 04:27:44 Manhattan *66-75-13…
-## 4 150 fingerboard Rd,…  40.6 -74.1 2019-01-13 03:15:46 Staten Island *88-7…
-## 5 &lt;NA&gt;                  NA    NA   2019-01-12 22:10:35 Firefighter in hara…
+##   address              lat  long created_at          text                  
+##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;                 
+## 1 1449 Commonwealth…  40.8 -73.9 2019-01-14 15:54:18 Bronx *66-75-3049* 14…
+## 2 330 E 39 St, Manh…  40.7 -74.0 2019-01-14 13:41:11 Manhattan *66-75-0755…
+## 3 70 Little West St…  40.7 -74.0 2019-01-14 12:40:19 Manhattan 10-77* 66-7…
+## 4 2922 3rd Avenue a…  40.8 -73.9 2019-01-14 07:06:21 Bronx *66-75-2251* 29…
+## 5 330 Bushwick Aven…  40.7 -73.9 2019-01-13 21:27:15 Brooklyn **77-75-0270…
 ```
 
 
@@ -1608,13 +1604,19 @@ class: inverse
 
 ## Live coding time!
 
-The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
+&lt;br&gt;
+
+The `rtweet` package also supports POSTing tweets, so we can test out whether our trigger successfully pulls in new tweet with our own
+
+--
 
 &lt;br&gt;
 
 ## 🔥 **[`burner account!`](https://twitter.com/didntstartit)** 🔥
 
 &lt;br&gt;
+
+--
 
 On to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) after this message from our sponsor.
     </textarea>

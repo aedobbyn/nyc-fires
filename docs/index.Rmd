@@ -1,6 +1,6 @@
 ---
-title: "`drake` for Workflow Happiness in R"
-author: "Amanda Dobbyn"
+title: "`[drake](https://github.com/ropensci/drake)` for Workflow Happiness in R"
+author: "`Amanda Dobbyn`"
 output:
   xaringan::moon_reader:
     css: ["default", "shinobi", "dobbs.css"]
@@ -172,7 +172,6 @@ Does your analysis directory look like this?
 
 .pull-left[
 
-<br>
 
 `01_import.R`
 
@@ -261,58 +260,51 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 .pull-left[
 
-1) See how your pipeline fits together, in a tidy **dataframe**
-
-<br>
+1) Tidy **dataframe** shows how pieces in your pipeline fit together
 
 ]
 
 --
 
-2) Visualize your pipeline's **dependency graph** 
-
-
-.pull-right[![](./img/iris_dependency_graph.jpg)] 
-
 <br>
+
+.pull-right[
+
+2) **Dependency graph** of all inputs and outputs
+
+]
+
 <br>
 
 --
 
 .pull-left[
 
-3) Great for iteration and **reproducibility**; you know exactly how these results were generated 
+3) Great for iteration and **reproducibility**, especially if used with git
 
 ]
 
 <br>
-<br>
-<br>
-<br>
-<br>
 
 --
 
-.pull-left[
+.pull-right[
 
 4) High-performance computing advantages
 
 ]
 
 <br>
-<br>
-<br>
-<br>
 
 --
 
 .pull-left[
 
-5) It's all in R so no writing config files! `r emo::ji("tada")`
-
-<br>
+5) It's all in R, so no writing config files! `r emo::ji("tada")`
 
 ]
+
+<!-- .pull-right[![](./img/iris_dependency_graph.jpg)]  -->
 
 <!-- .pull-right[![](./img/mtcars_dependency_graph.jpg)] -->
 
@@ -321,7 +313,7 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 ## `drake` : `knitr`
 
-(Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
+(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
 
 <p align="center">
 <img src="./img/tiny_hats.jpg">
@@ -990,7 +982,7 @@ we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
 <br>
 
 ```{r}
-old_tweet_id <- "1084619203167031297" # Random tweet from a while ago so what we can set a max id in the past
+old_tweet_id <- "1084948074588487680" # From Jan 14
 
 seed_tweets <- 
   get_tweets(
@@ -1042,7 +1034,7 @@ pull_addresses
 ```
 
 ```{r}
-get_tweets() %>% 
+get_tweets(max_id = old_tweet_id) %>% 
   pull_addresses() %>% 
   select(text, street, borough, address) %>% 
   kable() 
@@ -1221,13 +1213,19 @@ class: inverse
 
 ## Live coding time!
 
-The `rtweet` package also supports posting tweets, so we can test out whether our trigger successfully pulls in new tweet by posting ourselves with a
+<br>
+
+The `rtweet` package also supports POSTing tweets, so we can test out whether our trigger successfully pulls in new tweet with our own
+
+--
 
 <br>
 
 ## `r emo::ji("fire")` **[`burner account!`](https://twitter.com/didntstartit)** `r emo::ji("fire")`
 
 <br>
+
+--
 
 On to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) after this message from our sponsor.
 
