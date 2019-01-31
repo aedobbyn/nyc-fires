@@ -6,7 +6,6 @@
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
-    <script src="libs/kePrint/kePrint.js"></script>
     <link rel="stylesheet" href="dobbs.css" type="text/css" />
   </head>
   <body>
@@ -30,6 +29,8 @@ class: center, middle, inverse, title-slide
 
 I won't blame you if you want to make a quick getaway.
 
+--
+
 .center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)]
 
 ---
@@ -38,23 +39,26 @@ class: inverse
 
 ## Quick about me
 
-.pull-right[![](./img/fris.jpg)]
+.right-column[![](./img/fris.jpg)]
 
 &lt;br&gt;
 
-**Day job**: ultimate frisbee player.
+.left-column[
+
+**Day job**: ultimate frisbee player
 
 
-
-**For fun**: Data Scientist at Earlybird Software, former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/).
+**For fun**: Data Scientist at [Earlybird Software](http://www.earlybird.co/), former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/)
 
 &lt;!-- .pull-left[![](./img/pingpong.jpg)] --&gt;
 
-GitHub: https://github.com/aedobbyn
+**GitHub**: [@aedobbyn](https://github.com/aedobbyn)
 
-Website: https://dobb.ae
+**Website**: https://dobb.ae
 
-Twitter: [@dobbleobble](https://twitter.com/dobbleobble)
+**Twitter**: [@dobbleobble](https://twitter.com/dobbleobble)
+
+]
 
 ---
 
@@ -104,23 +108,29 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 --
 
-### **d**ataframes in **R** for M**ake**
+
+**`d`**`ataframes in` 
+
+**`R`** `for` 
+
+`M`**`ake`**
 
 &lt;br&gt;
+
 
 --
 
 .pull-left[
 
-What's Make?
-
 [GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** in a pipeline. 
 
-`drake` takes that idea and implements it in a way that's more native to how we work in R.
+&lt;br&gt;
+
+`drake` implements that idea in a way that's more native to how we work in R.
 
 ]
 
-Example of a Makefile:
+           Example of a Makefile:
 
 .pull-right[![example_makefile](./img/example_makefile_r.jpg)]
 
@@ -262,21 +272,40 @@ But better.
 
 --
 
-Memoising:
+Memoising **caches the return value of a function for a given a set of arguments**
 
-**caches the return value of a function given a set of arguments**
+--
 
-- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --&gt; saves time 👍
+&lt;br&gt;
+
+- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it 
+  - saves time &amp; resources 👍
+
+--
+  
+&lt;br&gt;
 
 - in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
 
---
+---
+
+## On Memoising
 
 The downside:
 
 **Memoising only applies to one function.**
 
-What if a function upstream of the memoised function changes? We could get the wrong answer. 👎
+--
+
+&lt;br&gt;
+
+What if a function upstream of the memoised function changes? We could get the wrong answer.
+
+--
+
+.right-column[
+![](./img/sad_drake.jpeg)
+]
 
 ---
 
@@ -607,6 +636,8 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 `drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
+![](./img/drake_cache_hashes_small.jpg)
+
 --
 
 Creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
@@ -694,7 +725,7 @@ Now `drake` knows`first_target` needs to be built before work on `second_target`
 
 for analyses that require lots of different permutations of a certain analysis.
 
-(`drake` version 7.0.0 has a [new syntax](https://ropenscilabs.github.io/drake-manual/plans.html#create-large-plans-the-easy-way) that makes it easier to create big plans.)
+(`drake` version 7.0.0 has a [new syntax](https://ropenscilabs.github.io/drake-manual/plans.html#create-large-plans-the-easy-way) that makes it easier to create them.)
 
 - Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
 
@@ -727,7 +758,9 @@ for analyses that require lots of different permutations of a certain analysis.
 
 ---
 
-background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg)
+class: blue-light 
+
+&lt;!-- background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg) --&gt;
 
 ## Our plan
 
@@ -966,11 +999,10 @@ With `pull_addresses` we parse the text of the tweet to pull out borough and str
 get_tweets() %&gt;% 
   pull_addresses() %&gt;% 
   select(text, street, borough, address) %&gt;% 
-  kable() %&gt;% 
-  kable_styling(bootstrap_options = c("striped"))
+  kable() 
 ```
 
-&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
+&lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
@@ -980,6 +1012,12 @@ get_tweets() %&gt;%
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; FDNY*EMS's response to recent statements against them. https://t.co/qa3biggcbL &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; *EMS's response to recent statements against them &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; *EMS's response to recent statements against them, &lt;/td&gt;
+  &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Queens **99-75-5985** 220-19 145th Avenue Near 221st Street, Battalion 54 reports all hands going to work for a basement fire in A Private Dwelling &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 220-19 145th Avenue Near 221st Street &lt;/td&gt;
@@ -1033,12 +1071,6 @@ get_tweets() %&gt;%
    &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Queens &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Hammel Houses 84-14 Rockaway Beach Bl, Queens &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3046* 3602 Avenue J. &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 3602 Avenue J &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 3602 Avenue J, Brooklyn &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1171,12 +1203,17 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 
 ---
+## Quick benchmark
 
 All our downstream analyses depend on this pipeline.
 
 If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **17 minutes** of our lives. 
 
+&lt;br&gt;
+
 ![](https://media.giphy.com/media/5VMNcCxVBibZK/giphy.gif)
+
+&lt;br&gt;
 
 And we rest assured we have the most up-to-date data.
 

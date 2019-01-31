@@ -30,6 +30,8 @@ options(knitr.table.format = "html")
 
 I won't blame you if you want to make a quick getaway.
 
+--
+
 .center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)]
 
 ---
@@ -38,23 +40,26 @@ class: inverse
 
 ## Quick about me
 
-.pull-right[![](./img/fris.jpg)]
+.right-column[![](./img/fris.jpg)]
 
 <br>
 
-**Day job**: ultimate frisbee player.
+.left-column[
+
+**Day job**: ultimate frisbee player
 
 
-
-**For fun**: Data Scientist at Earlybird Software, former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/).
+**For fun**: Data Scientist at [Earlybird Software](http://www.earlybird.co/), former co-organizer of [R-Ladies Chicago](https://rladieschicago.org/)
 
 <!-- .pull-left[![](./img/pingpong.jpg)] -->
 
-GitHub: https://github.com/aedobbyn
+**GitHub**: [@aedobbyn](https://github.com/aedobbyn)
 
-Website: https://dobb.ae
+**Website**: https://dobb.ae
 
-Twitter: [@dobbleobble](https://twitter.com/dobbleobble)
+**Twitter**: [@dobbleobble](https://twitter.com/dobbleobble)
+
+]
 
 ---
 
@@ -104,23 +109,29 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 --
 
-### **d**ataframes in **R** for M**ake**
+
+**`d`**`ataframes in` 
+
+**`R`** `for` 
+
+`M`**`ake`**
 
 <br>
+
 
 --
 
 .pull-left[
 
-What's Make?
-
 [GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** in a pipeline. 
 
-`drake` takes that idea and implements it in a way that's more native to how we work in R.
+<br>
+
+`drake` implements that idea in a way that's more native to how we work in R.
 
 ]
 
-Example of a Makefile:
+           Example of a Makefile:
 
 .pull-right[![example_makefile](./img/example_makefile_r.jpg)]
 
@@ -262,21 +273,40 @@ But better.
 
 --
 
-Memoising:
+Memoising **caches the return value of a function for a given a set of arguments**
 
-**caches the return value of a function given a set of arguments**
+--
 
-- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it --> saves time `r emo::ji("thumbsup")`
+<br>
+
+- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it 
+  - saves time & resources `r emo::ji("thumbsup")`
+
+--
+  
+<br>
 
 - in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
 
---
+---
+
+## On Memoising
 
 The downside:
 
 **Memoising only applies to one function.**
 
-What if a function upstream of the memoised function changes? We could get the wrong answer. `r emo::ji("thumbsdown")`
+--
+
+<br>
+
+What if a function upstream of the memoised function changes? We could get the wrong answer.
+
+--
+
+.right-column[
+![](./img/sad_drake.jpeg)
+]
 
 ---
 
@@ -575,6 +605,8 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 `drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
+![](./img/drake_cache_hashes_small.jpg)
+
 --
 
 Creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
@@ -660,7 +692,7 @@ Now `drake` knows`first_target` needs to be built before work on `second_target`
 
 for analyses that require lots of different permutations of a certain analysis.
 
-(`drake` version 7.0.0 has a [new syntax](https://ropenscilabs.github.io/drake-manual/plans.html#create-large-plans-the-easy-way) that makes it easier to create big plans.)
+(`drake` version 7.0.0 has a [new syntax](https://ropenscilabs.github.io/drake-manual/plans.html#create-large-plans-the-easy-way) that makes it easier to create them.)
 
 - Support for [debugging and testing ](https://ropenscilabs.github.io/drake-manual/debug.html) plans
 
@@ -693,7 +725,9 @@ for analyses that require lots of different permutations of a certain analysis.
 
 ---
 
-background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg)
+class: blue-light 
+
+<!-- background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg) -->
 
 ## Our plan
 
@@ -899,8 +933,7 @@ pull_addresses
 get_tweets() %>% 
   pull_addresses() %>% 
   select(text, street, borough, address) %>% 
-  kable() %>% 
-  kable_styling(bootstrap_options = c("striped"))
+  kable() 
 ```
 
 ---
@@ -1014,12 +1047,17 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 
 ---
+## Quick benchmark
 
 All our downstream analyses depend on this pipeline.
 
 If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **`r round(n_mins, digits = 0)` minutes** of our lives. 
 
+<br>
+
 ![](https://media.giphy.com/media/5VMNcCxVBibZK/giphy.gif)
+
+<br>
 
 And we rest assured we have the most up-to-date data.
 

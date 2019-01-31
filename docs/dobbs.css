@@ -29,3 +29,12 @@ h1, h2, h3, body{
 }
 
 h4 { font-size: 1.3em; }
+
+img, video, iframe {
+  padding-left: 10%;
+}
+
+.blue-light {
+  background-image:  url('https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg');
+  background-size: cover;
+}
