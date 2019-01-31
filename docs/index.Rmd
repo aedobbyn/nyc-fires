@@ -9,12 +9,14 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+      navigation:
+        scroll: false
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
 library(knitr)
 library(kableExtra)
-opts_chunk$set(echo = TRUE, eval = TRUE, collapse = TRUE)
+opts_chunk$set(echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE)
 options(htmltools.dir.version = FALSE)
 options(knitr.table.format = "html")
 ```
@@ -321,7 +323,7 @@ add_and_square(2, 3)
 **But** if we now redefine `add` so that it *subtracts* `b` from `a`...
 ```{r}
 add <- function(a, b) {
-  a - b
+  a - b #<<
 }
 ```
 
@@ -477,12 +479,7 @@ plan
 
 
 ```{r}
-plan <- 
-  drake_plan(
-    cleaned_data = clean_my(raw_data),
-    results = analyze_my(cleaned_data),
-    report = report_out_my(results)
-  )
+plan
 ```
 
 --
@@ -521,7 +518,12 @@ make(plan)
 --
 
 ```{r}
-plan
+plan <-
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+    results = analyze_my(cleaned_data), #<<
+    report = report_out_my(results)
+  )
 ```
 
 
@@ -540,23 +542,44 @@ because those are both part of the command used to generate `results`.
 
 ## Where is all this info stored?
 
-**targets**
+
+#### **targets**
+
+--
 
 In a hidden `.drake` directory, or cache, in your project's root. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
+--
+
+![](./img/drake_cache.jpg)
+
+--
+
 `loadd()` loads targets from the cache into your R session.
+
+--
 
 `clean()` cleans the cache. (You can recover a cache if you clean it by accident.)
 
 <br>
 
---
+---
 
-**dependencies**
+## Where is all this info stored?
+
+<br>
+
+#### **dependencies**
+
+--
 
 `drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
-`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config` list.
+--
+
+Creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
+
+--
 
 You can access all of this with `drake_config()`.
 
@@ -802,10 +825,9 @@ get_tweets(n_tweets_seed = 3)
 A closer look at just the text of the tweets:
 
 ```{r}
-get_tweets() %>% 
+get_tweets(n_tweets_seed = 5) %>% 
   select(text) %>% 
-  kable() %>% 
-  kable_styling()
+  kable()
 ```
 
 
@@ -923,16 +945,17 @@ Later in the pipeline we'll:
 count_fires <- function(tbl) {
   tbl %>%
     drop_na() %>%
-    group_by(lat, long) %>%
-    count()
+    count(lat, long)
 }
 ```
+
+<br>
+
+and plot them on a map (thanks again, `ggmap`)
 
 ---
 
 ## Analysis chunks of the pipeline
-
-and plot them on a map (thanks again, `ggmap`)
 
 ```{r}
 get_map("new york city") %>% ggmap()

@@ -252,8 +252,7 @@ get_lat_long <- function(tbl) {
 count_fires <- function(tbl) {
   tbl %>%
     drop_na() %>%
-    group_by(lat, long) %>%
-    count()
+    count(lat, long)
 }
 
 

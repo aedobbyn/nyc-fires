@@ -331,7 +331,7 @@ add_and_square(2, 3)
 
 ```r
 add &lt;- function(a, b) {
-  a - b
+* a - b
 }
 ```
 
@@ -503,12 +503,13 @@ plan
 
 
 ```r
-plan &lt;- 
-  drake_plan(
-    cleaned_data = clean_my(raw_data),
-    results = analyze_my(cleaned_data),
-    report = report_out_my(results)
-  )
+plan
+## # A tibble: 3 x 2
+##   target       command                 
+##   &lt;chr&gt;        &lt;chr&gt;                   
+## 1 cleaned_data clean_my(raw_data)      
+## 2 results      analyze_my(cleaned_data)
+## 3 report       report_out_my(results)
 ```
 
 --
@@ -549,13 +550,12 @@ make(plan)
 
 
 ```r
-plan
-## # A tibble: 3 x 2
-##   target       command                 
-##   &lt;chr&gt;        &lt;chr&gt;                   
-## 1 cleaned_data clean_my(raw_data)      
-## 2 results      analyze_my(cleaned_data)
-## 3 report       report_out_my(results)
+plan &lt;-
+  drake_plan(
+    cleaned_data = clean_my(raw_data),
+*   results = analyze_my(cleaned_data),
+    report = report_out_my(results)
+  )
 ```
 
 
@@ -574,23 +574,44 @@ because those are both part of the command used to generate `results`.
 
 ## Where is all this info stored?
 
-**targets**
+
+#### **targets**
+
+--
 
 In a hidden `.drake` directory, or cache, in your project's root. [More on storage.](https://ropensci.github.io/drake/articles/storage.html)
 
+--
+
+![](./img/drake_cache.jpg)
+
+--
+
 `loadd()` loads targets from the cache into your R session.
+
+--
 
 `clean()` cleans the cache. (You can recover a cache if you clean it by accident.)
 
 &lt;br&gt;
 
---
+---
 
-**dependencies**
+## Where is all this info stored?
+
+&lt;br&gt;
+
+#### **dependencies**
+
+--
 
 `drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
 
-`drake` stores a dependency graph (`igraph` object) of the plan along with a bunch of other things in a `config` list.
+--
+
+Creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
+
+--
 
 You can access all of this with `drake_config()`.
 
@@ -843,13 +864,12 @@ A closer look at just the text of the tweets:
 
 
 ```r
-get_tweets() %&gt;% 
+get_tweets(n_tweets_seed = 5) %&gt;% 
   select(text) %&gt;% 
-  kable() %&gt;% 
-  kable_styling()
+  kable()
 ```
 
-&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+&lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
@@ -870,21 +890,6 @@ get_tweets() %&gt;%
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens **99-75-9298** 60-15 Calloway Street Near Otis Avenue, Battalion 46 is putting All hands to work and is requesting an additional engine and truck for a heavy smoke condition on the top floor of A Multiple Dwelling. &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; https://t.co/Nd5r636LGB &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Retired firefighters take a stand after American flag destroyed in the East Village https://t.co/ZOtoo2UI10 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-1326* Hammel Houses 84-14 Rockaway Beach Bl. Compactor fire &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-3046* 3602 Avenue J. &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1088,16 +1093,17 @@ Later in the pipeline we'll:
 count_fires &lt;- function(tbl) {
   tbl %&gt;%
     drop_na() %&gt;%
-    group_by(lat, long) %&gt;%
-    count()
+    count(lat, long)
 }
 ```
+
+&lt;br&gt;
+
+and plot them on a map (thanks again, `ggmap`)
 
 ---
 
 ## Analysis chunks of the pipeline
-
-and plot them on a map (thanks again, `ggmap`)
 
 
 ```r
@@ -1141,7 +1147,7 @@ What's the estimate of running the pipeline on a single tweet?
    
       as_tibble() %&gt;% 
       pull(median))
-## [1] 347ms
+## [1] 339ms
 ```
 
 ???
@@ -1160,7 +1166,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 17.33124
+## [1] 16.95973
 ```
 
 
@@ -1457,7 +1463,10 @@ Okay on to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.
 <script>var slideshow = remark.create({
 "highlightStyle": "github",
 "highlightLines": true,
-"countIncrementalSlides": false
+"countIncrementalSlides": false,
+"navigation": {
+"scroll": false
+}
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
