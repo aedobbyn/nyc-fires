@@ -6,6 +6,7 @@
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
     <link rel="stylesheet" href="dobbs.css" type="text/css" />
   </head>
   <body>
@@ -844,10 +845,11 @@ A closer look at just the text of the tweets:
 ```r
 get_tweets() %&gt;% 
   select(text) %&gt;% 
-  kable(format = "html")
+  kable() %&gt;% 
+  kable_styling()
 ```
 
-&lt;table&gt;
+&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
@@ -959,10 +961,11 @@ With `pull_addresses` we parse the text of the tweet to pull out borough and str
 get_tweets() %&gt;% 
   pull_addresses() %&gt;% 
   select(text, street, borough, address) %&gt;% 
-  kable(format = "html")
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c("striped"))
 ```
 
-&lt;table&gt;
+&lt;table class="table table-striped" style="margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
@@ -1045,11 +1048,8 @@ Last step of the main pipeline!
 
 **Reverse geocoding** = getting latitude and longitude from an address.
 
-The `ggmap` package exposes this feature of the [Google Maps](https://cloud.google.com/maps-platform/) API in their [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function.
+The [`ggmap`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) package exposes this feature of the [Google Maps](https://cloud.google.com/maps-platform/) API.
 
---
-
-We will **send address** and **receive lat long**
 
 --
 
@@ -1077,7 +1077,7 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 
 ## Analysis chunks of the pipeline
 
-Later in the pipeline we can 
+Later in the pipeline we'll:
 
 `count_fires`, summing up the total number of fires per `lat`-`long` combo
 
@@ -1097,7 +1097,7 @@ count_fires &lt;- function(tbl) {
 
 ## Analysis chunks of the pipeline
 
-and plot them on a map
+and plot them on a map (thanks again, `ggmap`)
 
 
 ```r
@@ -1115,7 +1115,9 @@ get_map("new york city") %&gt;% ggmap()
 
 So where does `drake` really come in handy here?
 
-We don't want to re-run the main pipeline every time we change a downstream analysis step.
+--
+
+The trips to and from Twitter and Google take a while.
 
 --
 
@@ -1128,17 +1130,18 @@ What's the estimate of running the pipeline on a single tweet?
 
 ```r
 (our_bench &lt;-
+   
   bench::mark({
-    get_tweets(n_tweets_seed = 1) %&gt;% 
-    pull_addresses() %&gt;% 
-    get_lat_long()
+    
+    get_tweets(n_tweets_seed = 1) %&gt;%  # Hi Twitter
+    pull_addresses() %&gt;%
+    get_lat_long()  # Hi Google
+    
     }) %&gt;% 
+   
       as_tibble() %&gt;% 
       pull(median))
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
-## [1] 384ms
+## [1] 347ms
 ```
 
 ???
@@ -1157,17 +1160,19 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 19.20059
+## [1] 17.33124
 ```
 
-&lt;br&gt;
 
-All our downstream mapping and counting analysis depends on these trips to and from Twitter and Google.
+---
 
-If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
+All our downstream analyses depend on this pipeline.
 
-`drake` will save us **19 minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **17 minutes** of our lives. 
 
+![](https://media.giphy.com/media/5VMNcCxVBibZK/giphy.gif)
+
+And we rest assured we have the most up-to-date data.
 
 ---
 
@@ -1257,6 +1262,7 @@ devtools::session_info()
 ##  igraph        1.2.2      2018-07-27 [1]
 ##  jpeg          0.1-8      2014-01-23 [1]
 ##  jsonlite      1.6        2018-12-07 [1]
+##  kableExtra  * 1.0.1      2019-01-22 [1]
 ##  knitr       * 1.21       2018-12-10 [1]
 ##  labeling      0.3        2014-08-23 [1]
 ##  later         0.7.3      2018-06-08 [1]
@@ -1313,6 +1319,8 @@ devtools::session_info()
 ##  tidyverse   * 1.2.1      2017-11-14 [1]
 ##  usethis       1.4.0      2018-08-14 [1]
 ##  utf8          1.1.4      2018-05-24 [1]
+##  viridisLite   0.3.0      2018-02-01 [1]
+##  webshot       0.5.1      2018-09-28 [1]
 ##  withr         2.1.2      2018-03-15 [1]
 ##  xaringan      0.8        2018-10-23 [1]
 ##  xfun          0.4        2018-10-23 [1]
@@ -1360,6 +1368,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1411,6 +1420,8 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          

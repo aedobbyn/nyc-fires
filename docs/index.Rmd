@@ -13,8 +13,10 @@ output:
 
 ```{r setup, include=FALSE, warning=FALSE}
 library(knitr)
+library(kableExtra)
 opts_chunk$set(echo = TRUE, eval = TRUE, collapse = TRUE)
 options(htmltools.dir.version = FALSE)
+options(knitr.table.format = "html")
 ```
 
 
@@ -802,7 +804,8 @@ A closer look at just the text of the tweets:
 ```{r}
 get_tweets() %>% 
   select(text) %>% 
-  kable(format = "html")
+  kable() %>% 
+  kable_styling()
 ```
 
 
@@ -874,7 +877,8 @@ pull_addresses
 get_tweets() %>% 
   pull_addresses() %>% 
   select(text, street, borough, address) %>% 
-  kable(format = "html")
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped"))
 ```
 
 ---
@@ -887,11 +891,8 @@ Last step of the main pipeline!
 
 **Reverse geocoding** = getting latitude and longitude from an address.
 
-The `ggmap` package exposes this feature of the [Google Maps](https://cloud.google.com/maps-platform/) API in their [`geocode`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) function.
+The [`ggmap`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topics/geocode) package exposes this feature of the [Google Maps](https://cloud.google.com/maps-platform/) API.
 
---
-
-We will **send address** and **receive lat long**
 
 --
 
@@ -912,7 +913,7 @@ get_tweets(n_tweets_seed = 5) %>%
 
 ## Analysis chunks of the pipeline
 
-Later in the pipeline we can 
+Later in the pipeline we'll:
 
 `count_fires`, summing up the total number of fires per `lat`-`long` combo
 
@@ -931,7 +932,7 @@ count_fires <- function(tbl) {
 
 ## Analysis chunks of the pipeline
 
-and plot them on a map
+and plot them on a map (thanks again, `ggmap`)
 
 ```{r}
 get_map("new york city") %>% ggmap()
@@ -944,7 +945,9 @@ get_map("new york city") %>% ggmap()
 
 So where does `drake` really come in handy here?
 
-We don't want to re-run the main pipeline every time we change a downstream analysis step.
+--
+
+The trips to and from Twitter and Google take a while.
 
 --
 
@@ -954,13 +957,17 @@ What's the estimate of running the pipeline on a single tweet?
 
 --
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 (our_bench <-
+   
   bench::mark({
-    get_tweets(n_tweets_seed = 1) %>% 
-    pull_addresses() %>% 
-    get_lat_long()
+    
+    get_tweets(n_tweets_seed = 1) %>%  # Hi Twitter
+    pull_addresses() %>%
+    get_lat_long()  # Hi Google
+    
     }) %>% 
+   
       as_tibble() %>% 
       pull(median))
 ```
@@ -982,14 +989,16 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
  ) 
 ```
 
-<br>
 
-All our downstream mapping and counting analysis depends on these trips to and from Twitter and Google.
+---
 
-If we tweak our code and want to make sure we can still run these downstream analyses on the most recent data,
+All our downstream analyses depend on this pipeline.
 
-`drake` will save us **`r round(n_mins, digits = 0)` minutes** of our lives *and* we'll still rest assured that our downstream targets have the most up to date data.
+If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **`r round(n_mins, digits = 0)` minutes** of our lives. 
 
+![](https://media.giphy.com/media/5VMNcCxVBibZK/giphy.gif)
+
+And we rest assured we have the most up-to-date data.
 
 ---
 
