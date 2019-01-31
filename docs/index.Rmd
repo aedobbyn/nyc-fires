@@ -868,7 +868,7 @@ Normally they just tweet out fires and their locations in a more or less predict
 <br>
 
 
-Use their tweets to get some info on where and when fires happen in NYC.
+We can use their tweets to get some info on where and when fires happen in NYC.
 
 
 ???
@@ -902,7 +902,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 
 All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 source(here::here("R", "didnt_start_it.R"))
 ```
 
@@ -920,7 +920,7 @@ To be able to run it in full you'll need a [Twitter API access token](https://rt
 
 ## Grabbing Tweets
 
-`get_tweets`
+[`get_tweets`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R)
 
 --
 
@@ -1035,7 +1035,7 @@ pull_addresses
 
 ```{r}
 get_tweets(max_id = old_tweet_id) %>% 
-  pull_addresses() %>% 
+  pull_addresses() %>%  #<<
   select(text, street, borough, address) %>% 
   kable() 
 ```
@@ -1065,7 +1065,7 @@ get_lat_long
 get_tweets(n_tweets_seed = 5,
            max_id = old_tweet_id) %>% 
   pull_addresses() %>% 
-  get_lat_long()
+  get_lat_long() #<<
 ```
 
 

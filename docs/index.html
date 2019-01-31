@@ -901,7 +901,7 @@ Normally they just tweet out fires and their locations in a more or less predict
 &lt;br&gt;
 
 
-Use their tweets to get some info on where and when fires happen in NYC.
+We can use their tweets to get some info on where and when fires happen in NYC.
 
 
 ???
@@ -938,8 +938,6 @@ All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/ny
 
 ```r
 source(here::here("R", "didnt_start_it.R"))
-## Source : https://maps.googleapis.com/maps/api/staticmap?center=new%20york%20city&amp;zoom=10&amp;size=640x640&amp;scale=2&amp;maptype=terrain&amp;language=en-EN&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=new%20york%20city&amp;key=xxx
 ```
 
 --
@@ -956,7 +954,7 @@ To be able to run it in full you'll need a [Twitter API access token](https://rt
 
 ## Grabbing Tweets
 
-`get_tweets`
+[`get_tweets`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R)
 
 --
 
@@ -1101,7 +1099,7 @@ With `pull_addresses` we parse the text of the tweet to pull out borough and str
 
 ```r
 get_tweets(max_id = old_tweet_id) %&gt;% 
-  pull_addresses() %&gt;% 
+* pull_addresses() %&gt;%
   select(text, street, borough, address) %&gt;% 
   kable() 
 ```
@@ -1204,7 +1202,7 @@ The [`ggmap`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topic
 get_tweets(n_tweets_seed = 5,
            max_id = old_tweet_id) %&gt;% 
   pull_addresses() %&gt;% 
-  get_lat_long()
+* get_lat_long()
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1449%20Commonwealth%20ave%2C%20The%20Bronx&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=330%20E%2039%20St%2C%20Manhattan&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=70%20Little%20West%20St%20x%202nd%20Pl%2C%20Manhattan&amp;key=xxx
