@@ -240,7 +240,7 @@ burner_plan_2 <-
         output_path = burner_path # Outputs to burner_path
       ),
       trigger = trigger(
-        condition = TRUE # Always look for new tweets
+        condition = there_are_new_tweets(full_burn, user = burner_handle) # Always look for new tweets
       )
     )
   )

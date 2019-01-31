@@ -22,7 +22,11 @@ options(knitr.table.format = "html")
 ```
 
 
-##  Warning: this presentation contains less rap than you might have expected. 
+# **Warning**
+
+--
+
+### This presentation contains less rap than you might have expected. 
 
 --
 
@@ -1191,7 +1195,7 @@ plan <-
       # Send to Google for lat-longs
     lat_long = get_lat_long(addresses), 
       # Sum up n fires per lat-long combo
-    fire_sums = count_fires(dat), 
+    fire_sums = count_fires(lat_long), 
 
     time_graph = graph_fire_times(lat_long),
     plot = plot_fire_sums(fire_sums)
