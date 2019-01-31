@@ -27,19 +27,21 @@ class: center, middle, inverse, title-slide
 
 &lt;br&gt;
 
-I won't blame you if you want to make a quick getaway.
+.center[I won't blame you if you want to make a quick getaway.]
 
 --
 
-.center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)]
+&lt;p align="center"&gt;
+&lt;img src="https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif" height="300px"&gt;
+&lt;/p&gt;
+
+&lt;!-- .center[![grandpasimpson](https://media.giphy.com/media/11gC4odpiRKuha/giphy.gif)] --&gt;
 
 ---
 
 class: inverse
 
-## Quick about me
-
-.right-column[![](./img/fris.jpg)]
+## Quick About Me
 
 &lt;br&gt;
 
@@ -60,9 +62,11 @@ class: inverse
 
 ]
 
+.right-column[![](./img/fris.jpg)]
+
 ---
 
-## The plan
+## The Plan
 
 I'll give an intro to what `drake` is and how it works.
 
@@ -80,22 +84,40 @@ In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `dra
 
 ---
 
-## `drake`'s main idea
+## `drake`'s Main Idea
 
 --
 
 [`drake`](https://github.com/ropensci/drake) is workflow manager for your R code.
 
-&lt;br&gt;
+--
+
+In a complex analysis pipeline, it makes changing your code easier.
 
 --
 
+&lt;br&gt;
+
+`drake` loves changes.
+
+--
+
+&lt;p align="left"&gt;
+&lt;img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges" height="300px"&gt;
+&lt;/p&gt;
+
+---
+
+## `drake`'s Main Idea
+
 *What that means*: 
 
-In an R pipeline, when **changes** occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
+--
 
-&lt;p align="center"&gt;
-&lt;img src="https://media.giphy.com/media/JFawGLFMCJNDi/giphy.gif" alt="ilovechanges"&gt;
+When changes occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
+
+&lt;p align="left" style="padding-right: 20%;"&gt;
+&lt;img src="./img/drake_pitch.svg" height="300px"&gt;
 &lt;/p&gt;
 
 --
@@ -134,6 +156,103 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 .pull-right[![example_makefile](./img/example_makefile_r.jpg)]
 
+
+---
+
+class: inverse
+
+## Better Workflows
+
+&lt;br&gt;
+
+Does your analysis directory look like this?
+
+--
+
+.pull-left[
+
+&lt;br&gt;
+
+`01_import.R`
+
+`02_clean.R`
+
+`03_deep_clean.R`
+
+`04_join.R`
+
+`05_analyze.R`
+
+`06_analyze_more.R`
+
+`07_report.Rmd`
+]
+
+--
+
+.pull-right[
+
+&lt;br&gt;
+
+#### What's bad about this?
+
+&lt;br&gt;
+
+
+**It doesn't scale well**
+
+&lt;br&gt;
+
+Which you know if you've tried to add another intermediate step or reorganize your subdirectories.
+
+]
+
+---
+
+#### Your pipeline depends on
+
+--
+
+- You knowing when the input data changes 
+
+--
+
+- You knowing which objects and functions are used by which other objects and functions
+
+--
+
+- You keeping file names up-to-date and sourcing things in the right order
+&lt;!-- - Explicitly saving intermediate data representations --&gt;
+
+--
+
+&lt;br&gt;
+
+#### If something breaks
+
+--
+
+- Can you be sure about where it broke?
+
+--
+
+- Do you know which intermediate data stores are up to date?
+
+--
+
+- Do you need to re-run the entire pipeline again? 
+
+--
+
+.pull-right[
+
+&lt;p align="right"&gt;
+&lt;img src="./img/tired_drake.jpeg"&gt;
+&lt;/p&gt;
+
+]
+
+
 ---
 
 ## Nice features of `drake`
@@ -167,6 +286,9 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 &lt;br&gt;
 &lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
 
 --
 
@@ -176,6 +298,8 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 ]
 
+&lt;br&gt;
+&lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
 
@@ -191,45 +315,6 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 &lt;!-- .pull-right[![](./img/mtcars_dependency_graph.jpg)] --&gt;
 
----
-
-class: inverse
-
-## Better workflows
-
-.pull-left[
-
-Does your analysis directory look like this?
-
-`01_import.R`
-
-`02_clean.R`
-
-`03_deep_clean.R`
-
-`04_join.R`
-
-`05_analyze.R`
-
-`06_analyze_more.R`
-
-`07_report.Rmd`
-]
-
-.pull-right[
-
-- Depends on correctly `source`ing the script before it. Need:
-  - Up-to-date file names
-  - Same input data
-  - Everything working correctly and in the right order
-
-
-- If something breaks
-  - Can you be sure about where it broke?
-  - Do you need to re-run the entire pipeline again? 
-]
-
-
 
 ---
 
@@ -237,7 +322,9 @@ Does your analysis directory look like this?
 
 (Analogy stolen from Will's point in his [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
 
-![tiny_hats](./img/tiny_hats.jpg)
+&lt;p align="center"&gt;
+&lt;img src="./img/tiny_hats.jpg"&gt;
+&lt;/p&gt;
 
 --
 
@@ -250,7 +337,7 @@ Does your analysis directory look like this?
 
 --
 
-3) It lives in a single file, making your analysis reproducible and **compact**. 
+3) Report lives in a single file, making that part reproducible and **compact**. 
 
 
 
@@ -278,14 +365,14 @@ Memoising **caches the return value of a function for a given a set of arguments
 
 &lt;br&gt;
 
-- if that function is called again with the *same* set of arguments, we pull the return value from the cache rather than recomputing it 
-  - saves time &amp; resources 👍
+- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
+  - Saves time &amp; resources 👍
 
 --
   
 &lt;br&gt;
 
-- in R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
+- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
 
 ---
 
@@ -303,9 +390,10 @@ What if a function upstream of the memoised function changes? We could get the w
 
 --
 
-.right-column[
-![](./img/sad_drake.jpeg)
-]
+&lt;p align="center"&gt;
+&lt;img src="./img/sad_drake.jpeg" height="330px"&gt;
+&lt;/p&gt;
+
 
 ---
 
@@ -323,6 +411,8 @@ add_and_square &lt;- function(a, b) {
 ```
 
 --
+
+&lt;br&gt;
 
 
 ```r
@@ -344,7 +434,9 @@ If we've memoised `add_and_square`,
 add_and_square &lt;- memoise::memoise(add_and_square)
 ```
 
-we return `add_and_square(2, 3)` from the cache rather than computing it. (Yay, fast!)
+--
+
+we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
 
 
 ```r
@@ -404,23 +496,23 @@ So, `drake` would know that the definition of `add` has changed, meaning that `a
 
 class: inverse
 
-## A few pieces of vocab
+## A Few Pieces of Vocab
 
 &lt;br&gt;
 
-**Targets** are the objects and files that drake generates;
-
-&lt;br&gt;
-
---
-
-**Commands** are the pieces of R code that produce them.
+&gt; **Targets** are the objects and files that drake generates;
 
 &lt;br&gt;
 
 --
 
-**Plans** wrap up the relationship between targets and commands into a workflow representation: a dataframe.
+&gt; **Commands** are the pieces of R code that produce them.
+
+&lt;br&gt;
+
+--
+
+&gt; **Plans** wrap up the relationship between targets and commands into a workflow representation: a dataframe.
 
 &lt;br&gt;
 
@@ -430,7 +522,7 @@ one column for targets, and one column for their corresponding commands.
 
 ---
 
-## More on plans
+## More on Plans
 
 Plans are like that top-level script that runs your entire pipeline.
 
@@ -603,6 +695,7 @@ because those are both part of the command used to generate `results`.
 
 ## Where is all this info stored?
 
+&lt;br&gt;
 
 #### **targets**
 
@@ -612,9 +705,14 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 --
 
-![](./img/drake_cache.jpg)
+&lt;p align="left"&gt;
+  &lt;img src="./img/drake_cache.jpg" height="180px"&gt;
+  &lt;figcaption style="margin-left: 20%;"&gt;Spot the cache among the hidden dirs.&lt;/figcaption&gt;
+&lt;/p&gt;
 
 --
+
+&lt;br&gt;
 
 `loadd()` loads targets from the cache into your R session.
 
@@ -634,13 +732,19 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 --
 
-`drake` **hashes** a target's dependencies to know when one of those dependencies changes. 
-
-![](./img/drake_cache_hashes_small.jpg)
+`drake` **hashes** a target's dependencies to know when one of those dependencies changes
 
 --
 
-Creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
+&lt;p align="left"&gt;
+  &lt;img src="./img/drake_cache_hashes_small.jpg" height="150px"&gt;
+  &lt;figcaption style="margin-left: 20%;"&gt;Inside the data subdir of the .drake cache&lt;/figcaption&gt;
+&lt;/p&gt;
+
+
+--
+
+and creates a `config` list that stores a dependency graph (`igraph` object) of the plan along with a bunch of other things.
 
 --
 
@@ -700,7 +804,7 @@ Sourcing files breaks the dependency structure that makes `drake` useful.
 
 --
 
-Instead, 
+&lt;br&gt;
 
 
 ```r
@@ -717,7 +821,7 @@ Now `drake` knows`first_target` needs to be built before work on `second_target`
 
 ---
 
-## Other things `drake` can do that we won't get into
+## `drake` things we won't get into
 
 - [Generate ~ big plans ~](https://ropensci.github.io/drake/articles/best-practices.html#generating-workflow-plan-data-frames)
 
@@ -762,33 +866,35 @@ class: blue-light
 
 &lt;!-- background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg) --&gt;
 
-## Our plan
+## Our Plan
 
 Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
 
 --
 
-![](./img/blue_light.jpg)
+&lt;p align="left" style="padding-right: 20%;"&gt;
+&lt;img src="./img/blue_light.jpg" height="350px"&gt;
+&lt;/p&gt;
 
 --
 
-Eeeek! 😱
+😱 😱 😱
 
 ---
 
-## Our plan
+## Our Plan
 
 .pull-right[![](./img/nyc_fire.jpg)]
+
+&lt;br&gt;
+
+&lt;br&gt;
 
 The Twitter account that let us know that this wasn't in fact aliens is [NYCFireWire](https://twitter.com/NYCFireWire).
 
 &lt;br&gt;
 
 Normally they just tweet out fires and their locations in a more or less predictable pattern:
-
-&lt;br&gt;
-
-&lt;br&gt;
 
 &lt;br&gt;
 
@@ -803,7 +909,7 @@ Normally they just tweet out fires and their locations in a more or less predict
 &lt;br&gt;
 
 
-We can analyze these tweets to get some info on where and when fires happen in NYC.
+Use their tweets to get some info on where and when fires happen in NYC.
 
 
 ???
@@ -856,21 +962,27 @@ To be able to run it in full you'll need a [Twitter API access token](https://rt
 
 ---
 
-## Grabbing tweets
+## Grabbing Tweets
 
 `get_tweets`
 
-*Main idea*:
-- builds up a file of the most recent set of tweets from a given account
+--
+
+*Main idea*: 
+
+* **Builds up a file** of the most recent set of tweets from a given account
+
+--
 
 *Details*:
-- if neither file nor tbl supplied as arguments, grabs an initial seed batch of tweets
-- if either is supplied, checks for new tweets and grabs them if any
-- spits out the latest to the same file
+- If neither file nor `tbl` is supplied as arguments, grabs an initial *seed* batch of tweets
+- If either is supplied, checks for new tweets and grabs them if any
+- Spits out the latest to the same file
 
 
 
-Most recent tweets from NYCFireWire:
+&lt;br&gt;
+
 
 ```r
 get_tweets(n_tweets_seed = 3)
@@ -891,7 +1003,7 @@ get_tweets(n_tweets_seed = 3)
 
 ---
 
-## Grabbing seed tweets
+## Grabbing Seed Tweets
 
 A closer look at just the text of the tweets:
 
@@ -930,7 +1042,7 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 
 ---
 
-## Reupping tweets
+## Reupping Tweets
 
 To show how `get_tweets` can start with a `tbl` of tweets and look for new ones,
 
@@ -956,7 +1068,7 @@ nrow(seed_tweets)
 
 ---
 
-## Reupping tweets
+## Reupping Tweets
 
 Using `seed_tweets` as an input to the same `get_tweets` function,
 
@@ -988,7 +1100,7 @@ nrow(full_tweets)
 
 ---
 
-## Getting addresses
+## Getting Addresses
 
 With `pull_addresses` we parse the text of the tweet to pull out borough and street and string them together into an address.
 
@@ -1077,7 +1189,7 @@ get_tweets() %&gt;%
 
 ---
 
-## Getting lat and long
+## Getting Lat and Long
 
 Last step of the main pipeline! 
 
@@ -1094,25 +1206,28 @@ The [`ggmap`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topic
 
 
 ```r
-get_tweets(n_tweets_seed = 5) %&gt;% 
+get_tweets(n_tweets_seed = 5,
+           max_id = old_tweet_id) %&gt;% 
   pull_addresses() %&gt;% 
   get_lat_long()
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=220-19%20145th%20Avenue%20Near%20221st%20Street%2C%20Queens&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=60-15%20Calloway%20St%2C%20Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Box%201744-%0A490%20Harold%20St%20off%20Forest%20Hill%20Rd%2C%20Staten%20Island&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=Queens&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=1858%20Powell%20Blvd%2C%20Manhattan&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=150%20fingerboard%20Rd%2C%20Staten%20Island&amp;key=xxx
 ## # A tibble: 5 x 5
-##   address              lat  long created_at          text                  
-##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;                 
-## 1 220-19 145th Aven…  40.7 -73.8 2019-01-30 19:13:33 Queens **99-75-5985**…
-## 2 &lt;NA&gt;                NA    NA   2019-01-30 19:05:10 Big fire in Bergen Co…
-## 3 &lt;NA&gt;                NA    NA   2019-01-30 17:33:18 Blocking the hydrant …
-## 4 &lt;NA&gt;                NA    NA   2019-01-30 15:33:27 From NYC OEM: Snow Sq…
-## 5 60-15 Calloway St…  40.7 -73.9 2019-01-30 14:31:57 Queens *99-75-9298* 6…
+##   address                lat  long created_at          text                
+##   &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;               
+## 1 "Box 1744-\n490 Har…  40.6 -74.1 2019-01-13 20:12:23 "Staten Island *MVA…
+## 2 Queens                40.7 -73.8 2019-01-13 17:57:22 Queens 99-75-6810 1…
+## 3 1858 Powell Blvd, M…  40.8 -74.0 2019-01-13 04:27:44 Manhattan *66-75-13…
+## 4 150 fingerboard Rd,…  40.6 -74.1 2019-01-13 03:15:46 Staten Island *88-7…
+## 5 &lt;NA&gt;                  NA    NA   2019-01-12 22:10:35 Firefighter in hara…
 ```
 
 
 ---
 
-## Analysis chunks of the pipeline
+## Downstream Analysis
 
 Later in the pipeline we'll:
 
@@ -1135,11 +1250,12 @@ and plot them on a map (thanks again, `ggmap`)
 
 ---
 
-## Analysis chunks of the pipeline
+## Downstream Analysis
 
 
 ```r
-get_map("new york city") %&gt;% ggmap()
+get_map("new york city") %&gt;% 
+  ggmap()
 ## Source : https://maps.googleapis.com/maps/api/staticmap?center=new%20york%20city&amp;zoom=10&amp;size=640x640&amp;scale=2&amp;maptype=terrain&amp;language=en-EN&amp;key=xxx
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=new%20york%20city&amp;key=xxx
 ```
@@ -1149,7 +1265,7 @@ get_map("new york city") %&gt;% ggmap()
 
 ---
 
-## Quick benchmark
+## Quick Benchmark
 
 So where does `drake` really come in handy here?
 
@@ -1182,14 +1298,16 @@ What's the estimate of running the pipeline on a single tweet?
 ## [1] 339ms
 ```
 
-???
-We don't get any batch speedups because we send each tweet one by one to Google Maps
 
 ---
 
-## Quick benchmark
+## Quick Benchmark
 
-Roughly how many **minutes** would the pipeline take for 3k tweets?
+Roughly how many **minutes** would the pipeline take for 3k tweets? 
+
+(No batch speedups since we're going `rowwise` on each tweet.)
+
+&lt;br&gt;
 
 
 ```r
@@ -1203,7 +1321,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 
 ---
-## Quick benchmark
+## Quick Benchmark
 
 All our downstream analyses depend on this pipeline.
 
@@ -1219,7 +1337,7 @@ And we rest assured we have the most up-to-date data.
 
 ---
 
-## Live coding time!
+## Our `drake` Plan
 
 We'll set up the `drake` plan and run it for real. 
 
@@ -1232,11 +1350,15 @@ plan &lt;-
     seed_fires = get_tweets(), 
     fires = target(
       command = get_tweets(tbl = seed_fires),
-      trigger = trigger(condition = TRUE) # Always look for new tweets
+        # Always look for new tweets
+      trigger = trigger(condition = TRUE) 
     ),
-    addresses = pull_addresses(fires), # Extract addresses from tweets
-    lat_long = get_lat_long(addresses), # Send to Google for lat-longs
-    fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
+      # Extract addresses from tweets
+    addresses = pull_addresses(fires), 
+      # Send to Google for lat-longs
+    lat_long = get_lat_long(addresses), 
+      # Sum up n fires per lat-long combo
+    fire_sums = count_fires(dat), 
 
     time_graph = graph_fire_times(lat_long),
     plot = plot_fire_sums(fire_sums)
@@ -1490,11 +1612,11 @@ The `rtweet` package also supports posting tweets, so we can test out whether ou
 
 &lt;br&gt;
 
-## 🔥 **[burner account!](https://twitter.com/didntstartit)** 🔥
+## 🔥 **[`burner account!`](https://twitter.com/didntstartit)** 🔥
 
 &lt;br&gt;
 
-Okay on to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) after this message from our sponsor.
+On to [part 2](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) after this message from our sponsor.
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

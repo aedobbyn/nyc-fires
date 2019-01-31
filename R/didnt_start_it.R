@@ -32,7 +32,7 @@ burner_handle <- "didntstartit"
 
 # Random old NYCFireWire tweet ID so we can test pulling in new ones
 # (By default, the most recent tweets are pulled in first)
-old_tweet_id <- "1084619203167031297"
+old_tweet_id <- "1084948074588487680"
 
 
 # ------------------------ Getting tweets ------------------------
