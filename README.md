@@ -6,9 +6,9 @@ package for data pipelining. It might be useful for you if you’re
 interested in reproducibility after you make changes to your code.
 
 The talk is split into two parts:
-[slides](https://aedobbyn.github.io/nyc-fires/index.html), and a [live
-coding
-walkthrough](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md).
+[**slides**](https://aedobbyn.github.io/nyc-fires/index.html), and a
+[**live coding
+walkthrough**](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md).
 The latter is meant to be stepped through in an R session rather than
 knit.
 
