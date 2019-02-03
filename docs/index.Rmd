@@ -5,6 +5,8 @@ output:
   xaringan::moon_reader:
     css: ["default", "shinobi", "dobbs.css"]
     lib_dir: libs
+    includes:
+      in_header: header.html
     nature:
       highlightStyle: github
       highlightLines: true
