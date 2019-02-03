@@ -1,3 +1,6 @@
+    # Will not be necessary to set in the upcoming release
+    pkgconfig::set_config("drake::strings_in_dots" = "literals")
+
     # Grab all funs
     source(here::here("R", "didnt_start_it.R"))
 
@@ -83,12 +86,18 @@ don’t need to do anything.
 
     # Unloads (removes) the global variable seed burn we've loadd'd to prevent conflicts
     make(burner_plan)
+    # Not in our env anymore
+    seed_burn
+
     make(burner_plan)
     make(burner_plan)
 
 If we `clean()`, however, we’ll remake the plan from scratch.
 
     clean()
+
+    # Targets we built are gone from the cache
+    loadd(seed_burn)
 
     # Targets are outdated now
     vis_drake_graph(burner_config, targets_only = TRUE) 
@@ -207,12 +216,11 @@ handle.
             output_path = burner_path # Outputs to burner_path
           ),
           trigger = trigger(
-            condition = TRUE # Always look for new tweets
+            # condition = TRUE
+            condition = there_are_new_tweets(full_burn, user = burner_handle) # Always look for new tweets
           )
         )
       )
-
-    burner_plan_2
 
 This trigger will make our `full_burn` target look always out of date to
 `drake` since it knows we need to re-make `full_burn` every time
@@ -315,6 +323,7 @@ For the purposes of illustration, I’ll set a `max_id` on our
 `seed_fires` so that we can re-up and grab more tweets to build `fires`.
 
     fire_path <- here("data", "raw", "fires.csv")
+    if (file_exists(fire_path)) file_delete(fire_path)
 
     plan <-
       drake_plan(
@@ -335,11 +344,10 @@ For the purposes of illustration, I’ll set a `max_id` on our
         ),
         addresses = pull_addresses(fires), # Extract addresses from tweets
         lat_long = get_lat_long(addresses), # Send to Google for lat-longs
-        dat = join_on_city_data(lat_long, nyc), # Join on the nyc coords
-        fire_sums = count_fires(dat), # Sum up n fires per lat-long combo
+        fire_sums = count_fires(lat_long), # Sum up n fires per lat-long combo
 
-        time_graph = graph_fire_times(dat),
-        plot = plot_fire_sums(dat, nyc)
+        time_graph = graph_fire_times(lat_long),
+        plot = plot_fire_sums(fire_sums)
       )
 
 ### Run our plan
@@ -352,8 +360,11 @@ For the purposes of illustration, I’ll set a `max_id` on our
     loadd(addresses)
     addresses
 
-    loadd(dat)
-    dat
+    loadd(lat_long)
+    lat_long
+
+    loadd(time_graph)
+    time_graph
 
 ### Info drake stores
 
@@ -400,7 +411,7 @@ the most recent 3 tweets.
     big_plan <-
       drake_plan(
         seed_fires = get_tweets( # Grab seed fires from file
-          input_path = here("data", "derived", "lots_o_fires.csv")
+          input_path = here("data", "raw", "lots_o_fires.csv")
         ), 
         fires = target(
           command = get_tweets(
@@ -418,15 +429,20 @@ the most recent 3 tweets.
     make(big_plan)
 
     loadd(addresses)
+    nrow(addresses)
     addresses
 
-Make our final plot from the 3k fires:
+Make our quick plot from the 3k fires:
 
-    dat <- 
-      read_csv(here("data", "derived", "dat.csv"))
+    lat_long <- 
+      read_csv(here("data", "derived", "lat_long.csv"))
 
     fire_sums <-
       read_csv(here("data", "derived", "fire_sums.csv"))
 
-    graph_fire_times(dat)
+    graph_fire_times(lat_long)
     plot_fire_sums(fire_sums)
+
+### That’s all!
+
+Any q’s?

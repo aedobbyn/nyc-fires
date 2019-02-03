@@ -13,11 +13,6 @@ output:
         scroll: false
 ---
 
-<head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"> 
-</head>
-
 ```{r setup, include=FALSE, warning=FALSE}
 library(knitr)
 library(kableExtra)
@@ -78,19 +73,31 @@ class: inverse
 
 ## The Plan
 
-I'll give an intro to what `drake` is and how it works.
+<br>
+
+1) I'll give an intro to what `drake` is and how it works.
 
 --
 
 <br>
 
-Then we'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break `r emo::ji("crossed_fingers")`
+2) We'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break `r emo::ji("crossed_fingers")`
 
 --
 
 <br>
 
 In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `drake` pipeline.
+
+--
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+All code and slides on [GitHub](https://github.com/aedobbyn/nyc-fires).
 
 ---
 
