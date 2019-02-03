@@ -6,7 +6,7 @@ output:
     css: ["default", "shinobi", "dobbs.css"]
     lib_dir: libs
     includes:
-      in_header: header.html
+      before_body: header.html
     nature:
       highlightStyle: github
       highlightLines: true
@@ -659,7 +659,7 @@ plan <-
 ```
 
 
-`drake` knows that`results` depends on the object `cleaned_data` and the function `analyze_my()`
+`drake` knows that `results` depends on the object `cleaned_data` and the function `analyze_my()`
 
 because those are both part of the command used to generate `results`.
 
