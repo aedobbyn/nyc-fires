@@ -6,7 +6,6 @@
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="dobbs.css" type="text/css" />
   </head>
   <body>
@@ -129,11 +128,13 @@ In a complex analysis pipeline, it makes changing your code easier.
 
 ## `drake`'s Main Idea
 
-*What that means*: 
+--
+
+When something changes that makes the most recent results **out-of-date**, `drake` rebuilds *only* things that need to be rebuilt, so that
 
 --
 
-When changes occur that make the most recent results **out-of-date**, `drake` rebuilds *only* the parts of the pipeline that need to be rebuilt.
+*what gets done stays done*.
 
 &lt;p align="left" style="padding-right: 20%;"&gt;
 &lt;img src="./img/drake_pitch.svg" height="300px"&gt;
@@ -163,7 +164,7 @@ Created and maintained by [Will](https://twitter.com/wmlandau) [Landau](https://
 
 .pull-left[
 
-[GNU Make](https://www.gnu.org/software/make/) is a tool that uses file called a Makefile to specify **dependencies** in a pipeline. 
+[GNU Make](https://www.gnu.org/software/make/) is a tool that uses a file called a Makefile to specify **dependencies** in a pipeline. 
 
 &lt;br&gt;
 
@@ -231,15 +232,16 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 --
 
+- You keeping file names up-to-date and sourcing things in the right order
+
+--
+
 - You knowing when the input data changes 
 
 --
 
 - You knowing which objects and functions are used by which other objects and functions
 
---
-
-- You keeping file names up-to-date and sourcing things in the right order
 &lt;!-- - Explicitly saving intermediate data representations --&gt;
 
 --
@@ -308,7 +310,7 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 .pull-right[
 
-4) High-performance computing advantages
+4) Automated parallel and distributed computing
 
 ]
 
@@ -355,6 +357,33 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 ???
 With knitr, you expect to be able to rerun someone's report from a single file.
+
+---
+
+class: inverse
+
+## `drake` : `knitr`
+
+But, `knitr` is a reporting tool, not a pipelining tool.
+
+--
+
+&lt;br&gt;
+
+- You can't summon values from the `cache` in an interactive session
+
+&lt;br&gt;
+
+--
+
+- If you're outsourcing preprocessing steps to R scripts outside the `Rmd`, we haven't solved any of the usual dependency issues from before
+
+&lt;br&gt;
+
+--
+
+
+- `Rmd`s quickly get big and unweildy for serious pipelines
 
 ---
 
@@ -499,7 +528,7 @@ add_and_square(2, 3)
 
 &lt;br&gt;
 
-Luckily, `drake` knows the *all* the dependency relationships between functions and files as they relate to your targets.
+Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
 
 So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
 
@@ -507,7 +536,7 @@ So, `drake` would know that the definition of `add` has changed, meaning that `a
 
 class: inverse
 
-## A Few Pieces of Vocab
+## A Few Pieces of `drake` Vocab
 
 &lt;br&gt;
 
@@ -564,9 +593,9 @@ write_out_my_results(final)
 
 &lt;br&gt;
 
-1) Store **prework** (your functions and any packages you need to load) in a file 
+1) Store functions and any packages you need to load in a file 
 
-`prework.R`
+`funs.R`
 
 
 --
@@ -1658,18 +1687,7 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
 
 <script>
 (function() {
-  var i, text, clinks = document.getElementsByTagName('a');
-  for (var i = 0; i < links.length; i++) {
-    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
-      links[i].target = '_blank';
-    }
-  }
-})();
-</script>
-
-<script>
-(function() {
-  var ode, codes = document.getElementsByTagName('code');
+  var i, text, code, codes = document.getElementsByTagName('code');
   for (i = 0; i < codes.length;) {
     code = codes[i];
     if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
