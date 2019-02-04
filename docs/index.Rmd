@@ -6,7 +6,7 @@ output:
     css: ["default", "shinobi", "dobbs.css"]
     lib_dir: libs
     includes:
-      before_body: header.html
+      in_header: header.html
     nature:
       highlightStyle: github
       highlightLines: true
