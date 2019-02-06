@@ -117,7 +117,6 @@ part of the code used to generate that target changes.
 Right now, nothing outdated becuase we just ran `make(burner_plan)`.
 
     outdated(burner_config)
-    vis_drake_graph(burner_config)
 
 Let’s modify the code to a function called by `get_tweets`. Note that
 `drake` recognizes that targets that incorporate this function at some
@@ -203,7 +202,6 @@ handle.
 
     burner_plan_2 <-
       drake_plan(
-        # Reads in file from burner_path if file exists, otherwise pulls in seed tweets
         seed_burn = get_tweets(
           user = burner_handle,
           input_path = burner_path
@@ -213,11 +211,10 @@ handle.
           command = get_tweets(
             tbl = seed_burn,
             user = burner_handle,
-            output_path = burner_path # Outputs to burner_path
+            output_path = burner_path 
           ),
           trigger = trigger(
-            # condition = TRUE
-            condition = there_are_new_tweets(full_burn, user = burner_handle) # Always look for new tweets
+            condition = TRUE
           )
         )
       )
