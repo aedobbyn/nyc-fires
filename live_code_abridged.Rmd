@@ -1,5 +1,5 @@
 ---
-title: "`drake` ~ live coding sesh ~"
+title: "`drake` ~ live coding sesh ~ abrdiged"
 author: "Amanda Dobbyn"
 date: "February, 2019"
 output: md_document
@@ -11,9 +11,6 @@ knitr::opts_knit$set(eval = FALSE)
 ```
 
 ```{r}
-# Will not be necessary to set in the upcoming release
-pkgconfig::set_config("drake::strings_in_dots" = "literals")
-
 # Grab all funs
 source(here::here("R", "didnt_start_it.R"))
 ```
@@ -402,30 +399,6 @@ loadd(time_graph)
 time_graph
 ```
 
-### Info drake stores
-
-Let's get a little deeper into what `drake` stores in the `config`.
-
-```{r, eval=FALSE}
-# The dependencies of a given target encompass both functions (get_tweets) and targets that it depends on (seed_fires)
-deps_target(addresses)
-
-# You can get even more granular with
-dependency_profile(addresses, config)
-
-# Since we have a trigger on fires, everything downstream of fires is also perpetually outdated
-outdated(config)
-vis_drake_graph(config)
-
-# We can clean just one target instead of cleaning everything
-clean(fires)
-
-# Since we didn't clean() seed_fires (upstream of fires), this target remains built and our dependency graph looks the same
-vis_drake_graph(config)
-
-# And again, if we re-make the plan we'll pull in new tweets because of our trigger
-make(plan)
-```
 
 ### Previously `geocode`d
 

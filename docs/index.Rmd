@@ -332,204 +332,13 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 ---
 
-## `drake` : `knitr`
-
-(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
-
-<p align="center">
-<img src="./img/tiny_hats.jpg">
-</p>
-
---
-
-
-1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
-
---
-
-2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
-
---
-
-3) Report lives in a single file, making that part reproducible and **compact**. 
-
-
-
-
-???
-With knitr, you expect to be able to rerun someone's report from a single file.
-
----
-
-class: inverse
-
-## `drake` : `knitr`
-
-But, `knitr` is a reporting tool, not a pipelining tool.
-
---
-
-<br>
-
-- You can't summon values from the `cache` in an interactive session
-
-<br>
-
---
-
-- If you're outsourcing preprocessing steps to R scripts outside the `Rmd`, we haven't solved any of the usual dependency issues from before
-
-<br>
-
---
-
-
-- `Rmd`s quickly get big and unweildy for serious pipelines
-
----
-
-## Is this also kinda like memoising?
-
---
-
-Yes!
-
---
-
-But better.
-
---
-
-Memoising **caches the return value of a function for a given a set of arguments**
-
---
-
-<br>
-
-- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
-  - Saves time & resources `r emo::ji("thumbsup")`
-
---
-  
-<br>
-
-- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
-
----
-
-## On Memoising
-
-The downside:
-
-**Memoising only applies to one function.**
-
---
-
-<br>
-
-What if a function upstream of the memoised function changes? We could get the wrong answer.
-
---
-
-<p align="center">
-<img src="./img/sad_drake.jpeg" height="330px">
-</p>
-
-
----
-
-## On Memoising
-
-```{r}
-add <- function(a, b) {
-  a + b
-}
-
-add_and_square <- function(a, b) {
-  add(a, b) ^ 2
-}
-```
-
---
-
-<br>
-
-```{r}
-add(2, 3)
-add_and_square(2, 3)
-```
-
-
----
-
-## On Memoising
-
-If we've memoised `add_and_square`,
-
-```{r}
-add_and_square <- memoise::memoise(add_and_square)
-```
-
---
-
-we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
-
-```{r}
-add_and_square(2, 3)
-```
-
-<br>
-
---
-
-**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
-```{r}
-add <- function(a, b) {
-  a - b #<<
-}
-```
-
-
---
-
-What will happen when we call `add_and_square(2, 3)`?
-
----
-
-## On Memoising
-
---
-
-We should get
-```{r}
-add(2, 3) ^ 2
-```
-
---
-
-But instead we return the old answer, which is now wrong:
-
-```{r}
-add_and_square(2, 3)
-```
-
---
-
-<br>
-
-Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
-
-So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
-
----
-
 class: inverse
 
 ## A Few Pieces of `drake` Vocab
 
 <br>
 
-> **Targets** are the objects and files that drake generates;
+> **Targets** are the objects that drake generates;
 
 <br>
 
@@ -551,7 +360,7 @@ one column for targets, and one column for their corresponding commands.
 
 ---
 
-## More on Plans
+## Plans
 
 Plans are like that top-level script that runs your entire pipeline.
 
@@ -702,6 +511,179 @@ because those are both part of the command used to generate `results`.
 
 ---
 
+
+## `drake` : `knitr`
+
+(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&feature=youtu.be&t=1533).)
+
+<p align="center">
+<img src="./img/tiny_hats.jpg">
+</p>
+
+--
+
+
+1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
+
+--
+
+2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+--
+
+3) Report lives in a single file, making that part reproducible and **compact**. 
+
+
+
+
+???
+With knitr, you expect to be able to rerun someone's report from a single file.
+
+But, `knitr` is a reporting tool, not a pipelining tool.
+
+- You can't summon values from the `cache` in an interactive session
+
+- If you're outsourcing preprocessing steps to R scripts outside the `Rmd`, we haven't solved any of the usual dependency issues from before
+
+- `Rmd`s quickly get big and unweildy for serious pipelines
+
+---
+
+## Is this also kinda like memoising?
+
+--
+
+Yes!
+
+--
+
+But better.
+
+--
+
+Memoising **caches the return value of a function for a given a set of arguments**
+
+--
+
+<br>
+
+- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
+  - Saves time & resources `r emo::ji("thumbsup")`
+
+--
+  
+<br>
+
+- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
+
+---
+
+## On Memoising
+
+The downside:
+
+**Memoising only applies to one function.**
+
+--
+
+<br>
+
+What if a function upstream of the memoised function changes? We could get the wrong answer.
+
+--
+
+<p align="center">
+<img src="./img/sad_drake.jpeg" height="330px">
+</p>
+
+
+---
+
+## On Memoising
+
+```{r}
+add <- function(a, b) {
+  a + b
+}
+
+add_and_square <- function(a, b) {
+  add(a, b) ^ 2
+}
+```
+
+--
+
+<br>
+
+```{r}
+add(2, 3)
+add_and_square(2, 3)
+```
+
+
+---
+
+## On Memoising
+
+If we've memoised `add_and_square`,
+
+```{r}
+add_and_square <- memoise::memoise(add_and_square)
+```
+
+--
+
+we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
+
+```{r}
+add_and_square(2, 3)
+```
+
+<br>
+
+--
+
+**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
+```{r}
+add <- function(a, b) {
+  a - b #<<
+}
+```
+
+
+--
+
+What will happen when we call `add_and_square(2, 3)`?
+
+---
+
+## On Memoising
+
+--
+
+We should get
+```{r}
+add(2, 3) ^ 2
+```
+
+--
+
+But instead we return the old answer, which is now wrong:
+
+```{r}
+add_and_square(2, 3)
+```
+
+--
+
+<br>
+
+Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
+
+So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
+
+---
+
 ## Where is all this info stored?
 
 <br>
@@ -774,23 +756,16 @@ class: inverse
 
 <br>
 
---
-
-- A plan works by using functions to create targets
 
 --
 
 <br>
 
 - This allows `drake` to infer **dependencies** between
+
   - objects and functions
+  
   - functions and other functions
-
---
-
-<br>
-
-- Running `drake_plan` creates a dataframe relating each target to the command used to generate it
 
 ---
 
@@ -874,6 +849,8 @@ class: blue-light
 <!-- background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg) -->
 
 ## Our Plan
+
+--
 
 Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
 
@@ -1016,7 +993,6 @@ get_tweets(n_tweets_seed = 5) %>%
   kable()
 ```
 
-
 ---
 
 ## Reupping Tweets
@@ -1032,7 +1008,7 @@ we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
 ```{r}
 old_tweet_id <- "1084948074588487680" # From Jan 14
 
-seed_tweets <- 
+seed_tweets <-
   get_tweets(
     n_tweets_seed = 10,
     max_id = old_tweet_id
@@ -1052,8 +1028,8 @@ we check for new tweets, and, if there are any, pull them in.
 --
 
 ```{r}
-full_tweets <- 
-  get_tweets(seed_tweets, 
+full_tweets <-
+  get_tweets(seed_tweets,
              n_tweets_reup = 5)
 ```
 
@@ -1143,11 +1119,12 @@ and plot them on a map (thanks again, `ggmap`)
 
 ## Downstream Analysis
 
-```{r}
+```{r, include=FALSE}
 get_map("new york city") %>% 
   ggmap()
 ```
 
+![](./img/fire_sums_plot.png)
 
 ---
 

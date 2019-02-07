@@ -34,6 +34,9 @@ burner_handle <- "didntstartit"
 # (By default, the most recent tweets are pulled in first)
 old_tweet_id <- "1084948074588487680"
 
+# drake thing. Will not be necessary to set in the upcoming release
+pkgconfig::set_config("drake::strings_in_dots" = "literals")
+
 
 # ------------------------ Getting tweets ------------------------
 

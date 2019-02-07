@@ -6,7 +6,8 @@
     <meta name="author" content="Amanda Dobbyn" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+      <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="dobbs.css" type="text/css" />
   </head>
   <body>
@@ -330,216 +331,13 @@ Which you know if you've tried to add another intermediate step or reorganize yo
 
 ---
 
-## `drake` : `knitr`
-
-(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
-
-&lt;p align="center"&gt;
-&lt;img src="./img/tiny_hats.jpg"&gt;
-&lt;/p&gt;
-
---
-
-
-1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
-
---
-
-2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
-
---
-
-3) Report lives in a single file, making that part reproducible and **compact**. 
-
-
-
-
-???
-With knitr, you expect to be able to rerun someone's report from a single file.
-
----
-
-class: inverse
-
-## `drake` : `knitr`
-
-But, `knitr` is a reporting tool, not a pipelining tool.
-
---
-
-&lt;br&gt;
-
-- You can't summon values from the `cache` in an interactive session
-
-&lt;br&gt;
-
---
-
-- If you're outsourcing preprocessing steps to R scripts outside the `Rmd`, we haven't solved any of the usual dependency issues from before
-
-&lt;br&gt;
-
---
-
-
-- `Rmd`s quickly get big and unweildy for serious pipelines
-
----
-
-## Is this also kinda like memoising?
-
---
-
-Yes!
-
---
-
-But better.
-
---
-
-Memoising **caches the return value of a function for a given a set of arguments**
-
---
-
-&lt;br&gt;
-
-- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
-  - Saves time &amp; resources 👍
-
---
-  
-&lt;br&gt;
-
-- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
-
----
-
-## On Memoising
-
-The downside:
-
-**Memoising only applies to one function.**
-
---
-
-&lt;br&gt;
-
-What if a function upstream of the memoised function changes? We could get the wrong answer.
-
---
-
-&lt;p align="center"&gt;
-&lt;img src="./img/sad_drake.jpeg" height="330px"&gt;
-&lt;/p&gt;
-
-
----
-
-## On Memoising
-
-
-```r
-add &lt;- function(a, b) {
-  a + b
-}
-
-add_and_square &lt;- function(a, b) {
-  add(a, b) ^ 2
-}
-```
-
---
-
-&lt;br&gt;
-
-
-```r
-add(2, 3)
-## [1] 5
-add_and_square(2, 3)
-## [1] 25
-```
-
-
----
-
-## On Memoising
-
-If we've memoised `add_and_square`,
-
-
-```r
-add_and_square &lt;- memoise::memoise(add_and_square)
-```
-
---
-
-we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
-
-
-```r
-add_and_square(2, 3)
-## [1] 25
-```
-
-&lt;br&gt;
-
---
-
-**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
-
-```r
-add &lt;- function(a, b) {
-* a - b
-}
-```
-
-
---
-
-What will happen when we call `add_and_square(2, 3)`?
-
----
-
-## On Memoising
-
---
-
-We should get
-
-```r
-add(2, 3) ^ 2
-## [1] 1
-```
-
---
-
-But instead we return the old answer, which is now wrong:
-
-
-```r
-add_and_square(2, 3)
-## [1] 25
-```
-
---
-
-&lt;br&gt;
-
-Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
-
-So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
-
----
-
 class: inverse
 
 ## A Few Pieces of `drake` Vocab
 
 &lt;br&gt;
 
-&gt; **Targets** are the objects and files that drake generates;
+&gt; **Targets** are the objects that drake generates;
 
 &lt;br&gt;
 
@@ -561,7 +359,7 @@ one column for targets, and one column for their corresponding commands.
 
 ---
 
-## More on Plans
+## Plans
 
 Plans are like that top-level script that runs your entire pipeline.
 
@@ -732,6 +530,191 @@ because those are both part of the command used to generate `results`.
 
 ---
 
+
+## `drake` : `knitr`
+
+(Analogy stolen from Will's [interview on the R podcast](https://www.youtube.com/watch?v=eJQ29CLyDCs&amp;feature=youtu.be&amp;t=1533).)
+
+&lt;p align="center"&gt;
+&lt;img src="./img/tiny_hats.jpg"&gt;
+&lt;/p&gt;
+
+--
+
+
+1) `knitr` can **cache** chunks if they've already been run, and nothing in them has changed.
+
+--
+
+2) A chunk successfully knitting **depends** on the previous chunk knitting and on any chunk that you specify a [`depedson`](https://twitter.com/drob/status/738786604731490304?lang=en) for.
+
+--
+
+3) Report lives in a single file, making that part reproducible and **compact**. 
+
+
+
+
+???
+With knitr, you expect to be able to rerun someone's report from a single file.
+
+But, `knitr` is a reporting tool, not a pipelining tool.
+
+- You can't summon values from the `cache` in an interactive session
+
+- If you're outsourcing preprocessing steps to R scripts outside the `Rmd`, we haven't solved any of the usual dependency issues from before
+
+- `Rmd`s quickly get big and unweildy for serious pipelines
+
+---
+
+## Is this also kinda like memoising?
+
+--
+
+Yes!
+
+--
+
+But better.
+
+--
+
+Memoising **caches the return value of a function for a given a set of arguments**
+
+--
+
+&lt;br&gt;
+
+- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
+  - Saves time &amp; resources 👍
+
+--
+  
+&lt;br&gt;
+
+- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
+
+---
+
+## On Memoising
+
+The downside:
+
+**Memoising only applies to one function.**
+
+--
+
+&lt;br&gt;
+
+What if a function upstream of the memoised function changes? We could get the wrong answer.
+
+--
+
+&lt;p align="center"&gt;
+&lt;img src="./img/sad_drake.jpeg" height="330px"&gt;
+&lt;/p&gt;
+
+
+---
+
+## On Memoising
+
+
+```r
+add &lt;- function(a, b) {
+  a + b
+}
+
+add_and_square &lt;- function(a, b) {
+  add(a, b) ^ 2
+}
+```
+
+--
+
+&lt;br&gt;
+
+
+```r
+add(2, 3)
+## [1] 5
+add_and_square(2, 3)
+## [1] 25
+```
+
+
+---
+
+## On Memoising
+
+If we've memoised `add_and_square`,
+
+
+```r
+add_and_square &lt;- memoise::memoise(add_and_square)
+```
+
+--
+
+we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
+
+
+```r
+add_and_square(2, 3)
+## [1] 25
+```
+
+&lt;br&gt;
+
+--
+
+**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
+
+```r
+add &lt;- function(a, b) {
+* a - b
+}
+```
+
+
+--
+
+What will happen when we call `add_and_square(2, 3)`?
+
+---
+
+## On Memoising
+
+--
+
+We should get
+
+```r
+add(2, 3) ^ 2
+## [1] 1
+```
+
+--
+
+But instead we return the old answer, which is now wrong:
+
+
+```r
+add_and_square(2, 3)
+## [1] 25
+```
+
+--
+
+&lt;br&gt;
+
+Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
+
+So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
+
+---
+
 ## Where is all this info stored?
 
 &lt;br&gt;
@@ -804,23 +787,16 @@ class: inverse
 
 &lt;br&gt;
 
---
-
-- A plan works by using functions to create targets
 
 --
 
 &lt;br&gt;
 
 - This allows `drake` to infer **dependencies** between
+
   - objects and functions
+  
   - functions and other functions
-
---
-
-&lt;br&gt;
-
-- Running `drake_plan` creates a dataframe relating each target to the command used to generate it
 
 ---
 
@@ -906,6 +882,8 @@ class: blue-light
 &lt;!-- background-image: url("https://static01.nyt.com/images/2018/12/29/nyregion/28xp-explosion-sub-print/28xp-explosion-sub-facebookJumbo.jpg) --&gt;
 
 ## Our Plan
+
+--
 
 Remember the [crazy blue light](https://twitter.com/NYCFireWire/status/1078478369036165121) from late December?
 
@@ -1026,9 +1004,9 @@ get_tweets(n_tweets_seed = 3)
 ## # A tibble: 3 x 5
 ##   text                  user_id status_id   created_at          screen_name
 ##   &lt;chr&gt;                 &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-## 1 Queens **99-75-5985*… 560024… 1090764990… 2019-01-30 19:13:33 NYCFireWire
-## 2 Big fire in Bergen C… 560024… 1090762878… 2019-01-30 19:05:10 NYCFireWire
-## 3 Blocking the hydrant… 560024… 1090739760… 2019-01-30 17:33:18 NYCFireWire
+## 1 Bronx *66-75-3309* 2… 560024… 1093118158… 2019-02-06 07:04:12 NYCFireWire
+## 2 Brooklyn **77-75-029… 560024… 1093045568… 2019-02-06 02:15:45 NYCFireWire
+## 3 This evening at 22:0… 560024… 1092995175… 2019-02-05 22:55:31 NYCFireWire
 ```
 
 ???
@@ -1059,23 +1037,22 @@ get_tweets(n_tweets_seed = 5) %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens **99-75-5985** 220-19 145th Avenue Near 221st Street, Battalion 54 reports all hands going to work for a basement fire in A Private Dwelling &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bronx *66-75-3309* 2337 Washington Ave. Fire 1st floor salon 3 story mixed occupancy &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Big fire in Bergen County, NJ. Old timber buildings, they just said the fire is making it's way to the Propane Filling station. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn **77-75-0293** 303 Johnson Avenue Near Morgan Avenue, Division 11 is using all hands for Multiple Cement Trucks on fire &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Blocking the hydrant is dangerous! https://t.co/IFNDVK41u3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; This evening at 22:00 Paramedic John Comorford of EMS Station 35 ended his 25 year career with FDNY as he punched out for the last time.  Congratulations John and Best Wishes in your future endeavors. &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; From NYC OEM: Snow Squall Warning in effect for NYC on 1/30 until 4 PM. Heavy and blowing snow with wind gusts up to 50 mph causing whiteout conditions, zero visibility and life-threatening travel conditions.... https://t.co/HlqrDX2UcX &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Staten Island *88-75-3607* 77 Jamie Lane. Fire top floor 3 story. E-167/L-87 1st due &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Queens *99-75-9298* 60-15 Calloway St. Fire top floor 7 story 200x70 multiple dwelling. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan *Tech Rescue* Central Park near E 96 St. Bn-10 has a person that was trying to fish keys out of grating &amp;amp;amp; hand became trapped. &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-
 
 ---
 
@@ -1093,7 +1070,7 @@ we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
 ```r
 old_tweet_id &lt;- "1084948074588487680" # From Jan 14
 
-seed_tweets &lt;- 
+seed_tweets &lt;-
   get_tweets(
     n_tweets_seed = 10,
     max_id = old_tweet_id
@@ -1115,8 +1092,8 @@ we check for new tweets, and, if there are any, pull them in.
 
 
 ```r
-full_tweets &lt;- 
-  get_tweets(seed_tweets, 
+full_tweets &lt;-
+  get_tweets(seed_tweets,
              n_tweets_reup = 5)
 ## Searching for new tweets.
 ## 5 new tweet(s) pulled.
@@ -1294,15 +1271,8 @@ and plot them on a map (thanks again, `ggmap`)
 ## Downstream Analysis
 
 
-```r
-get_map("new york city") %&gt;% 
-  ggmap()
-## Source : https://maps.googleapis.com/maps/api/staticmap?center=new%20york%20city&amp;zoom=10&amp;size=640x640&amp;scale=2&amp;maptype=terrain&amp;language=en-EN&amp;key=xxx
-## Source : https://maps.googleapis.com/maps/api/geocode/json?address=new%20york%20city&amp;key=xxx
-```
 
-![](index_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
-
+![](./img/fire_sums_plot.png)
 
 ---
 
@@ -1336,7 +1306,7 @@ What's the estimate of running the pipeline on a single tweet?
    
       as_tibble() %&gt;% 
       pull(median))
-## [1] 339ms
+## [1] 430ms
 ```
 
 
@@ -1357,7 +1327,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 16.95973
+## [1] 21.51942
 ```
 
 
@@ -1366,7 +1336,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 All our downstream analyses depend on this pipeline.
 
-If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **17 minutes** of our lives. 
+If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **22 minutes** of our lives. 
 
 &lt;br&gt;
 
