@@ -549,146 +549,8 @@ But, `knitr` is a reporting tool, not a pipelining tool.
 
 ---
 
-## Is this also kinda like memoising?
+## Where are targets stored?
 
---
-
-Yes!
-
---
-
-But better.
-
---
-
-Memoising **caches the return value of a function for a given a set of arguments**
-
---
-
-<br>
-
-- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
-  - Saves time & resources `r emo::ji("thumbsup")`
-
---
-  
-<br>
-
-- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
-
----
-
-## On Memoising
-
-The downside:
-
-**Memoising only applies to one function.**
-
---
-
-<br>
-
-What if a function upstream of the memoised function changes? We could get the wrong answer.
-
---
-
-<p align="center">
-<img src="./img/sad_drake.jpeg" height="330px">
-</p>
-
-
----
-
-## On Memoising
-
-```{r}
-add <- function(a, b) {
-  a + b
-}
-
-add_and_square <- function(a, b) {
-  add(a, b) ^ 2
-}
-```
-
---
-
-<br>
-
-```{r}
-add(2, 3)
-add_and_square(2, 3)
-```
-
-
----
-
-## On Memoising
-
-If we've memoised `add_and_square`,
-
-```{r}
-add_and_square <- memoise::memoise(add_and_square)
-```
-
---
-
-we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
-
-```{r}
-add_and_square(2, 3)
-```
-
-<br>
-
---
-
-**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
-```{r}
-add <- function(a, b) {
-  a - b #<<
-}
-```
-
-
---
-
-What will happen when we call `add_and_square(2, 3)`?
-
----
-
-## On Memoising
-
---
-
-We should get
-```{r}
-add(2, 3) ^ 2
-```
-
---
-
-But instead we return the old answer, which is now wrong:
-
-```{r}
-add_and_square(2, 3)
-```
-
---
-
-<br>
-
-Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
-
-So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
-
----
-
-## Where is all this info stored?
-
-<br>
-
-#### **targets**
 
 --
 
@@ -715,11 +577,7 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 ---
 
-## Where is all this info stored?
-
-<br>
-
-#### **dependencies**
+## Where is dependency info?
 
 --
 
@@ -1216,9 +1074,8 @@ plan <-
       # Send to Google for lat-longs
     lat_long = get_lat_long(addresses), 
       # Sum up n fires per lat-long combo
+    
     fire_sums = count_fires(lat_long), 
-
-    time_graph = graph_fire_times(lat_long),
     plot = plot_fire_sums(fire_sums)
   )
 ```

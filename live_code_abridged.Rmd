@@ -18,17 +18,7 @@ source(here::here("R", "didnt_start_it.R"))
 
 ### Burner account time
 
-Let's define a file path to dump the tweets we collect into.
-
-```{r}
-burner_path <- here("data", "raw", "burn.csv") # Same as "<working_dir>/data/raw/burn.csv"
-
-# Delete the file in burner_path if it exists already so we start from scratch
-if (file_exists(burner_path)) file_delete(burner_path)
-```
-
-
-Now we'll create our first draft of the plan:
+Our first draft of the plan:
 
 ```{r}
 burner_plan <-
@@ -47,11 +37,16 @@ burner_plan <-
   )
 ```
 
-Every time `burner_plan` is run, new any tweets collected will be stored in `burner_path` and be read into the next iteration of `seed_burn`.
 
-### Quick note on files
+Define a file path to dump the tweets we collect into.
 
-We're not using `drake`'s [`file_in`](https://ropensci.github.io/drake/reference/file_in.html) and [`file_out`](https://ropenscilabs.github.io/drake-manual/vis.html#output-files) functions, which allow `drake` to recognize and track the file. That lets us see when the targets associated with the file (both upstream and downstream of it) are invalidated.
+```{r}
+burner_path <- here("data", "raw", "burn.csv") # Same as "<working_dir>/data/raw/burn.csv"
+
+# Delete the file in burner_path if it exists already so we start from scratch
+if (file_exists(burner_path)) file_delete(burner_path)
+```
+
 
 ### Test out v1 of our plan
 
@@ -70,11 +65,11 @@ burner_config$plan
 burner_config$cache_path
 burner_config$graph
 
-# Remove targets if they were already built
-clean()
-
 # Both seed_burn and full_burn should be outdated
 vis_drake_graph(burner_config)
+
+# Remove targets if they were already built
+clean()
 
 # Make the plan
 make(burner_plan, verbose = 4)
@@ -282,13 +277,13 @@ Our `full_burn` target will always be out of date because the trigger indicates 
 clean()
 
 # Notice our new trigger column
-burner_plan_2 
+burner_plan_2
 
 # seed_burn is outdated becuase we haven't made the plan yet.
 # full_burn is always out of date, no matter what, because of the trigger.
 burner_config_2 <- drake_config(burner_plan_2)
 outdated(burner_config_2)
-vis_drake_graph(burner_config_2)
+vis_drake_graph(burner_config_2, targets_only = TRUE)
 ```
 
 All tweets are now stored in `burner_path`, which we specified as our `output_path` when making `full_burn`.
@@ -374,9 +369,8 @@ plan <-
     ),
     addresses = pull_addresses(fires), # Extract addresses from tweets
     lat_long = get_lat_long(addresses), # Send to Google for lat-longs
+    
     fire_sums = count_fires(lat_long), # Sum up n fires per lat-long combo
-
-    time_graph = graph_fire_times(lat_long),
     plot = plot_fire_sums(fire_sums)
   )
 ```
@@ -394,59 +388,9 @@ addresses
 
 loadd(lat_long)
 lat_long
-
-loadd(time_graph)
-time_graph
 ```
 
-
-### Previously `geocode`d
-
-For kicks, let's make our plots with data from 3000 tweets pulled from NYCFireWire and sent to Google for geocoding. 
-
-We'll stop at `pull_addresses(fires)` so we don't re-geocode all 3k fires.
-
-We'll set the `input_path` to `seed_fires` to that file, and still grab the most recent 3 tweets.
-
-```{r}
-big_plan <-
-  drake_plan(
-    seed_fires = get_tweets( # Grab seed fires from file
-      input_path = here("data", "raw", "lots_o_fires.csv")
-    ), 
-    fires = target(
-      command = get_tweets(
-        tbl = seed_fires,
-        n_tweets_reup = 3
-      ),
-      trigger = trigger(
-        condition = TRUE 
-      )
-    ),
-    addresses = pull_addresses(fires)
-    # Not sending all 3k addresses to Google
-  )
-
-make(big_plan)
-
-loadd(addresses)
-nrow(addresses)
-addresses
-```
-
-Make our quick plot from the 3k fires:
-
-```{r}
-lat_long <- 
-  read_csv(here("data", "derived", "lat_long.csv"))
-
-fire_sums <-
-  read_csv(here("data", "derived", "fire_sums.csv"))
-
-graph_fire_times(lat_long)
-plot_fire_sums(fire_sums)
-```
-
+And our `fire_sums_plot` is saved to our `plots` directory.
 
 ### That's all!
 

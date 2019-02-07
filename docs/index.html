@@ -568,158 +568,8 @@ But, `knitr` is a reporting tool, not a pipelining tool.
 
 ---
 
-## Is this also kinda like memoising?
+## Where are targets stored?
 
---
-
-Yes!
-
---
-
-But better.
-
---
-
-Memoising **caches the return value of a function for a given a set of arguments**
-
---
-
-&lt;br&gt;
-
-- If the function is called again with the *same* set of arguments, the value is pulled from the cache instead of recomputed
-  - Saves time &amp; resources 👍
-
---
-  
-&lt;br&gt;
-
-- In R implemented nicely in the [`memoise` package](https://github.com/r-lib/memoise)
-
----
-
-## On Memoising
-
-The downside:
-
-**Memoising only applies to one function.**
-
---
-
-&lt;br&gt;
-
-What if a function upstream of the memoised function changes? We could get the wrong answer.
-
---
-
-&lt;p align="center"&gt;
-&lt;img src="./img/sad_drake.jpeg" height="330px"&gt;
-&lt;/p&gt;
-
-
----
-
-## On Memoising
-
-
-```r
-add &lt;- function(a, b) {
-  a + b
-}
-
-add_and_square &lt;- function(a, b) {
-  add(a, b) ^ 2
-}
-```
-
---
-
-&lt;br&gt;
-
-
-```r
-add(2, 3)
-## [1] 5
-add_and_square(2, 3)
-## [1] 25
-```
-
-
----
-
-## On Memoising
-
-If we've memoised `add_and_square`,
-
-
-```r
-add_and_square &lt;- memoise::memoise(add_and_square)
-```
-
---
-
-we return `add_and_square(2, 3)` from the cache. (Yay, fast!)
-
-
-```r
-add_and_square(2, 3)
-## [1] 25
-```
-
-&lt;br&gt;
-
---
-
-**But** if we now redefine `add` so that it *subtracts* `b` from `a`...
-
-```r
-add &lt;- function(a, b) {
-* a - b
-}
-```
-
-
---
-
-What will happen when we call `add_and_square(2, 3)`?
-
----
-
-## On Memoising
-
---
-
-We should get
-
-```r
-add(2, 3) ^ 2
-## [1] 1
-```
-
---
-
-But instead we return the old answer, which is now wrong:
-
-
-```r
-add_and_square(2, 3)
-## [1] 25
-```
-
---
-
-&lt;br&gt;
-
-Luckily, `drake` knows the *all* the dependency relationships between functions as they relate to your targets.
-
-So, `drake` would know that the definition of `add` has changed, meaning that `add_and_square(2, 3)` needs to be recomputed.
-
----
-
-## Where is all this info stored?
-
-&lt;br&gt;
-
-#### **targets**
 
 --
 
@@ -746,11 +596,7 @@ In a hidden `.drake` directory, or cache, in your project's root. [More on stora
 
 ---
 
-## Where is all this info stored?
-
-&lt;br&gt;
-
-#### **dependencies**
+## Where is dependency info?
 
 --
 
@@ -1004,9 +850,9 @@ get_tweets(n_tweets_seed = 3)
 ## # A tibble: 3 x 5
 ##   text                  user_id status_id   created_at          screen_name
 ##   &lt;chr&gt;                 &lt;chr&gt;   &lt;chr&gt;       &lt;dttm&gt;              &lt;chr&gt;      
-## 1 Bronx *66-75-3309* 2… 560024… 1093118158… 2019-02-06 07:04:12 NYCFireWire
-## 2 Brooklyn **77-75-029… 560024… 1093045568… 2019-02-06 02:15:45 NYCFireWire
-## 3 This evening at 22:0… 560024… 1092995175… 2019-02-05 22:55:31 NYCFireWire
+## 1 Brooklyn *77-75-1691… 560024… 1093552824… 2019-02-07 11:51:25 NYCFireWire
+## 2 Bronx *66-75-3884* 6… 560024… 1093489288… 2019-02-07 07:38:57 NYCFireWire
+## 3 Staten Island *88-75… 560024… 1093468693… 2019-02-07 06:17:06 NYCFireWire
 ```
 
 ???
@@ -1037,19 +883,19 @@ get_tweets(n_tweets_seed = 5) %&gt;%
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Bronx *66-75-3309* 2337 Washington Ave. Fire 1st floor salon 3 story mixed occupancy &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Brooklyn *77-75-1691* 391 Livonia Ave. Fire apt 8A 14 story multiple dwelling &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Brooklyn **77-75-0293** 303 Johnson Avenue Near Morgan Avenue, Division 11 is using all hands for Multiple Cement Trucks on fire &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bronx *66-75-3884* 691 E 241 St x Richardson Ave. Fire 2nd floor of a hotel. E63/L39 1st due &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; This evening at 22:00 Paramedic John Comorford of EMS Station 35 ended his 25 year career with FDNY as he punched out for the last time.  Congratulations John and Best Wishes in your future endeavors. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Staten Island *88-75-0795* 170 Hatfield Pl. House fire &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Staten Island *88-75-3607* 77 Jamie Lane. Fire top floor 3 story. E-167/L-87 1st due &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Manhattan *10-77*66-75-1362* 1829 Lexington Ave x E 112 St. Fire in apt 3H &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Manhattan *Tech Rescue* Central Park near E 96 St. Bn-10 has a person that was trying to fish keys out of grating &amp;amp;amp; hand became trapped. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The individual who cut thru an American Flag on the back of an FDNY ambulance HAS BEEN CAUGHT! Shame on you! Great job FDNY Fire Marshals! https://t.co/g0RI7jB2Tv &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -1306,7 +1152,7 @@ What's the estimate of running the pipeline on a single tweet?
    
       as_tibble() %&gt;% 
       pull(median))
-## [1] 430ms
+## [1] 345ms
 ```
 
 
@@ -1327,7 +1173,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 21.51942
+## [1] 17.22589
 ```
 
 
@@ -1336,7 +1182,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 All our downstream analyses depend on this pipeline.
 
-If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **22 minutes** of our lives. 
+If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **17 minutes** of our lives. 
 
 &lt;br&gt;
 
@@ -1369,9 +1215,8 @@ plan &lt;-
       # Send to Google for lat-longs
     lat_long = get_lat_long(addresses), 
       # Sum up n fires per lat-long combo
+    
     fire_sums = count_fires(lat_long), 
-
-    time_graph = graph_fire_times(lat_long),
     plot = plot_fire_sums(fire_sums)
   )
 ```
@@ -1393,10 +1238,11 @@ devtools::session_info()
 ##  collate  en_US.UTF-8                 
 ##  ctype    en_US.UTF-8                 
 ##  tz       America/New_York            
-##  date     2019-01-30                  
+##  date     2019-02-07                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package     * version    date       lib
+##  askpass       1.1        2019-01-13 [1]
 ##  assertthat    0.2.0      2017-04-11 [1]
 ##  backports     1.1.3      2018-12-14 [1]
 ##  bench         1.0.1      2018-06-06 [1]
@@ -1404,14 +1250,13 @@ devtools::session_info()
 ##  bindrcpp    * 0.2.2      2018-03-29 [1]
 ##  bitops        1.0-6      2013-08-17 [1]
 ##  broom         0.5.0      2018-07-17 [1]
-##  callr         2.0.4      2018-05-15 [1]
+##  callr         3.1.1      2018-12-21 [1]
 ##  cellranger    1.1.0      2016-07-27 [1]
 ##  cli           1.0.1      2018-09-25 [1]
 ##  codetools     0.2-15     2016-10-05 [1]
 ##  colorspace    1.4-0      2019-01-13 [1]
 ##  crayon        1.3.4      2018-12-20 [1]
 ##  curl          3.3        2019-01-10 [1]
-##  debugme       1.1.0      2017-10-22 [1]
 ##  desc          1.2.0      2018-05-01 [1]
 ##  devtools      2.0.1      2018-10-26 [1]
 ##  digest        0.6.18     2018-10-10 [1]
@@ -1419,7 +1264,7 @@ devtools::session_info()
 ##  drake       * 6.2.1      2018-12-10 [1]
 ##  emo           0.0.0.9000 2018-07-05 [1]
 ##  emojifont   * 0.5.2      2019-01-17 [1]
-##  evaluate      0.11       2018-07-17 [1]
+##  evaluate      0.12       2018-10-09 [1]
 ##  fansi         0.4.0      2018-12-20 [1]
 ##  forcats     * 0.3.0      2018-02-19 [1]
 ##  formatR       1.5        2017-04-25 [1]
@@ -1433,7 +1278,7 @@ devtools::session_info()
 ##  highr         0.7        2018-06-09 [1]
 ##  hms           0.4.2      2018-03-10 [1]
 ##  htmltools     0.3.6      2017-04-28 [1]
-##  httpuv        1.4.5.1    2018-12-18 [1]
+##  htmlwidgets   1.2        2018-04-19 [1]
 ##  httr          1.4.0      2018-12-11 [1]
 ##  igraph        1.2.2      2018-07-27 [1]
 ##  jpeg          0.1-8      2014-01-23 [1]
@@ -1441,30 +1286,28 @@ devtools::session_info()
 ##  kableExtra  * 1.0.1      2019-01-22 [1]
 ##  knitr       * 1.21       2018-12-10 [1]
 ##  labeling      0.3        2014-08-23 [1]
-##  later         0.7.3      2018-06-08 [1]
 ##  lattice       0.20-38    2018-11-04 [1]
 ##  lazyeval      0.2.1      2017-10-29 [1]
 ##  lubridate     1.7.4      2018-04-11 [1]
 ##  magrittr      1.5        2014-11-22 [1]
 ##  maps        * 3.3.0      2018-04-03 [1]
-##  memoise       1.1.0      2018-10-26 [1]
-##  mime          0.6        2018-10-05 [1]
+##  memoise       1.1.0      2017-04-21 [1]
 ##  modelr        0.1.2      2018-05-11 [1]
 ##  munsell       0.5.0      2018-06-12 [1]
 ##  nlme          3.1-137    2018-04-07 [1]
-##  openssl       1.1        2018-11-15 [1]
+##  openssl       1.2.1      2019-01-17 [1]
 ##  packrat       0.4.9-10   2018-08-10 [1]
-##  pillar        1.3.1.9000 2018-12-20 [1]
+##  pillar        1.3.1.9000 2019-02-03 [1]
 ##  pkgbuild      1.0.2      2018-10-16 [1]
 ##  pkgconfig     2.0.2      2018-08-16 [1]
 ##  pkgload       1.0.2      2018-10-29 [1]
 ##  plyr          1.8.4      2016-06-08 [1]
 ##  png           0.1-7      2013-12-03 [1]
 ##  prettyunits   1.0.2      2015-07-13 [1]
-##  processx      3.1.0      2018-05-15 [1]
+##  processx      3.2.1      2018-12-05 [1]
 ##  profmem       0.5.0      2018-01-30 [1]
-##  promises      1.0.1      2018-04-13 [1]
 ##  proto         1.0.0      2016-10-29 [1]
+##  ps            1.3.0      2018-12-21 [1]
 ##  purrr       * 0.3.0      2019-01-27 [1]
 ##  R6            2.3.0      2018-10-04 [1]
 ##  Rcpp          1.0.0      2018-11-07 [1]
@@ -1476,11 +1319,10 @@ devtools::session_info()
 ##  rlang         0.3.1      2019-01-08 [1]
 ##  rmarkdown     1.11       2018-12-08 [1]
 ##  rprojroot     1.3-2      2018-01-03 [1]
-##  rstudioapi    0.7        2017-09-07 [1]
+##  rstudioapi    0.9.0      2019-01-09 [1]
 ##  rtweet      * 0.6.8      2018-09-28 [1]
 ##  rvest         0.3.2      2016-06-17 [1]
 ##  scales        1.0.0      2018-08-09 [1]
-##  servr         0.11       2018-10-23 [1]
 ##  sessioninfo   1.1.1      2018-11-05 [1]
 ##  showtext      0.6        2019-01-10 [1]
 ##  showtextdb    2.0        2017-09-11 [1]
@@ -1496,13 +1338,15 @@ devtools::session_info()
 ##  usethis       1.4.0      2018-08-14 [1]
 ##  utf8          1.1.4      2018-05-24 [1]
 ##  viridisLite   0.3.0      2018-02-01 [1]
+##  visNetwork    2.0.4      2018-06-14 [1]
 ##  webshot       0.5.1      2018-09-28 [1]
 ##  withr         2.1.2      2018-03-15 [1]
-##  xaringan      0.8        2018-10-23 [1]
+##  xaringan      0.8.6      2019-02-04 [1]
 ##  xfun          0.4        2018-10-23 [1]
 ##  xml2          1.2.0      2018-01-24 [1]
 ##  yaml          2.2.0      2018-07-25 [1]
 ##  source                                  
+##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1517,7 +1361,6 @@ devtools::session_info()
 ##  CRAN (R 3.5.2)                          
 ##  Github (r-lib/crayon@74bee76)           
 ##  CRAN (R 3.5.2)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
@@ -1547,20 +1390,18 @@ devtools::session_info()
 ##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  Github (r-lib/memoise@99db7eb)          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
-##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.2)                          
 ##  Github (rstudio/packrat@7d320b1)        
-##  Github (r-lib/pillar@9cc3030)           
+##  Github (r-lib/pillar@3a54b8d)           
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1582,8 +1423,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
-##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1605,6 +1445,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
+##  Github (yihui/xaringan@0d713d5)         
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
