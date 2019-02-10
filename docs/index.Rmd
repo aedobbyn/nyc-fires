@@ -83,23 +83,26 @@ class: inverse
 
 <br>
 
-2) We'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break `r emo::ji("crossed_fingers")`
+2) We'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break `r emo::ji("crossed_fingers")` to run a `drake` pipeline
 
 --
 
-<br>
 
-In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `drake` pipeline.
 
---
-
-<br>
-<br>
-<br>
-<br>
 <br>
 
 All code and slides on [GitHub](https://github.com/aedobbyn/nyc-fires).
+
+<br>
+
+--
+
+**Caveats**
+
+This analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
+
+To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
+
 
 ---
 
@@ -338,7 +341,7 @@ class: inverse
 
 <br>
 
-> **Targets** are the objects that drake generates;
+> **Targets** are the objects that `drake` generates;
 
 <br>
 
@@ -610,6 +613,10 @@ class: inverse
 
 ## It's all about Functions
 
+<br>
+
+--
+
 `drake` is all built around *functions* rather than scripts.
 
 <br>
@@ -619,11 +626,16 @@ class: inverse
 
 <br>
 
-- This allows `drake` to infer **dependencies** between
+This allows `drake` to infer **dependencies** between
 
-  - objects and functions
-  
-  - functions and other functions
+<br>
+<br>
+
+--
+
+     1. objects and functions
+
+     2. functions and other functions
 
 ---
 
@@ -657,7 +669,7 @@ good_plan <-
   )
 ```
 
-Now `drake` knows`first_target` needs to be built before work on `second_target` can begin.
+Now `drake` knows `first_target` needs to be built before work on `second_target` can begin.
 
 ---
 
@@ -782,6 +794,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 --
 
 <br>
+<br>
 
 All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
 
@@ -789,15 +802,6 @@ All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/ny
 source(here::here("R", "didnt_start_it.R"))
 ```
 
---
-
-<br>
-
-**Caveats**
-
-This analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
-
-To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
 
 ---
 
@@ -977,12 +981,17 @@ and plot them on a map (thanks again, `ggmap`)
 
 ## Downstream Analysis
 
-```{r, include=FALSE}
+```{r}
 get_map("new york city") %>% 
   ggmap()
 ```
 
-![](./img/fire_sums_plot.png)
+---
+
+<p align="left" style="padding-right: 15%; padding-bottom: 30%;">
+<img src="./img/fire_sums_plot.png">
+</p>
+ 
 
 ---
 

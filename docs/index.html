@@ -82,23 +82,26 @@ class: inverse
 
 &lt;br&gt;
 
-2) We'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break 🤞
+2) We'll switch to a [live coding Rmd](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md) which hopefully won't totally break 🤞 to run a `drake` pipeline
 
 --
 
-&lt;br&gt;
 
-In that part, we'll use the Twitter and Google Maps geocoding APIs to run a `drake` pipeline.
 
---
-
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
 &lt;br&gt;
 
 All code and slides on [GitHub](https://github.com/aedobbyn/nyc-fires).
+
+&lt;br&gt;
+
+--
+
+**Caveats**
+
+This analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
+
+To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
+
 
 ---
 
@@ -337,7 +340,7 @@ class: inverse
 
 &lt;br&gt;
 
-&gt; **Targets** are the objects that drake generates;
+&gt; **Targets** are the objects that `drake` generates;
 
 &lt;br&gt;
 
@@ -629,6 +632,10 @@ class: inverse
 
 ## It's all about Functions
 
+&lt;br&gt;
+
+--
+
 `drake` is all built around *functions* rather than scripts.
 
 &lt;br&gt;
@@ -638,11 +645,16 @@ class: inverse
 
 &lt;br&gt;
 
-- This allows `drake` to infer **dependencies** between
+This allows `drake` to infer **dependencies** between
 
-  - objects and functions
-  
-  - functions and other functions
+&lt;br&gt;
+&lt;br&gt;
+
+--
+
+     1. objects and functions
+
+     2. functions and other functions
 
 ---
 
@@ -678,7 +690,7 @@ good_plan &lt;-
   )
 ```
 
-Now `drake` knows`first_target` needs to be built before work on `second_target` can begin.
+Now `drake` knows `first_target` needs to be built before work on `second_target` can begin.
 
 ---
 
@@ -803,6 +815,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 --
 
 &lt;br&gt;
+&lt;br&gt;
 
 All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
 
@@ -811,15 +824,6 @@ All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/ny
 source(here::here("R", "didnt_start_it.R"))
 ```
 
---
-
-&lt;br&gt;
-
-**Caveats**
-
-This analysis relies on the [rtweet](https://github.com/mkearney/rtweet) and [ggmap](https://github.com/dkahle/ggmap) packages.
-
-To be able to run it in full you'll need a [Twitter API access token](https://rtweet.info/articles/auth.html) and [Google Maps Geocoding API key](https://developers.google.com/maps/documentation/geocoding/intro#Geocoding).
 
 ---
 
@@ -1117,8 +1121,21 @@ and plot them on a map (thanks again, `ggmap`)
 ## Downstream Analysis
 
 
+```r
+get_map("new york city") %&gt;% 
+  ggmap()
+## Source : https://maps.googleapis.com/maps/api/staticmap?center=new%20york%20city&amp;zoom=10&amp;size=640x640&amp;scale=2&amp;maptype=terrain&amp;language=en-EN&amp;key=xxx
+## Source : https://maps.googleapis.com/maps/api/geocode/json?address=new%20york%20city&amp;key=xxx
+```
 
-![](./img/fire_sums_plot.png)
+![](index_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+
+---
+
+&lt;p align="left" style="padding-right: 15%; padding-bottom: 30%;"&gt;
+&lt;img src="./img/fire_sums_plot.png"&gt;
+&lt;/p&gt;
+ 
 
 ---
 
