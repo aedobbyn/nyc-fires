@@ -857,56 +857,6 @@ get_tweets(n_tweets_seed = 5) %>%
 
 ---
 
-## Reupping Tweets
-
-To show how `get_tweets` can start with a `tbl` of tweets and look for new ones,
-
-we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
-
---
-
-<br>
-
-```{r}
-old_tweet_id <- "1084948074588487680" # From Jan 14
-
-seed_tweets <-
-  get_tweets(
-    n_tweets_seed = 10,
-    max_id = old_tweet_id
-  )
-
-nrow(seed_tweets)
-```
-
----
-
-## Reupping Tweets
-
-Using `seed_tweets` as an input to the same `get_tweets` function,
-
-we check for new tweets, and, if there are any, pull them in.
-
---
-
-```{r}
-full_tweets <-
-  get_tweets(seed_tweets,
-             n_tweets_reup = 5)
-```
-
---
-
-<br>
-
-```{r}
-nrow(seed_tweets)
-nrow(full_tweets)
-```
-
-
----
-
 ## Getting Addresses
 
 With `pull_addresses` we parse the text of the tweet to pull out borough and street and string them together into an address.

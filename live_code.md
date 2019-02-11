@@ -50,25 +50,31 @@ will let us know that our targets are up to date and not re-run
 anything.
 
     # Take a look at the dataframe that represents our plan
-    burner_plan 
+    burner_plan
 
     # Save the config in an object we can look at
     burner_config <- drake_config(burner_plan)
 
+    # The config knows everything
+    sort(names(burner_config))
+    burner_config$plan
+    burner_config$cache_path
+    burner_config$graph
+
     # Remove targets if they were already built
-    clean() 
+    clean()
 
     # Both seed_burn and full_burn should be outdated
-    vis_drake_graph(burner_config) 
+    vis_drake_graph(burner_config)
 
     # Make the plan
-    make(burner_plan)  
+    make(burner_plan, verbose = 4)
 
     # Everything should already be up to date 
     outdated(burner_config)
 
     # Which is reflected in our graph
-    vis_drake_graph(burner_config) 
+    vis_drake_graph(burner_config)
 
     # Can show just targets if things are too crowded
     vis_drake_graph(burner_config, targets_only = TRUE)
@@ -268,14 +274,14 @@ What’s stored in this file is the same as both `seed_burn` and
     make(burner_plan_2)
 
     # Load the results of seed_burn and full_burn into our environment
-    loadd(seed_burn) 
+    loadd(seed_burn)
     loadd(full_burn)
     # These should be the same since no new tweets posted
-    expect_identical(seed_burn, full_burn) 
+    expect_equal(seed_burn, full_burn)
 
     # full_burn always outdated, seed_burn no longer outdated
-    outdated(burner_config_2) 
-    vis_drake_graph(burner_config_2)
+    outdated(burner_config_2)
+    vis_drake_graph(burner_config_2, targets_only = TRUE)
 
 Now let’s post a new tweet and re-`make` the plan.
 
@@ -290,12 +296,12 @@ tweet.
 
 
     # seed_burn (read from file) is up to date, and full_burn will always look outdated
-    make(burner_plan_2) 
-    vis_drake_graph(burner_config_2) 
+    make(burner_plan_2)
+    vis_drake_graph(burner_config_2, targets_only = TRUE) 
 
     loadd(seed_burn)
     loadd(full_burn)
-    # We should have one extra row in full_burn than in seed_burn
+    # We should have one extra row in full_burn than in seed_burn, because seed_burn wasn't rebuilt
     expect_gt(nrow(full_burn), nrow(seed_burn)) 
 
     seed_burn
@@ -366,14 +372,6 @@ For the purposes of illustration, I’ll set a `max_id` on our
 ### Info drake stores
 
 Let’s get a little deeper into what `drake` stores in the `config`.
-
-    config <- drake_config(plan)
-    sort(names(config))
-    config$plan
-    config$prework
-    config$targets
-    config$cache_path
-    config$graph
 
     # The dependencies of a given target encompass both functions (get_tweets) and targets that it depends on (seed_fires)
     deps_target(addresses)

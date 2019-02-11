@@ -107,7 +107,7 @@ part of the code used to generate that target changes.
 
 Right now, nothing outdated becuase we just ran `make(burner_plan)`.
 
-    outdated(burner_config)
+    vis_drake_graph(burner_config)
 
 Let’s modify the code to a function called by `get_tweets`. Note that
 `drake` recognizes that targets that incorporate this function at some
@@ -343,7 +343,7 @@ For the purposes of illustration, I’ll set a `max_id` on our
 
     make(plan, verbose = 4)
 
-    # See what a couple of our targets look like
+     # See what a couple of our targets look like
     loadd(addresses)
     addresses
 

@@ -906,64 +906,6 @@ get_tweets(n_tweets_seed = 5) %&gt;%
 
 ---
 
-## Reupping Tweets
-
-To show how `get_tweets` can start with a `tbl` of tweets and look for new ones,
-
-we'll grab 10 `seed_tweets` that are all **older** than an old tweet ID.
-
---
-
-&lt;br&gt;
-
-
-```r
-old_tweet_id &lt;- "1084948074588487680" # From Jan 14
-
-seed_tweets &lt;-
-  get_tweets(
-    n_tweets_seed = 10,
-    max_id = old_tweet_id
-  )
-
-nrow(seed_tweets)
-## [1] 10
-```
-
----
-
-## Reupping Tweets
-
-Using `seed_tweets` as an input to the same `get_tweets` function,
-
-we check for new tweets, and, if there are any, pull them in.
-
---
-
-
-```r
-full_tweets &lt;-
-  get_tweets(seed_tweets,
-             n_tweets_reup = 5)
-## Searching for new tweets.
-## 5 new tweet(s) pulled.
-```
-
---
-
-&lt;br&gt;
-
-
-```r
-nrow(seed_tweets)
-## [1] 10
-nrow(full_tweets)
-## [1] 15
-```
-
-
----
-
 ## Getting Addresses
 
 With `pull_addresses` we parse the text of the tweet to pull out borough and street and string them together into an address.
@@ -1128,7 +1070,7 @@ get_map("new york city") %&gt;%
 ## Source : https://maps.googleapis.com/maps/api/geocode/json?address=new%20york%20city&amp;key=xxx
 ```
 
-![](index_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+![](index_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -1169,7 +1111,7 @@ What's the estimate of running the pipeline on a single tweet?
    
       as_tibble() %&gt;% 
       pull(median))
-## [1] 345ms
+## [1] 369ms
 ```
 
 
@@ -1190,7 +1132,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
       * 3000)  # 3k tweets
        / 60 # 60 seconds in a minute
  ) 
-## [1] 17.22589
+## [1] 18.47301
 ```
 
 
@@ -1199,7 +1141,7 @@ Roughly how many **minutes** would the pipeline take for 3k tweets?
 
 All our downstream analyses depend on this pipeline.
 
-If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **17 minutes** of our lives. 
+If we tweak some code but `drake` determines we don't need to rerun the pipeline, we will save **18 minutes** of our lives. 
 
 &lt;br&gt;
 
@@ -1255,7 +1197,7 @@ devtools::session_info()
 ##  collate  en_US.UTF-8                 
 ##  ctype    en_US.UTF-8                 
 ##  tz       America/New_York            
-##  date     2019-02-07                  
+##  date     2019-02-11                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package     * version    date       lib
@@ -1296,6 +1238,7 @@ devtools::session_info()
 ##  hms           0.4.2      2018-03-10 [1]
 ##  htmltools     0.3.6      2017-04-28 [1]
 ##  htmlwidgets   1.2        2018-04-19 [1]
+##  httpuv        1.4.5.1    2018-12-18 [1]
 ##  httr          1.4.0      2018-12-11 [1]
 ##  igraph        1.2.2      2018-07-27 [1]
 ##  jpeg          0.1-8      2014-01-23 [1]
@@ -1303,12 +1246,14 @@ devtools::session_info()
 ##  kableExtra  * 1.0.1      2019-01-22 [1]
 ##  knitr       * 1.21       2018-12-10 [1]
 ##  labeling      0.3        2014-08-23 [1]
+##  later         0.7.5      2018-09-18 [1]
 ##  lattice       0.20-38    2018-11-04 [1]
 ##  lazyeval      0.2.1      2017-10-29 [1]
 ##  lubridate     1.7.4      2018-04-11 [1]
 ##  magrittr      1.5        2014-11-22 [1]
 ##  maps        * 3.3.0      2018-04-03 [1]
 ##  memoise       1.1.0      2017-04-21 [1]
+##  mime          0.6        2018-10-05 [1]
 ##  modelr        0.1.2      2018-05-11 [1]
 ##  munsell       0.5.0      2018-06-12 [1]
 ##  nlme          3.1-137    2018-04-07 [1]
@@ -1323,6 +1268,7 @@ devtools::session_info()
 ##  prettyunits   1.0.2      2015-07-13 [1]
 ##  processx      3.2.1      2018-12-05 [1]
 ##  profmem       0.5.0      2018-01-30 [1]
+##  promises      1.0.1      2018-04-13 [1]
 ##  proto         1.0.0      2016-10-29 [1]
 ##  ps            1.3.0      2018-12-21 [1]
 ##  purrr       * 0.3.0      2019-01-27 [1]
@@ -1340,6 +1286,7 @@ devtools::session_info()
 ##  rtweet      * 0.6.8      2018-09-28 [1]
 ##  rvest         0.3.2      2016-06-17 [1]
 ##  scales        1.0.0      2018-08-09 [1]
+##  servr         0.11       2018-10-23 [1]
 ##  sessioninfo   1.1.1      2018-11-05 [1]
 ##  showtext      0.6        2019-01-10 [1]
 ##  showtextdb    2.0        2017-09-11 [1]
@@ -1404,10 +1351,13 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
 ##  CRAN (R 3.5.1)                          
 ##  CRAN (R 3.5.0)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1419,6 +1369,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.2)                          
 ##  Github (rstudio/packrat@7d320b1)        
 ##  Github (r-lib/pillar@3a54b8d)           
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
@@ -1441,6 +1392,7 @@ devtools::session_info()
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.2)                          
+##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
 ##  CRAN (R 3.5.0)                          
