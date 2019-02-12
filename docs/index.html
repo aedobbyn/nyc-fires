@@ -90,7 +90,7 @@ class: inverse
 
 &lt;br&gt;
 
-All code and slides on [GitHub](https://github.com/aedobbyn/nyc-fires).
+All code and slides on GitHub: https://github.com/aedobbyn/nyc-fires
 
 &lt;br&gt;
 
@@ -1074,6 +1074,8 @@ get_map("new york city") %&gt;%
 
 ---
 
+Using 3000 tweets:
+
 &lt;p align="left" style="padding-right: 15%; padding-bottom: 30%;"&gt;
 &lt;img src="./img/fire_sums_plot.png"&gt;
 &lt;/p&gt;
@@ -1173,8 +1175,8 @@ plan &lt;-
     addresses = pull_addresses(fires), 
       # Send to Google for lat-longs
     lat_long = get_lat_long(addresses), 
+      
       # Sum up n fires per lat-long combo
-    
     fire_sums = count_fires(lat_long), 
     plot = plot_fire_sums(fire_sums)
   )
