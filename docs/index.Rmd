@@ -1151,6 +1151,15 @@ get_map("new york city") %>%
 
 ---
 
+Using 3000 tweets:
+
+<p align="left" style="padding-right: 15%; padding-bottom: 30%;">
+<img src="./img/fire_sums_plot.png">
+</p>
+ 
+
+---
+
 ## Quick Benchmark
 
 So where does `drake` really come in handy here?
