@@ -951,7 +951,7 @@ What if we were constructing an analysis of these tweets and wanted to make sure
 All functions are defined in [`didnt_start_it.R`](https://github.com/aedobbyn/nyc-fires/blob/master/R/didnt_start_it.R), which we'll source in now.
 
 ```{r, warning=FALSE, message=FALSE}
-source(here::here("R", "didnt_start_it.R"))
+source(here::here("R", "didnt_start_it.R")) 
 ```
 
 --
@@ -1159,13 +1159,13 @@ fire_sums <-
 
 Using 3000 tweets:
 
-```{r, eval=TRUE}
-plot_fire_sums(fire_sums, output_path = NULL) 
+```{r}
+plot_fire_sums(fire_sums, output_path = NULL)
 ```
 
 
 <!-- <p> -->
-<!-- <img src="./img/fire_sums_plot.png" height="500px" width="500px"> -->
+<!-- <img src="./img/fire_sums_plot.png"> -->
 <!-- </p> -->
  
 

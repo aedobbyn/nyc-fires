@@ -296,7 +296,7 @@ plot_fire_sums <- function(tbl, city = nyc_map,
   plt <- ggmap(nyc_map) +
     fire_layer +
     ggtitle("Fires were Started") +
-    labs(x = "latitude", y = "longitude") +
+    labs(x = "longitude", y = "latitude") +
     theme_light()
 
   if (!is.null(output_path)) {
