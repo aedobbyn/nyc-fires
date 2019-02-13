@@ -529,7 +529,7 @@ class: inverse
 
 <br>
 
-> **Targets** are the objects and files that drake generates;
+> **Targets** are the objects that drake generates;
 
 <br>
 
