@@ -1151,11 +1151,22 @@ get_map("new york city") %>%
 
 ---
 
+```{r, echo=FALSE, message=FALSE}
+fire_sums <-
+  read_csv(here("data", "derived", "fire_sums.csv"))
+```
+
+
 Using 3000 tweets:
 
-<p align="left" style="padding-right: 15%; padding-bottom: 30%;">
-<img src="./img/fire_sums_plot.png">
-</p>
+```{r, eval=TRUE}
+plot_fire_sums(fire_sums, output_path = NULL) 
+```
+
+
+<!-- <p> -->
+<!-- <img src="./img/fire_sums_plot.png" height="500px" width="500px"> -->
+<!-- </p> -->
  
 
 ---
