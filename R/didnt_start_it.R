@@ -221,28 +221,23 @@ pull_addresses <- function(tbl) {
     select(borough, street, address, text, created_at)
 }
 
-geo_to_list <- function(inp) {
-  geocode(inp) %>%
-    rename(long = lon) %>%
-    list()
-}
-
 # Given an address extracted from a tweet, if it's not NA send it to Google
 # to grab its assocated lat and long. Add truncated versions for good measure.
 get_lat_long <- function(tbl) {
   tbl %>%
-    rowwise() %>%
     mutate(
-      l_l = ifelse(is.na(address),
-        tibble(
-          lat = NA_real_,
-          long = NA_real_
-        ) %>% list(),
-        geo_to_list(address)
-      )
-    ) %>%
-    unnest() %>%
-    select(address, lat, long, created_at, text)
+      address = 
+        case_when(
+          is.na(address) ~ "",
+          TRUE ~ address
+        ),
+      l_l = address %>% 
+        geocode() %>% 
+        list()
+    ) %>% 
+  unnest() %>%
+    select(address, lat, lon, created_at, text) %>% 
+    rename(long = lon)
 }
 
 

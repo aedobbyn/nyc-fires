@@ -1104,8 +1104,6 @@ The [`ggmap`](https://www.rdocumentation.org/packages/ggmap/versions/2.6.1/topic
 --
 
 ```{r, include=FALSE}
-geo_to_list
-
 get_lat_long
 ```
 
@@ -1252,7 +1250,7 @@ plan <-
     fires = target(
       command = get_tweets(tbl = seed_fires),
         # Always look for new tweets
-      trigger = trigger(condition = TRUE) 
+      trigger = trigger(condition = TRUE)
     ),
       # Extract addresses from tweets
     addresses = pull_addresses(fires), 

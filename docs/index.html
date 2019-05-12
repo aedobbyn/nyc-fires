@@ -1413,7 +1413,7 @@ plan &lt;-
     fires = target(
       command = get_tweets(tbl = seed_fires),
         # Always look for new tweets
-      trigger = trigger(condition = TRUE) 
+      trigger = trigger(condition = TRUE)
     ),
       # Extract addresses from tweets
     addresses = pull_addresses(fires), 
