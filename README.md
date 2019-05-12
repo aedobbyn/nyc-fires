@@ -12,6 +12,9 @@ walkthrough**](https://github.com/aedobbyn/nyc-fires/blob/master/live_code.md).
 The latter is meant to be stepped through in an R session rather than
 knit.
 
+A [version of this talk](https://aedobbyn.github.io/nyr-2019/) was given
+at [NYR 2019](https://www.rstats.nyc/).
+
 ### Why all the fire emoji tho
 
 …especially if the whole point of `drake` is that you don’t need to burn
